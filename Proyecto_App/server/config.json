@@ -1,0 +1,18 @@
+{
+    "database": {
+      "type": "postgres",
+      "mysql": {
+        "host": "localhost",
+        "user": "root",
+        "password": "",
+        "database": "app_inf_2"
+      },
+      "postgres": {
+        "host": "localhost",
+        "user": "postgres",
+        "password": "Andres21plus.",
+        "database": "app_inf_2"
+      }
+    }
+  }
+  
