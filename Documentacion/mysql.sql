@@ -1,188 +1,188 @@
 -- Eliminar tablas si existen
-DROP TABLE IF EXISTS ETAPA CASCADE;
-DROP TABLE IF EXISTS INCONVENIENTE CASCADE;
-DROP TABLE IF EXISTS INVENTARIO_MATERIA_PRIMA CASCADE;
-DROP TABLE IF EXISTS INVENTARIO_PRODUCTO_TERMINADO CASCADE;
-DROP TABLE IF EXISTS PRODUCCION CASCADE;
-DROP TABLE IF EXISTS PRODUCCION_ETAPA CASCADE;
-DROP TABLE IF EXISTS ROL CASCADE;
-DROP TABLE IF EXISTS USUARIO CASCADE;
-DROP TABLE IF EXISTS USUARIO_MATERIA_PRIMA CASCADE;
-DROP TABLE IF EXISTS VENTAS CASCADE;
+DROP TABLE IF EXISTS etapa CASCADE;
+DROP TABLE IF EXISTS inconveniente CASCADE;
+DROP TABLE IF EXISTS inventario_materia_prima CASCADE;
+DROP TABLE IF EXISTS inventario_producto_terminado CASCADE;
+DROP TABLE IF EXISTS produccion CASCADE;
+DROP TABLE IF EXISTS produccion_etapa CASCADE;
+DROP TABLE IF EXISTS rol CASCADE;
+DROP TABLE IF EXISTS usuario CASCADE;
+DROP TABLE IF EXISTS usuario_materia_prima CASCADE;
+DROP TABLE IF EXISTS ventas CASCADE;
 
 -- ==============================================================
 -- Table: ETAPA
 -- ==============================================================
-CREATE TABLE ETAPA 
+CREATE TABLE etapa 
 (
-   ID_ETAPA             INTEGER AUTO_INCREMENT PRIMARY KEY,
-   ETAPA                TEXT                           NULL,
-   DESCRIPCION          TEXT                           NULL
+   id_etapa             INTEGER AUTO_INCREMENT PRIMARY KEY,
+   etapa                TEXT                           NULL,
+   descripcion          TEXT                           NULL
 );
 
 -- ==============================================================
 -- Table: INCONVENIENTE
 -- ==============================================================
-CREATE TABLE INCONVENIENTE 
+CREATE TABLE inconveniente 
 (
-   ID_INCONVENIENTE     INTEGER AUTO_INCREMENT PRIMARY KEY,
-   ID_PRODUCCION        INTEGER                        NULL,
-   DESCRIPCION          TEXT                           NULL
+   id_inconveniente     INTEGER AUTO_INCREMENT PRIMARY KEY,
+   id_produccion        INTEGER                        NULL,
+   descripcion          TEXT                           NULL
 );
 
 -- ==============================================================
 -- Table: INVENTARIO_MATERIA_PRIMA
 -- ==============================================================
-CREATE TABLE INVENTARIO_MATERIA_PRIMA 
+CREATE TABLE inventario_materia_prima 
 (
-   ID_MATERIA_PRIMA     INTEGER AUTO_INCREMENT PRIMARY KEY,
-   NOMBRE               TEXT                           NULL,
-   DESCRIPCION          TEXT                           NULL,
-   PROVEEDOR            TEXT                           NULL,
-   CANTIDAD_INGRESO     INTEGER                        NULL,
-   CANTIDAD_DISPONIBLE  INTEGER                        NULL
+   id_materia_prima     INTEGER AUTO_INCREMENT PRIMARY KEY,
+   nombre               TEXT                           NULL,
+   descripcion          TEXT                           NULL,
+   proveedor            TEXT                           NULL,
+   cantidad_ingreso     INTEGER                        NULL,
+   cantidad_disponible  INTEGER                        NULL
 );
 
 -- ==============================================================
 -- Table: INVENTARIO_PRODUCTO_TERMINADO
 -- ==============================================================
-CREATE TABLE INVENTARIO_PRODUCTO_TERMINADO 
+CREATE TABLE inventario_producto_terminado 
 (
-   ID_PRODUCTO          INTEGER AUTO_INCREMENT PRIMARY KEY,
-   ID_PRODUCCION        INTEGER                        NULL,
-   ID_VENTA             INTEGER                        NULL,
-   CANTIDAD_DISPONIBLE  INTEGER                        NULL
+   id_producto          INTEGER AUTO_INCREMENT PRIMARY KEY,
+   id_produccion        INTEGER                        NULL,
+   id_venta             INTEGER                        NULL,
+   cantidad_disponible  INTEGER                        NULL
 );
 
 -- ==============================================================
 -- Table: PRODUCCION
 -- ==============================================================
-CREATE TABLE PRODUCCION 
+CREATE TABLE produccion 
 (
-   ID_PRODUCCION        INTEGER AUTO_INCREMENT PRIMARY KEY,
-   ID_MATERIA_PRIMA     INTEGER                        NULL,
-   FECHA                DATE                           NULL,
-   CANTIDAD_USO         INTEGER                        NULL,
-   DESCRIPCION          TEXT                           NULL
+   id_produccion        INTEGER AUTO_INCREMENT PRIMARY KEY,
+   id_materia_prima     INTEGER                        NULL,
+   fecha                DATE                           NULL,
+   cantidad_uso         INTEGER                        NULL,
+   descripcion          TEXT                           NULL
 );
 
 -- ==============================================================
 -- Table: PRODUCCION_ETAPA
 -- ==============================================================
-CREATE TABLE PRODUCCION_ETAPA 
+CREATE TABLE produccion_etapa 
 (
-   ID_PRODUCCION        INTEGER                        NOT NULL,
-   ID_ETAPA             INTEGER                        NOT NULL,
-   HORA_INICIO          TIME                           NULL,
-   HORA_FIN             TIME                           NULL,
-   ESTADO               TEXT                           NULL,
-   PRIMARY KEY (ID_PRODUCCION, ID_ETAPA)
+   id_produccion        INTEGER                        NOT NULL,
+   id_etapa             INTEGER                        NOT NULL,
+   hora_inicio          TIME                           NULL,
+   hora_fin             TIME                           NULL,
+   estado               TEXT                           NULL,
+   PRIMARY KEY (id_produccion, id_etapa)
 );
 
 -- ==============================================================
 -- Table: ROL
 -- ==============================================================
-CREATE TABLE ROL 
+CREATE TABLE rol 
 (
-   ID_ROL               INTEGER AUTO_INCREMENT PRIMARY KEY,
-   NOMBRE_ROL           TEXT                           NULL,
-   DESCRIPCION          TEXT                           NULL
+   id_rol               INTEGER AUTO_INCREMENT PRIMARY KEY,
+   nombre_rol           TEXT                           NULL,
+   descripcion          TEXT                           NULL
 );
 
 -- ==============================================================
 -- Table: USUARIO
 -- ==============================================================
-CREATE TABLE USUARIO 
+CREATE TABLE usuario 
 (
-   ID_USUARIO           INTEGER AUTO_INCREMENT PRIMARY KEY,
-   ID_ROL               INTEGER                        NULL,
-   CEDULA               TEXT                           NULL,
-   NOMBRE_USUARIO       TEXT                           NULL,
-   APELLIDO_USUARIO     TEXT                           NULL,
-   EMAIL                TEXT                           NULL,
-   CONTRASENA           TEXT                           NULL,
-   TELEFONO             NUMERIC                        NULL
+   id_usuario           INTEGER AUTO_INCREMENT PRIMARY KEY,
+   id_rol               INTEGER                        NULL,
+   cedula               TEXT                           NULL,
+   nombre_usuario       TEXT                           NULL,
+   apellido_usuario     TEXT                           NULL,
+   email                TEXT                           NULL,
+   contrasena           TEXT                           NULL,
+   telefono             NUMERIC                        NULL
 );
 
 -- ==============================================================
 -- Table: USUARIO_MATERIA_PRIMA
 -- ==============================================================
-CREATE TABLE USUARIO_MATERIA_PRIMA 
+CREATE TABLE usuario_materia_prima 
 (
-   ID_USUARIO           INTEGER                        NOT NULL,
-   ID_MATERIA_PRIMA     INTEGER                        NOT NULL,
-   FECHA_INGRESO        DATE                           NULL,
-   CANTIDAD_NUEVO_INGRESO INTEGER                      NULL,
-   PRIMARY KEY (ID_USUARIO, ID_MATERIA_PRIMA)
+   id_usuario           INTEGER                        NOT NULL,
+   id_materia_prima     INTEGER                        NOT NULL,
+   fecha_ingreso        DATE                           NULL,
+   cantidad_nuevo_ingreso INTEGER                      NULL,
+   PRIMARY KEY (id_usuario, id_materia_prima)
 );
 
 -- ==============================================================
 -- Table: VENTAS
 -- ==============================================================
-CREATE TABLE VENTAS 
+CREATE TABLE ventas 
 (
-   ID_VENTA             INTEGER AUTO_INCREMENT PRIMARY KEY,
-   ID_USUARIO           INTEGER                        NULL,
-   DESCRIPCION          TEXT                           NULL,
-   CANTIDAD             INTEGER                        NULL
+   id_venta             INTEGER AUTO_INCREMENT PRIMARY KEY,
+   id_usuario           INTEGER                        NULL,
+   descripcion          TEXT                           NULL,
+   cantidad             INTEGER                        NULL
 );
 
-ALTER TABLE INCONVENIENTE
-   ADD CONSTRAINT FK_INCONVEN_REFERENCE_PRODUCCI FOREIGN KEY (ID_PRODUCCION)
-      REFERENCES PRODUCCION (ID_PRODUCCION)
+ALTER TABLE inconveniente
+   ADD CONSTRAINT fk_inconven_reference_producci FOREIGN KEY (id_produccion)
+      REFERENCES produccion (id_produccion)
       ON UPDATE RESTRICT
       ON DELETE CASCADE;
 
-ALTER TABLE INVENTARIO_PRODUCTO_TERMINADO
-   ADD CONSTRAINT FK_INVENTAR_REFERENCE_VENTAS FOREIGN KEY (ID_VENTA)
-      REFERENCES VENTAS (ID_VENTA)
+ALTER TABLE inventario_producto_terminado
+   ADD CONSTRAINT fk_inventar_reference_ventas FOREIGN KEY (id_venta)
+      REFERENCES ventas (id_venta)
       ON UPDATE RESTRICT
       ON DELETE CASCADE;
 
-ALTER TABLE INVENTARIO_PRODUCTO_TERMINADO
-   ADD CONSTRAINT FK_INVENTAR_REFERENCE_PRODUCCI FOREIGN KEY (ID_PRODUCCION)
-      REFERENCES PRODUCCION (ID_PRODUCCION)
+ALTER TABLE inventario_producto_terminado
+   ADD CONSTRAINT fk_inventar_reference_producci FOREIGN KEY (id_produccion)
+      REFERENCES produccion (id_produccion)
       ON UPDATE RESTRICT
       ON DELETE CASCADE;
 
-ALTER TABLE PRODUCCION
-   ADD CONSTRAINT FK_PRODUCCI_REFERENCE_INVENTAR FOREIGN KEY (ID_MATERIA_PRIMA)
-      REFERENCES INVENTARIO_MATERIA_PRIMA (ID_MATERIA_PRIMA)
+ALTER TABLE produccion
+   ADD CONSTRAINT fk_producci_reference_inventar FOREIGN KEY (id_materia_prima)
+      REFERENCES inventario_materia_prima (id_materia_prima)
       ON UPDATE RESTRICT
       ON DELETE CASCADE;
 
-ALTER TABLE PRODUCCION_ETAPA
-   ADD CONSTRAINT FK_PRODUCCI_REFERENCE_PRODUCCI FOREIGN KEY (ID_PRODUCCION)
-      REFERENCES PRODUCCION (ID_PRODUCCION)
+ALTER TABLE produccion_etapa
+   ADD CONSTRAINT fk_producci_reference_producci FOREIGN KEY (id_produccion)
+      REFERENCES produccion (id_produccion)
       ON UPDATE RESTRICT
       ON DELETE CASCADE;
 
-ALTER TABLE PRODUCCION_ETAPA
-   ADD CONSTRAINT FK_PRODUCCI_REFERENCE_ETAPA FOREIGN KEY (ID_ETAPA)
-      REFERENCES ETAPA (ID_ETAPA)
+ALTER TABLE produccion_etapa
+   ADD CONSTRAINT fk_producci_reference_etapa FOREIGN KEY (id_etapa)
+      REFERENCES etapa (id_etapa)
       ON UPDATE RESTRICT
       ON DELETE CASCADE;
 
-ALTER TABLE USUARIO
-   ADD CONSTRAINT FK_USUARIO_REFERENCE_ROL FOREIGN KEY (ID_ROL)
-      REFERENCES ROL (ID_ROL)
+ALTER TABLE usuario
+   ADD CONSTRAINT fk_usuario_reference_rol FOREIGN KEY (id_rol)
+      REFERENCES rol (id_rol)
       ON UPDATE RESTRICT
       ON DELETE CASCADE;
 
-ALTER TABLE USUARIO_MATERIA_PRIMA
-   ADD CONSTRAINT FK_USUARIO__REFERENCE_USUARIO FOREIGN KEY (ID_USUARIO)
-      REFERENCES USUARIO (ID_USUARIO)
+ALTER TABLE usuario_materia_prima
+   ADD CONSTRAINT fk_usuario__reference_usuario FOREIGN KEY (id_usuario)
+      REFERENCES usuario (id_usuario)
       ON UPDATE RESTRICT
       ON DELETE CASCADE;
 
-ALTER TABLE USUARIO_MATERIA_PRIMA
-   ADD CONSTRAINT FK_USUARIO__REFERENCE_INVENTAR FOREIGN KEY (ID_MATERIA_PRIMA)
-      REFERENCES INVENTARIO_MATERIA_PRIMA (ID_MATERIA_PRIMA)
+ALTER TABLE usuario_materia_prima
+   ADD CONSTRAINT fk_usuario__reference_inventar FOREIGN KEY (id_materia_prima)
+      REFERENCES inventario_materia_prima (id_materia_prima)
       ON UPDATE RESTRICT
       ON DELETE CASCADE;
 
-ALTER TABLE VENTAS
-   ADD CONSTRAINT FK_VENTAS_REFERENCE_USUARIO FOREIGN KEY (ID_USUARIO)
-      REFERENCES USUARIO (ID_USUARIO)
+ALTER TABLE ventas
+   ADD CONSTRAINT fk_ventas_reference_usuario FOREIGN KEY (id_usuario)
+      REFERENCES usuario (id_usuario)
       ON UPDATE RESTRICT
       ON DELETE CASCADE;
