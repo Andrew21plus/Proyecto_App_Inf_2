@@ -1,11 +1,12 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom'; 
 
-const InventarioMPComponent = () => {
+const InventarioMPCComponent = () => {
   
   return (
     <div>
-      <h2>Invenatario Materia Prima Management</h2>
+      <h2>Inventario Producto Termiando Management</h2>
       <div> 
           <Link to="/"> 
             <br/>
@@ -16,4 +17,4 @@ const InventarioMPComponent = () => {
   );
 };
 
-export default InventarioMPComponent;
+export default InventarioMPCComponent;
