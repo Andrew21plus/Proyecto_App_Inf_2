@@ -21,7 +21,7 @@ const ProduccionComponent = () => {
   }, []);
 
   const getProducciones = () => {
-    Axios.get("http://localhost:3307/producciones")
+    Axios.get("http://localhost:3307/produccion")
       .then(response => {
         setProducciones(response.data);
       })
@@ -31,7 +31,7 @@ const ProduccionComponent = () => {
   };
 
   const getMateriasPrimas = () => {
-    Axios.get("http://localhost:3307/materias-primas")
+    Axios.get("http://localhost:3307/inventario-materia-prima")
       .then(response => {
         setMateriasPrimas(response.data);
       })
@@ -50,7 +50,7 @@ const ProduccionComponent = () => {
     };
 
     if (editing) {
-      Axios.put(`http://localhost:3307/producciones/${currentProduccion.id_produccion}`, dataToSend)
+      Axios.put(`http://localhost:3307/produccion/${currentProduccion.id_produccion}`, dataToSend)
         .then(() => {
           alert("Producción Actualizada");
           setFormData({
@@ -67,7 +67,7 @@ const ProduccionComponent = () => {
           console.error('Error actualizando la producción:', error);
         });
     } else {
-      Axios.post("http://localhost:3307/producciones", dataToSend)
+      Axios.post("http://localhost:3307/produccion", dataToSend)
         .then(() => {
           alert("Producción Registrada");
           setFormData({
@@ -85,7 +85,7 @@ const ProduccionComponent = () => {
   };
 
   const deleteProduccion = (id) => {
-    Axios.delete(`http://localhost:3307/producciones/${id}`)
+    Axios.delete(`http://localhost:3307/produccion/${id}`)
       .then(() => {
         alert("Producción Eliminada");
         getProducciones();

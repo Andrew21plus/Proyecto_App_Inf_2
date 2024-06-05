@@ -29,7 +29,7 @@ const InconvenienteComponent = () => {
   };
 
   const getProducciones = () => {
-    Axios.get("http://localhost:3307/producciones")
+    Axios.get("http://localhost:3307/produccion")
       .then(response => {
         setProducciones(response.data);
       })
@@ -152,6 +152,5 @@ const InconvenienteComponent = () => {
 };
 
 export default InconvenienteComponent;
-
 
 
