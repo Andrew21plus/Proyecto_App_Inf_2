@@ -1,7 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../database');
 const Produccion = require('./Produccion');
-const Ventas = require('./Ventas');
 
 const InventarioProductoTerminado = sequelize.define('inventario_producto_terminado', {
     id_producto: {
@@ -17,16 +16,12 @@ const InventarioProductoTerminado = sequelize.define('inventario_producto_termin
             key: 'id_produccion'
         }
     },
-    id_venta: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-            model: Ventas,
-            key: 'id_venta'
-        }
-    },
     cantidad_disponible: {
         type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    nombre: {
+        type: DataTypes.TEXT,
         allowNull: true
     }
 }, {
@@ -35,3 +30,4 @@ const InventarioProductoTerminado = sequelize.define('inventario_producto_termin
 });
 
 module.exports = InventarioProductoTerminado;
+
