@@ -18,6 +18,8 @@ function App() {
             <Route path='/menu' element={<ProtectedRoute element={<MenuComponent />} />} /> {/* Usa ProtectedRoute */}
             <Route path='/create-user' element={<ProtectedRoute element={<CreateUserComponent />} />} /> {/* Ruta protegida */}
             <Route path='/profile' element={<ProtectedRoute element={<ProfileComponent />} />} /> {/* Ruta protegida */}
+
+
             {/* Otras rutas pueden ir aquí */}
           </Routes>
         </div>
