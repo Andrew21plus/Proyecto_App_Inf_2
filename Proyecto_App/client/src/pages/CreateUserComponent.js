@@ -1,31 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { fetchRoles } from '../services/roleService'; // Importa el servicio de roles
-import { createUser, updateUser, fetchUsers } from '../services/userService'; // Importa el servicio de usuarios
+import { fetchRoles } from '../services/roleService';
+import { createUser, updateUser, fetchUsers, deleteUser } from '../services/userService';
 
 const CreateUserComponent = () => {
   const [formData, setFormData] = useState({
+    id_rol: '',
     cedula: '',
     nombre_usuario: '',
     apellido_usuario: '',
     email: '',
     contrasena: '',
-    telefono: '',
-    id_rol: ''
+    telefono: ''
   });
+  const [usuarios, setUsuarios] = useState([]);
   const [roles, setRoles] = useState([]);
   const [editing, setEditing] = useState(false);
   const [currentUsuario, setCurrentUsuario] = useState(null);
+  const [errors, setErrors] = useState({});
   const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     loadRoles();
-    if (editing) {
-      loadCurrentUsuario();
-    }
-  }, [editing]);
+    loadUsuarios();
+  }, []);
 
   const loadRoles = async () => {
     try {
@@ -36,19 +36,10 @@ const CreateUserComponent = () => {
     }
   };
 
-  const loadCurrentUsuario = async () => {
+  const loadUsuarios = async () => {
     try {
       const usuariosData = await fetchUsers();
-      const usuario = usuariosData.find(u => u.id_usuario === currentUsuario.id_usuario);
-      setFormData({
-        cedula: usuario.cedula,
-        nombre_usuario: usuario.nombre_usuario,
-        apellido_usuario: usuario.apellido_usuario,
-        email: usuario.email,
-        contrasena: usuario.contrasena,
-        telefono: usuario.telefono,
-        id_rol: usuario.id_rol
-      });
+      setUsuarios(usuariosData);
     } catch (error) {
       console.error('Error fetching usuarios:', error);
     }
@@ -62,16 +53,57 @@ const CreateUserComponent = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      let response;
       if (editing) {
-        await updateUser(currentUsuario.id_usuario, formData);
-        alert('Usuario Actualizado');
+        response = await updateUser(currentUsuario.id_usuario, formData);
       } else {
-        await createUser(formData);
-        alert('Usuario Registrado');
+        response = await createUser(formData);
       }
-      navigate('/menu');
+
+      if (response.errors) {
+        setErrors(response.errors);
+        return;
+      }
+
+      alert(editing ? 'Usuario Actualizado' : 'Usuario Registrado');
+      setFormData({
+        id_rol: '',
+        cedula: '',
+        nombre_usuario: '',
+        apellido_usuario: '',
+        email: '',
+        contrasena: '',
+        telefono: ''
+      });
+      setEditing(false);
+      setCurrentUsuario(null);
+      loadUsuarios();
     } catch (error) {
       console.error('Error saving usuario:', error);
+    }
+  };
+
+  const handleEdit = (usuario) => {
+    setEditing(true);
+    setCurrentUsuario(usuario);
+    setFormData({
+      id_rol: usuario.id_rol,
+      cedula: usuario.cedula,
+      nombre_usuario: usuario.nombre_usuario,
+      apellido_usuario: usuario.apellido_usuario,
+      email: usuario.email,
+      contrasena: usuario.contrasena,
+      telefono: usuario.telefono
+    });
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteUser(id);
+      alert('Usuario Eliminado');
+      loadUsuarios(); // Actualiza la lista de usuarios en tiempo real
+    } catch (error) {
+      console.error('Error deleting usuario:', error);
     }
   };
 
@@ -85,20 +117,57 @@ const CreateUserComponent = () => {
             <option key={rol.id_rol} value={rol.id_rol}>{rol.nombre_rol}</option>
           ))}
         </select>
+        {errors.id_rol && <p>{errors.id_rol}</p>}
         <br/>
         <br/>
         <input type="text" name="cedula" placeholder="Cédula" value={formData.cedula} onChange={handleInputChange} />
+        {errors.cedula && <p>{errors.cedula}</p>}
         <input type="text" name="nombre_usuario" placeholder="Nombre" value={formData.nombre_usuario} onChange={handleInputChange} />
+        {errors.nombre_usuario && <p>{errors.nombre_usuario}</p>}
         <input type="text" name="apellido_usuario" placeholder="Apellido" value={formData.apellido_usuario} onChange={handleInputChange} />
+        {errors.apellido_usuario && <p>{errors.apellido_usuario}</p>}
         <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleInputChange} />
+        {errors.email && <p>{errors.email}</p>}
         <input type="password" name="contrasena" placeholder="Contraseña" value={formData.contrasena} onChange={handleInputChange} />
+        {errors.contrasena && <p>{errors.contrasena}</p>}
         <input type="text" name="telefono" placeholder="Teléfono" value={formData.telefono} onChange={handleInputChange} />
+        {errors.telefono && <p>{errors.telefono}</p>}
         <br/>
         <button type="submit">{editing ? "Actualizar Usuario" : "Agregar Usuario"}</button>
       </form>
+
+      <h2>Lista de Usuarios</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Rol</th>
+            <th>Cédula</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {usuarios.map(usuario => (
+            <tr key={usuario.id_usuario}>
+              <td>{usuario.Rol?.nombre_rol || 'Sin rol'}</td> {/* Mostrar el nombre del rol */}
+              <td>{usuario.cedula}</td>
+              <td>{usuario.nombre_usuario}</td>
+              <td>{usuario.apellido_usuario}</td>
+              <td>{usuario.email}</td>
+              <td>{usuario.telefono}</td>
+              <td>
+                <button onClick={() => handleEdit(usuario)}>Editar</button>
+                <button onClick={() => handleDelete(usuario.id_usuario)}>Eliminar</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
 
 export default CreateUserComponent;
-
