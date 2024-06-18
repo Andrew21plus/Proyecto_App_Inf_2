@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import CreateUserComponent from './CreateUserComponent';
+import ManagementUserComponent from './ManagementUserComponent';
 import ProfileComponent from './ProfileComponent';
+import InventoryComponent from './InventoryComponent';
+import ProductionComponent from './ProductionComponent';
+import ProductionStageComponent from './ProductionStageComponent';
+import SalesComponent from './SalesComponent';
+import DrawBackComponent from './DrawBackComponent';
 import '../utils/MenuComponent.css';
 
 const MenuComponent = () => {
@@ -14,12 +19,32 @@ const MenuComponent = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    // Set default option based on role
+    const role = roles[0]?.nombre_rol;
+    switch (role) {
+      case 'Administrador':
+        setSelectedOption('management-user');
+        break;
+      case 'Gerente':
+        setSelectedOption('production');
+        break;
+      case 'Jefe de Planta':
+        setSelectedOption('production-stage');
+        break;
+      default:
+        setSelectedOption('profile');
+    }
+  }, [roles]);
+
   const handleLogout = () => {
     logout();
     setSelectedOption('');
   };
 
   const isAdmin = roles.some(role => role.nombre_rol === 'Administrador');
+  const isManager = roles.some(role => role.nombre_rol === 'Gerente');
+  const isPlantChief = roles.some(role => role.nombre_rol === 'Jefe de Planta');
 
   return (
     <div className="menu">
@@ -27,22 +52,45 @@ const MenuComponent = () => {
         <ul>
           {isAdmin && (
             <>
-              <li onClick={() => setSelectedOption('create-user')}>Crear Usuario</li>
+              <li onClick={() => setSelectedOption('management-user')}>Gestión de Usuarios</li>
+              <li onClick={() => setSelectedOption('profile')}>Perfil</li>
+              <li onClick={handleLogout}>Cerrar Sesión</li>
             </>
           )}
-          <li onClick={() => setSelectedOption('profile')}>Perfil</li>
-          <li onClick={handleLogout}>Cerrar Sesión</li>
+          {isManager && (
+            <>
+              <li onClick={() => setSelectedOption('inventory')}>Inventario</li>
+              <li onClick={() => setSelectedOption('drawBack')}>Inconvenientes</li>
+              <li onClick={() => setSelectedOption('production')}>Producción</li>
+              <li onClick={() => setSelectedOption('profile')}>Perfil</li>
+              <li onClick={handleLogout}>Cerrar Sesión</li>
+            </>
+          )}
+          {isPlantChief && (
+            <>
+              <li onClick={() => setSelectedOption('inventory')}>Inventario</li>
+              <li onClick={() => setSelectedOption('drawBack')}>Inconvenientes</li>
+              <li onClick={() => setSelectedOption('production')}>Producción</li>
+              <li onClick={() => setSelectedOption('production-stage')}>Producción Etapa</li>
+              <li onClick={() => setSelectedOption('profile')}>Perfil</li>
+              <li onClick={handleLogout}>Cerrar Sesión</li>
+            </>
+          )}
         </ul>
       </nav>
 
       <div className="menu-content">
-        {selectedOption === 'create-user' && <CreateUserComponent />}
+        {selectedOption === 'management-user' && <ManagementUserComponent />}
         {selectedOption === 'profile' && <ProfileComponent />}
+        {selectedOption === 'inventory' && <InventoryComponent />}
+        {selectedOption === 'production' && <ProductionComponent />}
+        {selectedOption === 'production-stage' && <ProductionStageComponent />}
+        {selectedOption === 'sales' && <SalesComponent />}
+        {selectedOption === 'drawBack' && <DrawBackComponent />}
       </div>
     </div>
   );
 };
 
 export default MenuComponent;
-
 

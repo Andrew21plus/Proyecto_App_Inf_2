@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+
 import { fetchRoles } from '../services/roleService';
 import { createUser, updateUser, fetchUsers, deleteUser } from '../services/userService';
 
-const CreateUserComponent = () => {
+const ManagementUserComponent = () => {
   const [formData, setFormData] = useState({
     id_rol: '',
     cedula: '',
@@ -20,8 +19,6 @@ const CreateUserComponent = () => {
   const [editing, setEditing] = useState(false);
   const [currentUsuario, setCurrentUsuario] = useState(null);
   const [errors, setErrors] = useState({});
-  const { user } = useAuth();
-  const navigate = useNavigate();
 
   useEffect(() => {
     loadRoles();
@@ -181,4 +178,4 @@ const CreateUserComponent = () => {
   );
 };
 
-export default CreateUserComponent;
+export default ManagementUserComponent;

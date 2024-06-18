@@ -13,10 +13,10 @@ const LoginComponent = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const user = await authenticateUser(email, password); // Usa el servicio de autenticación
+      const userData = await authenticateUser(email, password); // Usa el servicio de autenticación
 
-      if (user) {
-        login(user);
+      if (userData) {
+        await login(userData);
         alert('Usuario Logeado Correctamente');
         navigate('/menu');
       } else {
@@ -62,5 +62,7 @@ const LoginComponent = () => {
 };
 
 export default LoginComponent;
+
+
 
 
