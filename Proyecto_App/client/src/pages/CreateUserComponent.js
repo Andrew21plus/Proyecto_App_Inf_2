@@ -16,6 +16,7 @@ const CreateUserComponent = () => {
   });
   const [usuarios, setUsuarios] = useState([]);
   const [roles, setRoles] = useState([]);
+  const [usuariosConRoles, setUsuariosConRoles] = useState([]);
   const [editing, setEditing] = useState(false);
   const [currentUsuario, setCurrentUsuario] = useState(null);
   const [errors, setErrors] = useState({});
@@ -26,6 +27,16 @@ const CreateUserComponent = () => {
     loadRoles();
     loadUsuarios();
   }, []);
+
+  useEffect(() => {
+    if (usuarios.length > 0 && roles.length > 0) {
+      const usuariosConRoles = usuarios.map(usuario => {
+        const rol = roles.find(rol => rol.id_rol === usuario.id_rol);
+        return { ...usuario, nombre_rol: rol ? rol.nombre_rol : 'Sin rol' };
+      });
+      setUsuariosConRoles(usuariosConRoles);
+    }
+  }, [usuarios, roles]);
 
   const loadRoles = async () => {
     try {
@@ -150,9 +161,9 @@ const CreateUserComponent = () => {
           </tr>
         </thead>
         <tbody>
-          {usuarios.map(usuario => (
+          {usuariosConRoles.map(usuario => (
             <tr key={usuario.id_usuario}>
-              <td>{usuario.Rol?.nombre_rol || 'Sin rol'}</td> {/* Mostrar el nombre del rol */}
+              <td>{usuario.nombre_rol}</td> {/* Mostrar el nombre del rol */}
               <td>{usuario.cedula}</td>
               <td>{usuario.nombre_usuario}</td>
               <td>{usuario.apellido_usuario}</td>
