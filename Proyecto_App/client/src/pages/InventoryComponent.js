@@ -1,15 +1,13 @@
 // InventoryComponent.js
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { Link } from 'react-router-dom'; 
-//import './styles.css'; 
+import { Link } from 'react-router-dom';
 import { validateInventarioPTFormData, validateInventarioMPFormData } from '../services/inventoryService';
 
 const InventoryComponent = () => {
   const [selectedForm, setSelectedForm] = useState(null);
   const [formData, setFormData] = useState({
     id_produccion: '',
-    id_venta: '',
     cantidad_disponible: '',
     nombre: '',
     descripcion: '',
@@ -19,7 +17,6 @@ const InventoryComponent = () => {
   const [formErrors, setFormErrors] = useState({});
   const [inventarioProductoTerminado, setInventarioProductoTerminado] = useState([]);
   const [producciones, setProducciones] = useState([]);
-  const [ventas, setVentas] = useState([]);
   const [inventarioMateriaPrima, setInventarioMateriaPrima] = useState([]);
   const [editingPT, setEditingPT] = useState(false);
   const [editingMP, setEditingMP] = useState(false);
@@ -29,7 +26,6 @@ const InventoryComponent = () => {
   useEffect(() => {
     getInventarioProductoTerminado();
     getProducciones();
-    getVentas();
     getInventarioMateriaPrima();
   }, []);
 
@@ -42,7 +38,7 @@ const InventoryComponent = () => {
         console.error('Error fetching inventario_producto_terminado:', error);
       });
   };
-
+  
   const getProducciones = () => {
     Axios.get("http://localhost:3307/produccion")
       .then(response => {
@@ -52,17 +48,7 @@ const InventoryComponent = () => {
         console.error('Error fetching producciones:', error);
       });
   };
-
-  const getVentas = () => {
-    Axios.get("http://localhost:3307/ventas")
-      .then(response => {
-        setVentas(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching ventas:', error);
-      });
-  };
-
+  
   const getInventarioMateriaPrima = () => {
     Axios.get("http://localhost:3307/inventario-materia-prima")
       .then(response => {
@@ -93,8 +79,8 @@ const InventoryComponent = () => {
           alert("Inventario Producto Terminado Actualizado");
           setFormData({
             id_produccion: '',
-            id_venta: '',
-            cantidad_disponible: ''
+            cantidad_disponible: '',
+            nombre: ''
           });
           setEditingPT(false);
           setCurrentInventarioPT(null);
@@ -109,8 +95,8 @@ const InventoryComponent = () => {
           alert("Inventario Producto Terminado Registrado");
           setFormData({
             id_produccion: '',
-            id_venta: '',
-            cantidad_disponible: ''
+            cantidad_disponible: '',
+            nombre: ''
           });
           getInventarioProductoTerminado();
         })
@@ -192,8 +178,8 @@ const InventoryComponent = () => {
     setCurrentInventarioPT(inventarioPT);
     setFormData({
       id_produccion: inventarioPT.id_produccion,
-      id_venta: inventarioPT.id_venta,
-      cantidad_disponible: inventarioPT.cantidad_disponible
+      cantidad_disponible: inventarioPT.cantidad_disponible,
+      nombre: inventarioPT.nombre
     });
   };
 
@@ -228,15 +214,8 @@ const InventoryComponent = () => {
             </select>
             {formErrors.id_produccion && <span className="error">{formErrors.id_produccion}</span>}
             <br/>
-            <br/>
-            <select name="id_venta" value={formData.id_venta} onChange={handleInputChange}>
-              <option value="">Selecciona una Venta</option>
-              {ventas.map(venta => (
-                <option key={venta.id_venta} value={venta.id_venta}>{venta.id_venta}</option>
-              ))}
-            </select>
-            {formErrors.id_venta && <span className="error">{formErrors.id_venta}</span>}
-            <br/>
+            <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} />
+            {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
             <br/>
             <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} />
             {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
@@ -249,7 +228,7 @@ const InventoryComponent = () => {
               <tr>
                 <th>ID Producto</th>
                 <th>ID Producción</th>
-                <th>ID Venta</th>
+                <th>Nombre</th>
                 <th>Cantidad Disponible</th>
                 <th>Acciones</th>
               </tr>
@@ -259,7 +238,7 @@ const InventoryComponent = () => {
                 <tr key={inventarioPT.id_producto}>
                   <td>{inventarioPT.id_producto}</td>
                   <td>{inventarioPT.id_produccion}</td>
-                  <td>{inventarioPT.id_venta}</td>
+                  <td>{inventarioPT.nombre}</td>
                   <td>{inventarioPT.cantidad_disponible}</td>
                   <td>
                     <button onClick={() => editInventarioPT(inventarioPT)}>Editar</button>
