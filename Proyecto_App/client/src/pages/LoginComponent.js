@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate, Navigate, Link } from 'react-router-dom';
 import { authenticateUser } from '../services/authService'; // Importa el servicio de autenticación
 
 const LoginComponent = () => {
@@ -57,12 +57,11 @@ const LoginComponent = () => {
         {error && <p>{error}</p>}
         <button type="submit">Login</button>
       </form>
+      <div>
+        <Link to="/password-reset">Olvidé mi contraseña</Link> {/* Enlace a recuperación de contraseña */}
+      </div>
     </div>
   );
 };
 
 export default LoginComponent;
-
-
-
-

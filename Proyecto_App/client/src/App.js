@@ -11,6 +11,8 @@ import SalesComponent from './pages/SalesComponent';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import DrawBackComponent from './pages/DrawBackComponent';
+import PredictionsComponent from './pages/PredictionsComponent';
+import PasswordResetComponent from './pages/PasswordResetComponent';
 
 const App = () => {
   return (
@@ -27,6 +29,8 @@ const App = () => {
             <Route path='/production-stage' element={<ProtectedRoute element={<ProductionStageComponent />} />} />
             <Route path='/sales' element={<ProtectedRoute element={<SalesComponent />} />} />
             <Route path='/drawBack' element={<ProtectedRoute element={<DrawBackComponent />} />} />
+            <Route path='/predictions' element={<ProtectedRoute element={<PredictionsComponent />} />} />
+            <Route path='/password-reset' element={<PasswordResetComponent />} /> 
           </Routes>
         </div>
       </Router>

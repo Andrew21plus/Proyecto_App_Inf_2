@@ -7,6 +7,7 @@ import ProductionComponent from './ProductionComponent';
 import ProductionStageComponent from './ProductionStageComponent';
 import SalesComponent from './SalesComponent';
 import DrawBackComponent from './DrawBackComponent';
+import PredictionsComponent from './PredictionsComponent';
 import '../utils/MenuComponent.css';
 
 const MenuComponent = () => {
@@ -61,7 +62,9 @@ const MenuComponent = () => {
             <>
               <li onClick={() => setSelectedOption('inventory')}>Inventario</li>
               <li onClick={() => setSelectedOption('drawBack')}>Inconvenientes</li>
+              <li onClick={() => setSelectedOption('sales')}>Ventas</li>
               <li onClick={() => setSelectedOption('production')}>Producción</li>
+              <li onClick={() => setSelectedOption('predictions')}>Predicciones</li>
               <li onClick={() => setSelectedOption('profile')}>Perfil</li>
               <li onClick={handleLogout}>Cerrar Sesión</li>
             </>
@@ -87,6 +90,7 @@ const MenuComponent = () => {
         {selectedOption === 'production-stage' && <ProductionStageComponent />}
         {selectedOption === 'sales' && <SalesComponent />}
         {selectedOption === 'drawBack' && <DrawBackComponent />}
+        {selectedOption === 'predictions' && <PredictionsComponent />}
       </div>
     </div>
   );
