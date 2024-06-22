@@ -3,10 +3,11 @@ import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import { Link } from 'react-router-dom';
 import '../utils/Styles.css';
-import { useAuth } from '../context/AuthContext'; // Import useAuth for role checks
 import { validateInventarioPTFormData, validateInventarioMPFormData } from '../services/inventoryService';
+import { useAuth } from '../context/AuthContext';
 
 const InventoryComponent = () => {
+  const { roles } = useAuth();
   const [selectedForm, setSelectedForm] = useState(null);
   const [formData, setFormData] = useState({
     id_produccion: '',
@@ -24,7 +25,7 @@ const InventoryComponent = () => {
   const [editingMP, setEditingMP] = useState(false);
   const [currentInventarioPT, setCurrentInventarioPT] = useState(null);
   const [currentInventarioMP, setCurrentInventarioMP] = useState(null);
-  
+
   useEffect(() => {
     getInventarioProductoTerminado();
     getProducciones();
@@ -197,34 +198,43 @@ const InventoryComponent = () => {
     });
   };
 
+  const isGerente = roles.some(role => role.nombre_rol === 'Gerente');
+  const isJefePlanta = roles.some(role => role.nombre_rol === 'Jefe de Planta');
+
   return (
     <div>
       <h1>Gestión de Inventario</h1>
       <div className="form-selector">
-        <button onClick={() => setSelectedForm('PT')}>Inventario Producto Terminado</button>
-        <button onClick={() => setSelectedForm('MP')}>Inventario Materia Prima</button>
+        {(isGerente || isJefePlanta) && (
+          <>
+            <button onClick={() => setSelectedForm('PT')}>Inventario Producto Terminado</button>
+            <button onClick={() => setSelectedForm('MP')}>Inventario Materia Prima</button>
+          </>
+        )}
       </div>
       {selectedForm === 'PT' && (
         <div>
-          <h2>Inventario Producto Terminado Management</h2>
-          <form onSubmit={addInventarioPT} className="s-form">
-            <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange}>
-              <option value="">Selecciona una Producción</option>
-              {producciones.map(produccion => (
-                <option key={produccion.id_produccion} value={produccion.id_produccion}>{produccion.id_produccion}</option>
-              ))}
-            </select>
-            {formErrors.id_produccion && <span className="error">{formErrors.id_produccion}</span>}
-            <br/>
-            <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} />
-            {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
-            <br/>
-            <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} />
-            {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
-            <br/>
-            <button type="submit">{editingPT ? "Actualizar Inventario Producto Terminado" : "Agregar Inventario Producto Terminado"}</button> 
-          </form>
-          <h2>Lista de Inventario Producto Terminado</h2>
+          <h2>Inventario Producto Terminado</h2>
+          {isGerente && (
+            <form onSubmit={addInventarioPT} className="s-form">
+              <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange}>
+                <option value="">Selecciona una Producción</option>
+                {producciones.map(produccion => (
+                  <option key={produccion.id_produccion} value={produccion.id_produccion}>{produccion.id_produccion}</option>
+                ))}
+              </select>
+              {formErrors.id_produccion && <span className="error">{formErrors.id_produccion}</span>}
+              <br/>
+              <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} />
+              {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
+              <br/>
+              <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} />
+              {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
+              <br/>
+              <button type="submit">{editingPT ? 'Actualizar' : 'Agregar'}</button>
+            </form>
+          )}
+          <h3>Lista de Inventario Producto Terminado</h3>
           <table className="s-table">
             <thead>
               <tr>
@@ -232,7 +242,7 @@ const InventoryComponent = () => {
                 <th>ID Producción</th>
                 <th>Nombre</th>
                 <th>Cantidad Disponible</th>
-                <th>Acciones</th>
+                {isGerente && <th>Acciones</th>}
               </tr>
             </thead>
             <tbody>
@@ -242,10 +252,12 @@ const InventoryComponent = () => {
                   <td>{inventarioPT.id_produccion}</td>
                   <td>{inventarioPT.nombre}</td>
                   <td>{inventarioPT.cantidad_disponible}</td>
-                  <td>
-                    <button onClick={() => editInventarioPT(inventarioPT)}>Editar</button>
-                    <button onClick={() => deleteInventarioPT(inventarioPT.id_producto)}>Eliminar</button>
-                  </td>
+                  {isGerente && (
+                    <td>
+                      <button onClick={() => editInventarioPT(inventarioPT)}>Editar</button>
+                      <button onClick={() => deleteInventarioPT(inventarioPT.id_producto)}>Eliminar</button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -254,26 +266,28 @@ const InventoryComponent = () => {
       )}
       {selectedForm === 'MP' && (
         <div>
-          <h2>Inventario Materia Prima Management</h2>
-          <form onSubmit={addInventarioMP} className="s-form">
-            <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} />
-            {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
-            <br/>
-            <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} />
-            {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
-            <br/>
-            <input type="text" name="proveedor" placeholder="Proveedor" value={formData.proveedor} onChange={handleInputChange} />
-            {formErrors.proveedor && <span className="error">{formErrors.proveedor}</span>}
-            <br/>
-            <input type="text" name="cantidad_ingreso" placeholder="Cantidad Ingreso" value={formData.cantidad_ingreso} onChange={handleInputChange} />
-            {formErrors.cantidad_ingreso && <span className="error">{formErrors.cantidad_ingreso}</span>}
-            <br/>
-            <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} />
-            {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
-            <br/>
-            <button type="submit">{editingMP ? "Actualizar Inventario Materia Prima" : "Agregar Inventario Materia Prima"}</button> 
-          </form>
-          <h2>Lista de Inventario Materia Prima</h2>
+          <h2>Inventario Materia Prima</h2>
+          {isGerente && (
+            <form onSubmit={addInventarioMP} className="s-form">
+              <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} />
+              {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
+              <br/>
+              <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} />
+              {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
+              <br/>
+              <input type="text" name="proveedor" placeholder="Proveedor" value={formData.proveedor} onChange={handleInputChange} />
+              {formErrors.proveedor && <span className="error">{formErrors.proveedor}</span>}
+              <br/>
+              <input type="text" name="cantidad_ingreso" placeholder="Cantidad de Ingreso" value={formData.cantidad_ingreso} onChange={handleInputChange} />
+              {formErrors.cantidad_ingreso && <span className="error">{formErrors.cantidad_ingreso}</span>}
+              <br/>
+              <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} />
+              {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
+              <br/>
+              <button type="submit">{editingMP ? 'Actualizar' : 'Agregar'}</button>
+            </form>
+          )}
+          <h3>Lista de Inventario Materia Prima</h3>
           <table className="s-table">
             <thead>
               <tr>
@@ -281,9 +295,9 @@ const InventoryComponent = () => {
                 <th>Nombre</th>
                 <th>Descripción</th>
                 <th>Proveedor</th>
-                <th>Cantidad Ingreso</th>
+                <th>Cantidad de Ingreso</th>
                 <th>Cantidad Disponible</th>
-                <th>Acciones</th>
+                {isGerente && <th>Acciones</th>}
               </tr>
             </thead>
             <tbody>
@@ -295,10 +309,12 @@ const InventoryComponent = () => {
                   <td>{inventarioMP.proveedor}</td>
                   <td>{inventarioMP.cantidad_ingreso}</td>
                   <td>{inventarioMP.cantidad_disponible}</td>
-                  <td>
-                    <button onClick={() => editInventarioMP(inventarioMP)}>Editar</button>
-                    <button onClick={() => deleteInventarioMP(inventarioMP.id_materia_prima)}>Eliminar</button>
-                  </td>
+                  {isGerente && (
+                    <td>
+                      <button onClick={() => editInventarioMP(inventarioMP)}>Editar</button>
+                      <button onClick={() => deleteInventarioMP(inventarioMP.id_materia_prima)}>Eliminar</button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
@@ -309,6 +325,10 @@ const InventoryComponent = () => {
           <br/>
           <button>Volver a la página principal</button>
       </Link>
+
+      {(!isGerente && !isJefePlanta) && (
+        <p>No tienes permisos para ver esta sección.</p>
+      )}
     </div>
   );
 };
