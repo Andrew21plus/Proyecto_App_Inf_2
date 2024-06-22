@@ -165,6 +165,18 @@ app.delete('/inventario-producto-terminado/:id', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+// Nueva ruta para obtener un producto terminado por ID
+app.get('/inventario-producto-terminado/:id', async (req, res) => {
+    try {
+        const productoTerminado = await controllers.getInventarioProductoTerminadoById(req.params.id);
+        if (!productoTerminado) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+        res.status(200).json(productoTerminado);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
 
 // Rutas 'Produccion'
 app.post('/produccion', async (req, res) => {

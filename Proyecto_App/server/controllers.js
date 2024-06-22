@@ -33,6 +33,10 @@ exports.createInventarioProductoTerminado = async (data) => await InventarioProd
 exports.getInventarioProductoTerminado = async () => await InventarioProductoTerminado.findAll();
 exports.updateInventarioProductoTerminado = async (id, data) => await InventarioProductoTerminado.update(data, { where: { id_producto: id } });
 exports.deleteInventarioProductoTerminado = async (id) => await InventarioProductoTerminado.destroy({ where: { id_producto: id } });
+// Obtener un producto terminado por ID
+exports.getInventarioProductoTerminadoById = async (id) => {
+    return await InventarioProductoTerminado.findByPk(id);
+};
 
 // CRUD Produccion
 exports.createProduccion = async (data) => await Produccion.create(data);
