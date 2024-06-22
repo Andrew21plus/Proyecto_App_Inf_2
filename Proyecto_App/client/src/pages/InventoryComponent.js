@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import { Link } from 'react-router-dom';
 import '../utils/Styles.css';
+import { useAuth } from '../context/AuthContext'; // Import useAuth for role checks
 import { validateInventarioPTFormData, validateInventarioMPFormData } from '../services/inventoryService';
 
 const InventoryComponent = () => {
@@ -23,7 +24,7 @@ const InventoryComponent = () => {
   const [editingMP, setEditingMP] = useState(false);
   const [currentInventarioPT, setCurrentInventarioPT] = useState(null);
   const [currentInventarioMP, setCurrentInventarioMP] = useState(null);
-
+  
   useEffect(() => {
     getInventarioProductoTerminado();
     getProducciones();
