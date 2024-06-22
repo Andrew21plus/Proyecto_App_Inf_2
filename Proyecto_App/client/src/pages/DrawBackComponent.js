@@ -1,8 +1,8 @@
 // DrawBackComponent.js
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { Link } from 'react-router-dom'; 
-//import './styles.css'; 
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { validateInconvenienteFormData } from '../services/drawbackService';
 
 const DrawBackComponent = () => {
@@ -15,6 +15,9 @@ const DrawBackComponent = () => {
   const [producciones, setProducciones] = useState([]);
   const [editing, setEditing] = useState(false);
   const [currentInconveniente, setCurrentInconveniente] = useState(null);
+  const { roles } = useAuth();
+
+  const isGerente = roles.some(role => role.nombre_rol === 'Gerente');
 
   useEffect(() => {
     getInconvenientes();
@@ -115,21 +118,23 @@ const DrawBackComponent = () => {
     <div>
       <h1>Inconvenientes</h1>
       <h2>Inconveniente Management</h2>
-      <form onSubmit={addInconveniente} className="s-form">
-        <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange}>
-          <option value="">Selecciona una Producción</option>
-          {producciones.map(produccion => (
-            <option key={produccion.id_produccion} value={produccion.id_produccion}>{produccion.descripcion}</option>
-          ))}
-        </select>
-        {formErrors.id_produccion && <span className="error">{formErrors.id_produccion}</span>}
-        <br/>
-        <br/>
-        <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} />
-        {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
-        <br/>
-        <button type="submit">{editing ? "Actualizar Inconveniente" : "Agregar Inconveniente"}</button> 
-      </form>
+      {!isGerente && (
+        <form onSubmit={addInconveniente} className="s-form">
+          <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange}>
+            <option value="">Selecciona una Producción</option>
+            {producciones.map(produccion => (
+              <option key={produccion.id_produccion} value={produccion.id_produccion}>{produccion.descripcion}</option>
+            ))}
+          </select>
+          {formErrors.id_produccion && <span className="error">{formErrors.id_produccion}</span>}
+          <br/>
+          <br/>
+          <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} />
+          {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
+          <br/>
+          <button type="submit">{editing ? "Actualizar Inconveniente" : "Agregar Inconveniente"}</button>
+        </form>
+      )}
       <h2>Lista de Inconvenientes</h2>
       <table className="s-table">
         <thead>
@@ -137,7 +142,7 @@ const DrawBackComponent = () => {
             <th>ID Inconveniente</th>
             <th>ID Producción</th>
             <th>Descripción</th>
-            <th>Acciones</th>
+            {!isGerente && <th>Acciones</th>}
           </tr>
         </thead>
         <tbody>
@@ -146,16 +151,18 @@ const DrawBackComponent = () => {
               <td>{inconveniente.id_inconveniente}</td>
               <td>{inconveniente.id_produccion}</td>
               <td>{inconveniente.descripcion}</td>
-              <td>
-                <button onClick={() => editInconveniente(inconveniente)}>Editar</button>
-                <button onClick={() => deleteInconveniente(inconveniente.id_inconveniente)}>Eliminar</button>
-              </td>
+              {!isGerente && (
+                <td>
+                  <button onClick={() => editInconveniente(inconveniente)}>Editar</button>
+                  <button onClick={() => deleteInconveniente(inconveniente.id_inconveniente)}>Eliminar</button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
       </table>
-      <div> 
-        <Link to="/"> 
+      <div>
+        <Link to="/">
           <br/>
           <button>Volver a la página principal</button>
         </Link>
