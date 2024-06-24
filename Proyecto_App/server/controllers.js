@@ -65,8 +65,8 @@ exports.deleteUsuario = async (id) => await Usuario.destroy({ where: { id_usuari
 // CRUD UsuarioMateriaPrima
 exports.createUsuarioMateriaPrima = async (data) => await UsuarioMateriaPrima.create(data);
 exports.getUsuarioMateriaPrima = async () => await UsuarioMateriaPrima.findAll();
-exports.updateUsuarioMateriaPrima = async (idUsuario, idMateriaPrima, data) => await UsuarioMateriaPrima.update(data, { where: { id_usuario: idUsuario, id_materia_prima: idMateriaPrima } });
-exports.deleteUsuarioMateriaPrima = async (idUsuario, idMateriaPrima) => await UsuarioMateriaPrima.destroy({ where: { id_usuario: idUsuario, id_materia_prima: idMateriaPrima } });
+exports.updateUsuarioMateriaPrima = async (id, data) => await UsuarioMateriaPrima.update(data, { where: { id: id } });
+exports.deleteUsuarioMateriaPrima = async (id) => await UsuarioMateriaPrima.destroy({ where: { id: id } });
 
 // CRUD Ventas
 exports.createVenta = async (data) => await Ventas.create(data);

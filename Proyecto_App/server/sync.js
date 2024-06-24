@@ -23,10 +23,11 @@ Ventas.belongsTo(Usuario, { foreignKey: 'id_usuario' });
 Ventas.belongsTo(InventarioProductoTerminado, { foreignKey: 'id_producto' });
 
 // Sincronizar los modelos con la base de datos
-sequelize.sync({ force: true })
+sequelize.sync({ alter: true })
     .then(() => {
         console.log("Tablas sincronizadas correctamente.");
     })
     .catch((error) => {
         console.error("Error sincronizando las tablas: ", error);
     });
+

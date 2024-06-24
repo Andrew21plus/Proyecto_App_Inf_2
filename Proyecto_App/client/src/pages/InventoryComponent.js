@@ -1,7 +1,5 @@
-// InventoryComponent.js
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { validateInventarioPTFormData, validateInventarioMPFormData } from '../services/inventoryService';
 
@@ -22,7 +20,7 @@ const InventoryComponent = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [editingPT, setEditingPT] = useState(false);
-  const { id_usuario } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchInventarioPT();
@@ -43,7 +41,7 @@ const InventoryComponent = () => {
   };
 
   const fetchProducciones = () => {
-    Axios.get('http://localhost:3307/producciones')
+    Axios.get('http://localhost:3307/produccion')
       .then(response => setProducciones(response.data))
       .catch(error => console.error('Error fetching producciones', error));
   };
@@ -69,10 +67,11 @@ const InventoryComponent = () => {
     
     const usuarioMateriaPrimaPayload = {
       ...usuarioMateriaPrimaData,
-      id_usuario: id_usuario,
+      id_usuario: user?.id_usuario,
       fecha_ingreso: new Date().toISOString().split('T')[0]
     };
 
+    console.log("Datos enviados:", usuarioMateriaPrimaPayload);
     Axios.post("http://localhost:3307/usuario-materia-prima", usuarioMateriaPrimaPayload)
       .then(() => {
         alert("Materia Prima Añadida");

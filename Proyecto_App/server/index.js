@@ -346,18 +346,18 @@ app.get('/usuario-materia-prima', async (req, res) => {
     }
 });
 
-app.put('/usuario-materia-prima/:idUsuario/:idMateriaPrima', async (req, res) => {
+app.put('/usuario-materia-prima/:id', async (req, res) => {
     try {
-        const updated = await controllers.updateUsuarioMateriaPrima(req.params.idUsuario, req.params.idMateriaPrima, req.body);
+        const updated = await controllers.updateUsuarioMateriaPrima(req.params.id, req.body);
         res.status(200).json(updated);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
 
-app.delete('/usuario-materia-prima/:idUsuario/:idMateriaPrima', async (req, res) => {
+app.delete('/usuario-materia-prima/:id', async (req, res) => {
     try {
-        await controllers.deleteUsuarioMateriaPrima(req.params.idUsuario, req.params.idMateriaPrima);
+        await controllers.deleteUsuarioMateriaPrima(req.params.id);
         res.status(204).send();
     } catch (error) {
         res.status(400).json({ error: error.message });
