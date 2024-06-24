@@ -2,238 +2,192 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import { Link } from 'react-router-dom';
-import '../utils/Styles.css';
-import { validateInventarioPTFormData, validateInventarioMPFormData } from '../services/inventoryService';
 import { useAuth } from '../context/AuthContext';
+import { validateInventarioPTFormData, validateInventarioMPFormData } from '../services/inventoryService';
 
 const InventoryComponent = () => {
-  const { roles } = useAuth();
   const [selectedForm, setSelectedForm] = useState(null);
+  const [selectedSubForm, setSelectedSubForm] = useState(null);
+  const [inventarioProductoTerminado, setInventarioProductoTerminado] = useState([]);
+  const [inventarioMateriaPrima, setInventarioMateriaPrima] = useState([]);
+  const [producciones, setProducciones] = useState([]);
   const [formData, setFormData] = useState({
     id_produccion: '',
-    cantidad_disponible: '',
     nombre: '',
-    descripcion: '',
-    proveedor: '',
-    cantidad_ingreso: ''
+    cantidad_disponible: ''
+  });
+  const [usuarioMateriaPrimaData, setUsuarioMateriaPrimaData] = useState({
+    id_materia_prima: '',
+    cantidad_nuevo_ingreso: ''
   });
   const [formErrors, setFormErrors] = useState({});
-  const [inventarioProductoTerminado, setInventarioProductoTerminado] = useState([]);
-  const [producciones, setProducciones] = useState([]);
-  const [inventarioMateriaPrima, setInventarioMateriaPrima] = useState([]);
   const [editingPT, setEditingPT] = useState(false);
-  const [editingMP, setEditingMP] = useState(false);
-  const [currentInventarioPT, setCurrentInventarioPT] = useState(null);
-  const [currentInventarioMP, setCurrentInventarioMP] = useState(null);
+  const { id_usuario } = useAuth();
 
   useEffect(() => {
-    getInventarioProductoTerminado();
-    getProducciones();
-    getInventarioMateriaPrima();
+    fetchInventarioPT();
+    fetchInventarioMateriaPrima();
+    fetchProducciones();
   }, []);
 
-  const getInventarioProductoTerminado = () => {
-    Axios.get("http://localhost:3307/inventario-producto-terminado")
-      .then(response => {
-        setInventarioProductoTerminado(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching inventario_producto_terminado:', error);
-      });
+  const fetchInventarioPT = () => {
+    Axios.get('http://localhost:3307/inventario-producto-terminado')
+      .then(response => setInventarioProductoTerminado(response.data))
+      .catch(error => console.error('Error fetching inventario PT', error));
   };
-  
-  const getProducciones = () => {
-    Axios.get("http://localhost:3307/produccion")
-      .then(response => {
-        setProducciones(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching producciones:', error);
-      });
+
+  const fetchInventarioMateriaPrima = () => {
+    Axios.get('http://localhost:3307/inventario-materia-prima')
+      .then(response => setInventarioMateriaPrima(response.data))
+      .catch(error => console.error('Error fetching inventario MP', error));
   };
-  
-  const getInventarioMateriaPrima = () => {
-    Axios.get("http://localhost:3307/inventario-materia-prima")
-      .then(response => {
-        setInventarioMateriaPrima(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching inventario_materia_prima:', error);
-      });
+
+  const fetchProducciones = () => {
+    Axios.get('http://localhost:3307/producciones')
+      .then(response => setProducciones(response.data))
+      .catch(error => console.error('Error fetching producciones', error));
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    setFormErrors({ ...formErrors, [name]: '' }); // Clear the error when the user modifies the field
+  };
+
+  const handleUsuarioMateriaPrimaInputChange = (e) => {
+    const { name, value } = e.target;
+    setUsuarioMateriaPrimaData({ ...usuarioMateriaPrimaData, [name]: value });
+  };
+
+  const handleAddUsuarioMateriaPrima = (e) => {
+    e.preventDefault();
+    
+    const errors = validateInventarioMPFormData(usuarioMateriaPrimaData);
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    
+    const usuarioMateriaPrimaPayload = {
+      ...usuarioMateriaPrimaData,
+      id_usuario: id_usuario,
+      fecha_ingreso: new Date().toISOString().split('T')[0]
+    };
+
+    Axios.post("http://localhost:3307/usuario-materia-prima", usuarioMateriaPrimaPayload)
+      .then(() => {
+        alert("Materia Prima Añadida");
+
+        const selectedMateriaPrima = inventarioMateriaPrima.find(mp => mp.id_materia_prima === usuarioMateriaPrimaData.id_materia_prima);
+        const updatedCantidadDisponible = parseInt(selectedMateriaPrima.cantidad_disponible) + parseInt(usuarioMateriaPrimaData.cantidad_nuevo_ingreso);
+
+        Axios.put(`http://localhost:3307/inventario-materia-prima/${usuarioMateriaPrimaData.id_materia_prima}`, {
+          ...selectedMateriaPrima,
+          cantidad_disponible: updatedCantidadDisponible
+        }).then(() => {
+          alert("Inventario Actualizado");
+          setUsuarioMateriaPrimaData({
+            id_materia_prima: '',
+            cantidad_nuevo_ingreso: ''
+          });
+          fetchInventarioMateriaPrima();
+        }).catch(error => {
+          console.error("Error actualizando inventario", error);
+          alert("Error actualizando inventario");
+        });
+      })
+      .catch(error => {
+        console.error("Error añadiendo usuario materia prima", error);
+        alert("Error añadiendo usuario materia prima");
+      });
   };
 
   const addInventarioPT = (e) => {
     e.preventDefault();
+
     const errors = validateInventarioPTFormData(formData);
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
-    
-    if (editingPT) {
-      Axios.put(`http://localhost:3307/inventario-producto-terminado/${currentInventarioPT.id_producto}`, formData)
-        .then(() => {
-          alert("Inventario Producto Terminado Actualizado");
-          setFormData({
-            id_produccion: '',
-            cantidad_disponible: '',
-            nombre: ''
-          });
-          setEditingPT(false);
-          setCurrentInventarioPT(null);
-          getInventarioProductoTerminado();
-        })
-        .catch(error => {
-          console.error('Error actualizando inventario_producto_terminado:', error);
-        });
-    } else {
-      Axios.post("http://localhost:3307/inventario-producto-terminado", formData)
-        .then(() => {
-          alert("Inventario Producto Terminado Registrado");
-          setFormData({
-            id_produccion: '',
-            cantidad_disponible: '',
-            nombre: ''
-          });
-          getInventarioProductoTerminado();
-        })
-        .catch(error => {
-          console.error('Error registrando inventario_producto_terminado:', error);
-        });
-    }
-  };
 
-  const addInventarioMP = (e) => {
-    e.preventDefault();
-    const errors = validateInventarioMPFormData(formData);
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-    
-    if (editingMP) {
-      Axios.put(`http://localhost:3307/inventario-materia-prima/${currentInventarioMP.id_materia_prima}`, formData)
-        .then(() => {
-          alert("Inventario Materia Prima Actualizado");
-          setFormData({
-            nombre: '',
-            descripcion: '',
-            proveedor: '',
-            cantidad_ingreso: '',
-            cantidad_disponible: ''
-          });
-          setEditingMP(false);
-          setCurrentInventarioMP(null);
-          getInventarioMateriaPrima();
-        })
-        .catch(error => {
-          console.error('Error actualizando inventario_materia_prima:', error);
-        });
-    } else {
-      Axios.post("http://localhost:3307/inventario-materia-prima", formData)
-        .then(() => {
-          alert("Inventario Materia Prima Registrado");
-          setFormData({
-            nombre: '',
-            descripcion: '',
-            proveedor: '',
-            cantidad_ingreso: '',
-            cantidad_disponible: ''
-          });
-          getInventarioMateriaPrima();
-        })
-        .catch(error => {
-          console.error('Error registrando inventario_materia_prima:', error);
-        });
-    }
-  };
-
-  const deleteInventarioPT = (id) => {
-    Axios.delete(`http://localhost:3307/inventario-producto-terminado/${id}`)
+    Axios.post("http://localhost:3307/inventario-producto-terminado", formData)
       .then(() => {
-        alert("Inventario Producto Terminado Eliminado");
-        getInventarioProductoTerminado();
+        alert("Inventario Producto Terminado Añadido");
+        setFormData({ id_produccion: '', nombre: '', cantidad_disponible: '' });
+        fetchInventarioPT();
       })
       .catch(error => {
-        console.error('Error eliminando inventario_producto_terminado:', error);
-      });
-  };
-
-  const deleteInventarioMP = (id) => {
-    Axios.delete(`http://localhost:3307/inventario-materia-prima/${id}`)
-      .then(() => {
-        alert("Inventario Materia Prima Eliminado");
-        getInventarioMateriaPrima();
-      })
-      .catch(error => {
-        console.error('Error eliminando inventario_materia_prima:', error);
+        console.error("Error añadiendo inventario PT", error);
+        alert("Error añadiendo inventario PT");
       });
   };
 
   const editInventarioPT = (inventarioPT) => {
+    setFormData(inventarioPT);
     setEditingPT(true);
-    setCurrentInventarioPT(inventarioPT);
-    setFormData({
-      id_produccion: inventarioPT.id_produccion,
-      cantidad_disponible: inventarioPT.cantidad_disponible,
-      nombre: inventarioPT.nombre
-    });
+  };
+
+  const deleteInventarioPT = (id_producto) => {
+    Axios.delete(`http://localhost:3307/inventario-producto-terminado/${id_producto}`)
+      .then(() => {
+        alert("Inventario Producto Terminado Eliminado");
+        fetchInventarioPT();
+      })
+      .catch(error => {
+        console.error("Error eliminando inventario PT", error);
+        alert("Error eliminando inventario PT");
+      });
   };
 
   const editInventarioMP = (inventarioMP) => {
-    setEditingMP(true);
-    setCurrentInventarioMP(inventarioMP);
-    setFormData({
-      nombre: inventarioMP.nombre,
-      descripcion: inventarioMP.descripcion,
-      proveedor: inventarioMP.proveedor,
-      cantidad_ingreso: inventarioMP.cantidad_ingreso,
-      cantidad_disponible: inventarioMP.cantidad_disponible
-    });
+    // Añadir lógica para editar inventario materia prima
   };
 
-  const isGerente = roles.some(role => role.nombre_rol === 'Gerente');
-  const isJefePlanta = roles.some(role => role.nombre_rol === 'Jefe de Planta');
+  const deleteInventarioMP = (id_materia_prima) => {
+    Axios.delete(`http://localhost:3307/inventario-materia-prima/${id_materia_prima}`)
+      .then(() => {
+        alert("Inventario Materia Prima Eliminado");
+        fetchInventarioMateriaPrima();
+      })
+      .catch(error => {
+        console.error("Error eliminando inventario MP", error);
+        alert("Error eliminando inventario MP");
+      });
+  };
 
   return (
     <div>
       <h1>Gestión de Inventario</h1>
       <div className="form-selector">
-        {(isGerente || isJefePlanta) && (
-          <>
-            <button onClick={() => setSelectedForm('PT')}>Inventario Producto Terminado</button>
-            <button onClick={() => setSelectedForm('MP')}>Inventario Materia Prima</button>
-          </>
-        )}
+        <button onClick={() => setSelectedForm('PT')}>Inventario Producto Terminado</button>
+        <button onClick={() => setSelectedForm('MP')}>Inventario Materia Prima</button>
       </div>
+      {selectedForm === 'MP' && (
+        <div>
+          <button onClick={() => setSelectedSubForm('listaMP')}>Lista de Inventario Materia Prima</button>
+          <button onClick={() => setSelectedSubForm('addMP')}>Añadir Materia Prima</button>
+        </div>
+      )}
       {selectedForm === 'PT' && (
         <div>
           <h2>Inventario Producto Terminado</h2>
-          {isGerente && (
-            <form onSubmit={addInventarioPT} className="s-form">
-              <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange}>
-                <option value="">Selecciona una Producción</option>
-                {producciones.map(produccion => (
-                  <option key={produccion.id_produccion} value={produccion.id_produccion}>{produccion.id_produccion}</option>
-                ))}
-              </select>
-              {formErrors.id_produccion && <span className="error">{formErrors.id_produccion}</span>}
-              <br/>
-              <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} />
-              {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
-              <br/>
-              <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} />
-              {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
-              <br/>
-              <button type="submit">{editingPT ? 'Actualizar' : 'Agregar'}</button>
-            </form>
-          )}
+          <form onSubmit={addInventarioPT} className="s-form">
+            <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange}>
+              <option value="">Selecciona una Producción</option>
+              {producciones.map(produccion => (
+                <option key={produccion.id_produccion} value={produccion.id_produccion}>{produccion.id_produccion}</option>
+              ))}
+            </select>
+            {formErrors.id_produccion && <span className="error">{formErrors.id_produccion}</span>}
+            <br/>
+            <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} />
+            {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
+            <br/>
+            <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} />
+            {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
+            <br/>
+            <button type="submit">{editingPT ? 'Actualizar' : 'Agregar'}</button>
+          </form>
           <h3>Lista de Inventario Producto Terminado</h3>
           <table className="s-table">
             <thead>
@@ -242,7 +196,7 @@ const InventoryComponent = () => {
                 <th>ID Producción</th>
                 <th>Nombre</th>
                 <th>Cantidad Disponible</th>
-                {isGerente && <th>Acciones</th>}
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -252,41 +206,19 @@ const InventoryComponent = () => {
                   <td>{inventarioPT.id_produccion}</td>
                   <td>{inventarioPT.nombre}</td>
                   <td>{inventarioPT.cantidad_disponible}</td>
-                  {isGerente && (
-                    <td>
-                      <button onClick={() => editInventarioPT(inventarioPT)}>Editar</button>
-                      <button onClick={() => deleteInventarioPT(inventarioPT.id_producto)}>Eliminar</button>
-                    </td>
-                  )}
+                  <td>
+                    <button onClick={() => editInventarioPT(inventarioPT)}>Editar</button>
+                    <button onClick={() => deleteInventarioPT(inventarioPT.id_producto)}>Eliminar</button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
-      {selectedForm === 'MP' && (
+      {selectedForm === 'MP' && selectedSubForm === 'listaMP' && (
         <div>
           <h2>Inventario Materia Prima</h2>
-          {isGerente && (
-            <form onSubmit={addInventarioMP} className="s-form">
-              <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} />
-              {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
-              <br/>
-              <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} />
-              {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
-              <br/>
-              <input type="text" name="proveedor" placeholder="Proveedor" value={formData.proveedor} onChange={handleInputChange} />
-              {formErrors.proveedor && <span className="error">{formErrors.proveedor}</span>}
-              <br/>
-              <input type="text" name="cantidad_ingreso" placeholder="Cantidad de Ingreso" value={formData.cantidad_ingreso} onChange={handleInputChange} />
-              {formErrors.cantidad_ingreso && <span className="error">{formErrors.cantidad_ingreso}</span>}
-              <br/>
-              <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} />
-              {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
-              <br/>
-              <button type="submit">{editingMP ? 'Actualizar' : 'Agregar'}</button>
-            </form>
-          )}
           <h3>Lista de Inventario Materia Prima</h3>
           <table className="s-table">
             <thead>
@@ -295,9 +227,8 @@ const InventoryComponent = () => {
                 <th>Nombre</th>
                 <th>Descripción</th>
                 <th>Proveedor</th>
-                <th>Cantidad de Ingreso</th>
                 <th>Cantidad Disponible</th>
-                {isGerente && <th>Acciones</th>}
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -307,27 +238,33 @@ const InventoryComponent = () => {
                   <td>{inventarioMP.nombre}</td>
                   <td>{inventarioMP.descripcion}</td>
                   <td>{inventarioMP.proveedor}</td>
-                  <td>{inventarioMP.cantidad_ingreso}</td>
                   <td>{inventarioMP.cantidad_disponible}</td>
-                  {isGerente && (
-                    <td>
-                      <button onClick={() => editInventarioMP(inventarioMP)}>Editar</button>
-                      <button onClick={() => deleteInventarioMP(inventarioMP.id_materia_prima)}>Eliminar</button>
-                    </td>
-                  )}
+                  <td>
+                    <button onClick={() => editInventarioMP(inventarioMP)}>Editar</button>
+                    <button onClick={() => deleteInventarioMP(inventarioMP.id_materia_prima)}>Eliminar</button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
-      <Link to="/"> 
-          <br/>
-          <button>Volver a la página principal</button>
-      </Link>
-
-      {(!isGerente && !isJefePlanta) && (
-        <p>No tienes permisos para ver esta sección.</p>
+      {selectedForm === 'MP' && selectedSubForm === 'addMP' && (
+        <div>
+          <h2>Añadir Materia Prima</h2>
+          <form onSubmit={handleAddUsuarioMateriaPrima} className="s-form">
+            <select name="id_materia_prima" value={usuarioMateriaPrimaData.id_materia_prima} onChange={handleUsuarioMateriaPrimaInputChange}>
+              <option value="">Selecciona una Materia Prima</option>
+              {inventarioMateriaPrima.map(materiaPrima => (
+                <option key={materiaPrima.id_materia_prima} value={materiaPrima.id_materia_prima}>{materiaPrima.nombre}</option>
+              ))}
+            </select>
+            {formErrors.id_materia_prima && <span className="error">{formErrors.id_materia_prima}</span>}
+            <input type="number" name="cantidad_nuevo_ingreso" placeholder="Cantidad Nuevo Ingreso" value={usuarioMateriaPrimaData.cantidad_nuevo_ingreso} onChange={handleUsuarioMateriaPrimaInputChange} />
+            {formErrors.cantidad_nuevo_ingreso && <span className="error">{formErrors.cantidad_nuevo_ingreso}</span>}
+            <button type="submit">Añadir</button>
+          </form>
+        </div>
       )}
     </div>
   );
