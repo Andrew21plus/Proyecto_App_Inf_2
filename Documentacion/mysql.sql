@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS inventario_materia_prima;
 DROP TABLE IF EXISTS inventario_producto_terminado;
 DROP TABLE IF EXISTS produccion;
 DROP TABLE IF EXISTS produccion_etapa;
+DROP TABLE IF EXISTS produccion_materia_prima;
 DROP TABLE IF EXISTS rol;
 DROP TABLE IF EXISTS usuario;
 DROP TABLE IF EXISTS usuario_materia_prima;
@@ -31,11 +32,21 @@ CREATE TABLE inventario_materia_prima (
 -- Table: PRODUCCION
 CREATE TABLE produccion (
     id_produccion INTEGER AUTO_INCREMENT PRIMARY KEY,
-    id_materia_prima INTEGER NULL,
     fecha DATE NULL,
+    descripcion TEXT NULL
+);
+
+-- Table: PRODUCCION_MATERIA_PRIMA (Tabla de unión)
+CREATE TABLE produccion_materia_prima (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    id_produccion INTEGER NOT NULL,
+    id_materia_prima INTEGER NOT NULL,
     cantidad_uso INTEGER NULL,
-    descripcion TEXT NULL,
-    CONSTRAINT fk_producci_reference_inventar FOREIGN KEY (id_materia_prima)
+    CONSTRAINT fk_produccion_materia_prima_produccion FOREIGN KEY (id_produccion)
+        REFERENCES produccion (id_produccion)
+        ON UPDATE RESTRICT
+        ON DELETE CASCADE,
+    CONSTRAINT fk_produccion_materia_prima_materia_prima FOREIGN KEY (id_materia_prima)
         REFERENCES inventario_materia_prima (id_materia_prima)
         ON UPDATE RESTRICT
         ON DELETE CASCADE
@@ -49,11 +60,11 @@ CREATE TABLE produccion_etapa (
     hora_inicio TIME NULL,
     hora_fin TIME NULL,
     estado TEXT NULL,
-    CONSTRAINT fk_producci_reference_producci FOREIGN KEY (id_produccion)
+    CONSTRAINT fk_produccion_etapa_produccion FOREIGN KEY (id_produccion)
         REFERENCES produccion (id_produccion)
         ON UPDATE RESTRICT
         ON DELETE CASCADE,
-    CONSTRAINT fk_producci_reference_etapa FOREIGN KEY (id_etapa)
+    CONSTRAINT fk_produccion_etapa_etapa FOREIGN KEY (id_etapa)
         REFERENCES etapa (id_etapa)
         ON UPDATE RESTRICT
         ON DELETE CASCADE
@@ -76,7 +87,7 @@ CREATE TABLE usuario (
     email TEXT NULL,
     contrasena TEXT NULL,
     telefono NUMERIC NULL,
-    CONSTRAINT fk_usuario_reference_rol FOREIGN KEY (id_rol)
+    CONSTRAINT fk_usuario_rol FOREIGN KEY (id_rol)
         REFERENCES rol (id_rol)
         ON UPDATE RESTRICT
         ON DELETE CASCADE
@@ -87,7 +98,7 @@ CREATE TABLE inconveniente (
     id_inconveniente INTEGER AUTO_INCREMENT PRIMARY KEY,
     id_produccion INTEGER NULL,
     descripcion TEXT NULL,
-    CONSTRAINT fk_inconven_reference_producci FOREIGN KEY (id_produccion)
+    CONSTRAINT fk_inconveniente_produccion FOREIGN KEY (id_produccion)
         REFERENCES produccion (id_produccion)
         ON UPDATE RESTRICT
         ON DELETE CASCADE
@@ -99,7 +110,7 @@ CREATE TABLE inventario_producto_terminado (
     id_produccion INTEGER NULL,
     cantidad_disponible INTEGER NULL,
     nombre TEXT NULL,
-    CONSTRAINT fk_inventar_reference_producci FOREIGN KEY (id_produccion)
+    CONSTRAINT fk_inventario_producto_terminado_produccion FOREIGN KEY (id_produccion)
         REFERENCES produccion (id_produccion)
         ON UPDATE RESTRICT
         ON DELETE CASCADE
@@ -112,11 +123,11 @@ CREATE TABLE ventas (
     id_producto INTEGER NULL,
     descripcion TEXT NULL,
     cantidad INTEGER NULL,
-    CONSTRAINT fk_ventas_reference_usuario FOREIGN KEY (id_usuario)
+    CONSTRAINT fk_ventas_usuario FOREIGN KEY (id_usuario)
         REFERENCES usuario (id_usuario)
         ON UPDATE RESTRICT
         ON DELETE CASCADE,
-    CONSTRAINT fk_ventas_reference_producto FOREIGN KEY (id_producto)
+    CONSTRAINT fk_ventas_producto FOREIGN KEY (id_producto)
         REFERENCES inventario_producto_terminado (id_producto)
         ON UPDATE RESTRICT
         ON DELETE CASCADE
@@ -129,12 +140,13 @@ CREATE TABLE usuario_materia_prima (
     id_materia_prima INTEGER NOT NULL,
     fecha_ingreso DATE NULL,
     cantidad_nuevo_ingreso INTEGER NULL,
-    CONSTRAINT fk_usuario__reference_usuario FOREIGN KEY (id_usuario)
+    CONSTRAINT fk_usuario_materia_prima_usuario FOREIGN KEY (id_usuario)
         REFERENCES usuario (id_usuario)
         ON UPDATE RESTRICT
         ON DELETE CASCADE,
-    CONSTRAINT fk_usuario__reference_inventar FOREIGN KEY (id_materia_prima)
+    CONSTRAINT fk_usuario_materia_prima_materia_prima FOREIGN KEY (id_materia_prima)
         REFERENCES inventario_materia_prima (id_materia_prima)
         ON UPDATE RESTRICT
         ON DELETE CASCADE
 );
+

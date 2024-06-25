@@ -165,6 +165,7 @@ app.delete('/inventario-producto-terminado/:id', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
 // Nueva ruta para obtener un producto terminado por ID
 app.get('/inventario-producto-terminado/:id', async (req, res) => {
     try {
@@ -209,6 +210,43 @@ app.put('/produccion/:id', async (req, res) => {
 app.delete('/produccion/:id', async (req, res) => {
     try {
         await controllers.deleteProduccion(req.params.id);
+        res.status(204).send();
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// Rutas 'ProduccionMateriaPrima'
+app.post('/produccion-materia-prima', async (req, res) => {
+    try {
+        const produccionMateriaPrima = await controllers.createProduccionMateriaPrima(req.body);
+        res.status(201).json(produccionMateriaPrima);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+app.get('/produccion-materia-prima', async (req, res) => {
+    try {
+        const produccionMateriaPrima = await controllers.getProduccionMateriaPrima();
+        res.status(200).json(produccionMateriaPrima);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+app.put('/produccion-materia-prima/:id', async (req, res) => {
+    try {
+        const updated = await controllers.updateProduccionMateriaPrima(req.params.id, req.body);
+        res.status(200).json(updated);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+app.delete('/produccion-materia-prima/:id', async (req, res) => {
+    try {
+        await controllers.deleteProduccionMateriaPrima(req.params.id);
         res.status(204).send();
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -405,3 +443,4 @@ const PORT = process.env.PORT || 3307;
 app.listen(PORT, () => {
     console.log(`Corriendo en el puerto ${PORT}`);
 });
+

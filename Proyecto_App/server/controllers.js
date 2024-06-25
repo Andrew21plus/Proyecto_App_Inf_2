@@ -8,7 +8,7 @@ const Rol = require('./models/Rol');
 const Usuario = require('./models/Usuario');
 const UsuarioMateriaPrima = require('./models/UsuarioMateriaPrima');
 const Ventas = require('./models/Ventas');
-
+const ProduccionMateriaPrima = require('./models/ProduccionMateriaPrima');
 
 // CRUD Etapa
 exports.createEtapa = async (data) => await Etapa.create(data);
@@ -39,9 +39,32 @@ exports.getInventarioProductoTerminadoById = async (id) => {
 };
 
 // CRUD Produccion
-exports.createProduccion = async (data) => await Produccion.create(data);
-exports.getProducciones = async () => await Produccion.findAll();
-exports.updateProduccion = async (id, data) => await Produccion.update(data, { where: { id_produccion: id } });
+exports.createProduccion = async (data) => {
+    const { materia_prima, ...produccionData } = data;
+    const produccion = await Produccion.create(produccionData);
+    if (materia_prima && materia_prima.length) {
+        await ProduccionMateriaPrima.bulkCreate(materia_prima.map(mp => ({
+            id_produccion: produccion.id_produccion,
+            id_materia_prima: mp.id_materia_prima,
+            cantidad_uso: mp.cantidad_uso
+        })));
+    }
+    return produccion;
+};
+exports.getProducciones = async () => await Produccion.findAll({ include: InventarioMateriaPrima });
+exports.updateProduccion = async (id, data) => {
+    const { materia_prima, ...produccionData } = data;
+    const produccion = await Produccion.update(produccionData, { where: { id_produccion: id } });
+    if (materia_prima && materia_prima.length) {
+        await ProduccionMateriaPrima.destroy({ where: { id_produccion: id } });
+        await ProduccionMateriaPrima.bulkCreate(materia_prima.map(mp => ({
+            id_produccion: id,
+            id_materia_prima: mp.id_materia_prima,
+            cantidad_uso: mp.cantidad_uso
+        })));
+    }
+    return produccion;
+};
 exports.deleteProduccion = async (id) => await Produccion.destroy({ where: { id_produccion: id } });
 
 // CRUD ProduccionEtapa
@@ -49,6 +72,12 @@ exports.createProduccionEtapa = async (data) => await ProduccionEtapa.create(dat
 exports.getProduccionEtapas = async () => await ProduccionEtapa.findAll();
 exports.updateProduccionEtapa = async (id, data) => await ProduccionEtapa.update(data, { where: { id } });
 exports.deleteProduccionEtapa = async (id) => await ProduccionEtapa.destroy({ where: { id } });
+
+// CRUD ProduccionMateriaPrima
+exports.createProduccionMateriaPrima = async (data) => await ProduccionMateriaPrima.create(data);
+exports.getProduccionMateriaPrima = async () => await ProduccionMateriaPrima.findAll();
+exports.updateProduccionMateriaPrima = async (id, data) => await ProduccionMateriaPrima.update(data, { where: { id } });
+exports.deleteProduccionMateriaPrima = async (id) => await ProduccionMateriaPrima.destroy({ where: { id } });
 
 // CRUD Rol
 exports.createRol = async (data) => await Rol.create(data);
