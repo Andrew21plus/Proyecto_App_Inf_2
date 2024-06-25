@@ -6,14 +6,17 @@ const PredictionsComponent = () => {
   const [productosTerminados, setProductosTerminados] = useState([]);
   const [producciones, setProducciones] = useState([]);
   const [materiaPrima, setMateriaPrima] = useState([]);
+  const [ingresosMateriaPrima, setIngresosMateriaPrima] = useState([]);
   const [selectedProducto, setSelectedProducto] = useState('');
   const [produccionesFiltradas, setProduccionesFiltradas] = useState([]);
+  const [totalesPorSemana, setTotalesPorSemana] = useState([]);
   const [prediccion, setPrediccion] = useState(null);
 
   useEffect(() => {
     obtenerProductosTerminados();
     obtenerProducciones();
     obtenerMateriaPrima();
+    obtenerIngresosMateriaPrima();
   }, []);
 
   const obtenerProductosTerminados = () => {
@@ -49,45 +52,152 @@ const PredictionsComponent = () => {
       });
   };
 
-  const filtrarProducciones = useCallback((productoId) => {
-    const productoSeleccionado = productosTerminados.find(producto => producto.id_producto === parseInt(productoId));
-    if (!productoSeleccionado) {
+  const obtenerIngresosMateriaPrima = () => {
+    Axios.get("http://localhost:3307/usuario-materia-prima")
+      .then(response => {
+        console.log('Ingresos de Materia Prima:', response.data);
+        setIngresosMateriaPrima(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching ingresos de materia prima:', error);
+      });
+  };
+
+  const calcularTotalesPorSemana = useCallback((producciones) => {
+    const semanas = {};
+    const hoy = new Date();
+    const cincoSemanasAtras = new Date(hoy);
+    cincoSemanasAtras.setDate(hoy.getDate() - 35); // Ajusta la fecha para incluir las últimas 5 semanas
+
+    producciones.forEach(produccion => {
+      const fecha = new Date(produccion.fecha);
+      console.log(`Producción fecha: ${fecha.toISOString().split('T')[0]}, Producto: ${produccion.id_producto}`);
+      if (fecha >= cincoSemanasAtras && fecha <= hoy) { // Filtra las producciones de las últimas 5 semanas
+        const año = fecha.getFullYear();
+        const mes = fecha.getMonth();
+        const dia = fecha.getDate();
+        
+        // Calcular el inicio de la semana (lunes) y el fin de la semana (viernes)
+        const diaDeLaSemana = fecha.getDay();
+        const inicioSemana = new Date(año, mes, dia - diaDeLaSemana + (diaDeLaSemana === 0 ? -6 : 1));
+        const finSemana = new Date(inicioSemana);
+        finSemana.setDate(inicioSemana.getDate() + 4);
+
+        const claveSemana = `${inicioSemana.getFullYear()}-W${Math.ceil((((inicioSemana - new Date(inicioSemana.getFullYear(), 0, 1)) / 86400000) + inicioSemana.getDay() + 1) / 7)}`;
+
+        if (!semanas[claveSemana]) {
+          semanas[claveSemana] = {
+            totalProduccion: 0,
+            totalMateriaPrimaUsada: 0,
+            materiaPrimaRestante: 0,
+            fechaInicio: inicioSemana,
+            fechaFin: finSemana,
+            ultimoIngreso: 0
+          };
+        }
+        semanas[claveSemana].totalProduccion += produccion.cantidad_producida;
+        semanas[claveSemana].totalMateriaPrimaUsada += produccion.cantidad_uso;
+        semanas[claveSemana].materiaPrimaRestante = produccion.materia_prima_restante; // Tomar el último valor de materia prima restante
+
+        // Buscar el último ingreso de materia prima en la semana
+        const ingresosFiltrados = ingresosMateriaPrima
+          .filter(ingreso => {
+            const fechaIngreso = new Date(ingreso.fecha_ingreso);
+            return fechaIngreso >= semanas[claveSemana].fechaInicio && fechaIngreso <= semanas[claveSemana].fechaFin && ingreso.id_materia_prima === produccion.id_materia_prima;
+          })
+          .sort((a, b) => new Date(b.fecha_ingreso) - new Date(a.fecha_ingreso));
+
+        if (ingresosFiltrados.length > 0) {
+          semanas[claveSemana].ultimoIngreso = ingresosFiltrados[0].cantidad_nuevo_ingreso;
+        }
+
+        console.log(`Semana ${claveSemana} - Último ingreso: ${semanas[claveSemana].ultimoIngreso}`);
+      }
+    });
+
+    const semanasOrdenadas = Object.keys(semanas)
+      .map(clave => ({
+        semana: clave,
+        totalProduccion: semanas[clave].totalProduccion,
+        totalMateriaPrimaUsada: semanas[clave].totalMateriaPrimaUsada,
+        materiaPrimaRestante: semanas[clave].materiaPrimaRestante,
+        ultimoIngreso: semanas[clave].ultimoIngreso,
+        fechaInicio: semanas[clave].fechaInicio,
+        fechaFin: semanas[clave].fechaFin,
+      }))
+      .sort((a, b) => new Date(b.fechaFin) - new Date(a.fechaFin)) // Ordenar por fecha de fin descendente
+      .slice(0, 5); // Tomar las últimas 5 semanas
+
+    console.log('Totales por semana:', semanasOrdenadas);
+    return semanasOrdenadas;
+  }, [ingresosMateriaPrima]);
+
+  const filtrarProducciones = useCallback((productoNombre) => {
+    const productosSeleccionados = productosTerminados.filter(producto => producto.nombre === productoNombre);
+    if (productosSeleccionados.length === 0) {
       setProduccionesFiltradas([]);
       return;
     }
 
-    const filtradas = producciones.filter(produccion => produccion.id_produccion === productoSeleccionado.id_produccion);
-    filtradas.forEach(produccion => {
-      produccion.cantidad_producida = productoSeleccionado.cantidad_disponible;
-      const materia = materiaPrima.find(mp => mp.id_materia_prima === produccion.id_materia_prima);
-      if (materia) {
-        produccion.materia_prima_restante = materia.cantidad_disponible - produccion.cantidad_uso;
-      }
+    const produccionesFiltradas = productosSeleccionados.flatMap(productoSeleccionado => {
+      const filtradas = producciones.filter(produccion => produccion.id_produccion === productoSeleccionado.id_produccion);
+      return filtradas.map(produccion => {
+        produccion.cantidad_producida = productoSeleccionado.cantidad_disponible;
+        const materia = materiaPrima.find(mp => mp.id_materia_prima === produccion.id_materia_prima);
+        if (materia) {
+          produccion.materia_prima_restante = materia.cantidad_disponible - produccion.cantidad_uso;
+        }
+        return produccion;
+      });
     });
-    console.log('Producciones filtradas:', filtradas);
-    setProduccionesFiltradas(filtradas);
-  }, [producciones, productosTerminados, materiaPrima]);
+
+    console.log('Producciones filtradas:', produccionesFiltradas);
+    setProduccionesFiltradas(produccionesFiltradas);
+
+    // Calcular totales por semana
+    const totales = calcularTotalesPorSemana(produccionesFiltradas);
+    setTotalesPorSemana(totales);
+  }, [producciones, productosTerminados, materiaPrima, calcularTotalesPorSemana]);
 
   useEffect(() => {
     if (selectedProducto) {
       filtrarProducciones(selectedProducto);
     }
-  }, [selectedProducto, producciones, filtrarProducciones]);
+  }, [selectedProducto, filtrarProducciones]);
 
   const manejarPrediccion = async () => {
-    const productoSeleccionado = productosTerminados.find(producto => producto.id_producto === parseInt(selectedProducto));
-    const produccion = producciones.find(produccion => produccion.id_produccion === productoSeleccionado.id_produccion);
+    const productosSeleccionados = productosTerminados.filter(producto => producto.nombre === selectedProducto);
+    if (productosSeleccionados.length === 0) {
+      setPrediccion(null);
+      return;
+    }
 
-    const cantidadProduccion = parseFloat(productoSeleccionado.cantidad_disponible);
-    const materiaPrimaUsada = parseFloat(produccion.cantidad_uso);
-    const materiaPrimaRestante = parseFloat(materiaPrima.find(mp => mp.id_materia_prima === produccion.id_materia_prima).cantidad_disponible - produccion.cantidad_uso);
+    // Preparar datos de entrenamiento
+    const datosEntrenamiento = totalesPorSemana.map(semana => ({
+      totalProduccion: semana.totalProduccion,
+      totalMateriaPrimaUsada: semana.totalMateriaPrimaUsada,
+      materiaPrimaRestante: semana.materiaPrimaRestante,
+      ultimoIngreso: semana.ultimoIngreso
+    }));
 
-    console.log('Cantidad Producción:', cantidadProduccion);
-    console.log('Materia Prima Usada:', materiaPrimaUsada);
-    console.log('Materia Prima Restante:', materiaPrimaRestante);
+    // Verificación de datos
+    console.log('Datos para la predicción:', datosEntrenamiento);
 
-    const resultado = await predecirNecesidad(cantidadProduccion, materiaPrimaUsada, materiaPrimaRestante);
-    setPrediccion(resultado);
+    // Asegurarse de que los datos sean arreglos antes de procesarlos
+    if (!Array.isArray(datosEntrenamiento) || datosEntrenamiento.length === 0) {
+      console.error('Error: Los datos para la predicción no son arreglos o están vacíos.');
+      setPrediccion(null);
+      return;
+    }
+
+    // Llamar a la función de predicción
+    try {
+      const resultado = await predecirNecesidad(datosEntrenamiento);
+      setPrediccion(resultado);
+    } catch (error) {
+      console.error('Error en la predicción:', error);
+      setPrediccion(null);
+    }
   };
 
   return (
@@ -98,8 +208,8 @@ const PredictionsComponent = () => {
         setSelectedProducto(e.target.value);
       }}>
         <option value="">Selecciona un producto terminado</option>
-        {productosTerminados.map(producto => (
-          <option key={producto.id_producto} value={producto.id_producto}>{producto.nombre}</option>
+        {Array.from(new Set(productosTerminados.map(producto => producto.nombre))).map(nombre => (
+          <option key={nombre} value={nombre}>{nombre}</option>
         ))}
       </select>
 
@@ -128,10 +238,10 @@ const PredictionsComponent = () => {
           </thead>
           <tbody>
             {produccionesFiltradas.length > 0 ? (
-              produccionesFiltradas.map(produccion => (
-                <tr key={produccion.id_produccion}>
+              produccionesFiltradas.map((produccion, index) => (
+                <tr key={index}>
                   <td>{produccion.id_produccion}</td>
-                  <td>{selectedProducto}</td>
+                  <td>{productosTerminados.find(producto => producto.id_produccion === produccion.id_produccion).id_producto}</td>
                   <td>{produccion.fecha}</td>
                   <td>{produccion.cantidad_producida}</td>
                   <td>{produccion.cantidad_uso}</td>
@@ -148,6 +258,38 @@ const PredictionsComponent = () => {
         </table>
       ) : (
         <p>Seleccione un producto para ver la lista de producciones.</p>
+      )}
+
+      <h2>Totales por Semana</h2>
+      {totalesPorSemana.length > 0 ? (
+        <table>
+          <thead>
+            <tr>
+              <th>Semana</th>
+              <th>Total Producción</th>
+              <th>Total Materia Prima Usada</th>
+              <th>Materia Prima Restante</th>
+              <th>Último Ingreso</th>
+              <th>Fecha de Inicio</th>
+              <th>Fecha de Fin</th>
+            </tr>
+          </thead>
+          <tbody>
+            {totalesPorSemana.map((semana, index) => (
+              <tr key={index}>
+                <td>{semana.semana}</td>
+                <td>{semana.totalProduccion}</td>
+                <td>{semana.totalMateriaPrimaUsada}</td>
+                <td>{semana.materiaPrimaRestante}</td>
+                <td>{semana.ultimoIngreso}</td>
+                <td>{semana.fechaInicio.toLocaleDateString()}</td>
+                <td>{semana.fechaFin.toLocaleDateString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>No hay datos para mostrar.</p>
       )}
     </div>
   );
