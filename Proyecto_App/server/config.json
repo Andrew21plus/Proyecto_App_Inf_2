@@ -1,6 +1,6 @@
 {
     "database": {
-      "type": "postgres",
+      "type": "mysql",
       "mysql": {
         "host": "localhost",
         "user": "root",
