@@ -8,6 +8,7 @@ const ProfileComponent = () => {
     <div>
       <h2>Perfil del Usuario</h2>
       <p>Nombre de usuario: {user?.nombre_usuario}</p>
+      <p>Id Usuario: {user?.id_usuario}</p>
       {/* Aquí puedes agregar más información del perfil del usuario */}
     </div>
   );

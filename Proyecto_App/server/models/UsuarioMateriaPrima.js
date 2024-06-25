@@ -4,14 +4,18 @@ const Usuario = require('./Usuario');
 const InventarioMateriaPrima = require('./InventarioMateriaPrima');
 
 const UsuarioMateriaPrima = sequelize.define('usuario_materia_prima', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
     id_usuario: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
             model: Usuario,
             key: 'id_usuario'
-        },
-        primaryKey: true
+        }
     },
     id_materia_prima: {
         type: DataTypes.INTEGER,
@@ -19,8 +23,7 @@ const UsuarioMateriaPrima = sequelize.define('usuario_materia_prima', {
         references: {
             model: InventarioMateriaPrima,
             key: 'id_materia_prima'
-        },
-        primaryKey: true
+        }
     },
     fecha_ingreso: {
         type: DataTypes.DATE,
@@ -36,3 +39,4 @@ const UsuarioMateriaPrima = sequelize.define('usuario_materia_prima', {
 });
 
 module.exports = UsuarioMateriaPrima;
+

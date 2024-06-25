@@ -36,8 +36,8 @@ const ManagementUserComponent = () => {
 
   const loadRoles = async () => {
     try {
-      const rolesData = await fetchRoles();
-      setRoles(rolesData);
+      const data = await fetchRoles();
+      setRoles(data);
     } catch (error) {
       console.error('Error fetching roles:', error);
     }
@@ -45,105 +45,129 @@ const ManagementUserComponent = () => {
 
   const loadUsuarios = async () => {
     try {
-      const usuariosData = await fetchUsers();
-      setUsuarios(usuariosData);
+      const data = await fetchUsers();
+      setUsuarios(data);
     } catch (error) {
-      console.error('Error fetching usuarios:', error);
+      console.error('Error fetching users:', error);
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
-      let response;
-      if (editing) {
-        response = await updateUser(currentUsuario.id_usuario, formData);
+      let result;
+      if (editing && currentUsuario) {
+        result = await updateUser(currentUsuario.id_usuario, formData);
       } else {
-        response = await createUser(formData);
+        result = await createUser(formData);
       }
-
-      if (response.errors) {
-        setErrors(response.errors);
-        return;
+  
+      if (result.errors) {
+        setErrors(result.errors);
+      } else {
+        setFormData({
+          id_rol: '',
+          cedula: '',
+          nombre_usuario: '',
+          apellido_usuario: '',
+          email: '',
+          contrasena: '',
+          telefono: ''
+        });
+        setEditing(false);
+        setCurrentUsuario(null);
+        setErrors({});
+        loadUsuarios();
       }
-
-      alert(editing ? 'Usuario Actualizado' : 'Usuario Registrado');
-      setFormData({
-        id_rol: '',
-        cedula: '',
-        nombre_usuario: '',
-        apellido_usuario: '',
-        email: '',
-        contrasena: '',
-        telefono: ''
-      });
-      setEditing(false);
-      setCurrentUsuario(null);
-      loadUsuarios();
     } catch (error) {
-      console.error('Error saving usuario:', error);
+      console.error('Error saving user:', error);
     }
   };
-
+  
   const handleEdit = (usuario) => {
-    setEditing(true);
-    setCurrentUsuario(usuario);
     setFormData({
       id_rol: usuario.id_rol,
       cedula: usuario.cedula,
       nombre_usuario: usuario.nombre_usuario,
       apellido_usuario: usuario.apellido_usuario,
       email: usuario.email,
-      contrasena: usuario.contrasena,
+      contrasena: '',
       telefono: usuario.telefono
     });
+    setEditing(true);
+    setCurrentUsuario(usuario);
   };
 
   const handleDelete = async (id) => {
     try {
       await deleteUser(id);
-      alert('Usuario Eliminado');
-      loadUsuarios(); // Actualiza la lista de usuarios en tiempo real
+      loadUsuarios();
     } catch (error) {
-      console.error('Error deleting usuario:', error);
+      console.error('Error deleting user:', error);
     }
   };
 
   return (
     <div>
-      <h2>{editing ? "Actualizar Usuario" : "Crear Usuario"}</h2>
-      <form onSubmit={handleSubmit} className="s-form">
-        <select name="id_rol" value={formData.id_rol} onChange={handleInputChange}>
-          <option value="">Selecciona un Rol</option>
-          {roles.map(rol => (
-            <option key={rol.id_rol} value={rol.id_rol}>{rol.nombre_rol}</option>
-          ))}
-        </select>
-        {errors.id_rol && <p>{errors.id_rol}</p>}
-        <br/>
-        <br/>
-        <input type="text" name="cedula" placeholder="Cédula" value={formData.cedula} onChange={handleInputChange} />
-        {errors.cedula && <p>{errors.cedula}</p>}
-        <input type="text" name="nombre_usuario" placeholder="Nombre" value={formData.nombre_usuario} onChange={handleInputChange} />
-        {errors.nombre_usuario && <p>{errors.nombre_usuario}</p>}
-        <input type="text" name="apellido_usuario" placeholder="Apellido" value={formData.apellido_usuario} onChange={handleInputChange} />
-        {errors.apellido_usuario && <p>{errors.apellido_usuario}</p>}
-        <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleInputChange} />
-        {errors.email && <p>{errors.email}</p>}
-        <input type="password" name="contrasena" placeholder="Contraseña" value={formData.contrasena} onChange={handleInputChange} />
-        {errors.contrasena && <p>{errors.contrasena}</p>}
-        <input type="text" name="telefono" placeholder="Teléfono" value={formData.telefono} onChange={handleInputChange} />
-        {errors.telefono && <p>{errors.telefono}</p>}
-        <br/>
-        <button type="submit">{editing ? "Actualizar Usuario" : "Agregar Usuario"}</button>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Rol:</label>
+          <select name="id_rol" value={formData.id_rol} onChange={handleChange}>
+            <option value="">Seleccione un rol</option>
+            {roles.map((rol) => (
+              <option key={rol.id_rol} value={rol.id_rol}>
+                {rol.nombre_rol}
+              </option>
+            ))}
+          </select>
+          {errors.id_rol && <span>{errors.id_rol}</span>}
+        </div>
+
+        <div>
+          <label>Cédula:</label>
+          <input type="text" name="cedula" value={formData.cedula} onChange={handleChange} />
+          {errors.cedula && <span>{errors.cedula}</span>}
+        </div>
+
+        <div>
+          <label>Nombre:</label>
+          <input type="text" name="nombre_usuario" value={formData.nombre_usuario} onChange={handleChange} />
+          {errors.nombre_usuario && <span>{errors.nombre_usuario}</span>}
+        </div>
+
+        <div>
+          <label>Apellido:</label>
+          <input type="text" name="apellido_usuario" value={formData.apellido_usuario} onChange={handleChange} />
+          {errors.apellido_usuario && <span>{errors.apellido_usuario}</span>}
+        </div>
+
+        <div>
+          <label>Email:</label>
+          <input type="text" name="email" value={formData.email} onChange={handleChange} />
+          {errors.email && <span>{errors.email}</span>}
+        </div>
+
+        <div>
+          <label>Contraseña:</label>
+          <input type="password" name="contrasena" value={formData.contrasena} onChange={handleChange} />
+          {errors.contrasena && <span>{errors.contrasena}</span>}
+        </div>
+
+        <div>
+          <label>Teléfono:</label>
+          <input type="text" name="telefono" value={formData.telefono} onChange={handleChange} />
+          {errors.telefono && <span>{errors.telefono}</span>}
+        </div>
+
+        <button type="submit">{editing ? 'Actualizar' : 'Crear'}</button>
       </form>
 
-      <h2>Lista de Usuarios</h2>
       <table>
         <thead>
           <tr>
@@ -157,9 +181,9 @@ const ManagementUserComponent = () => {
           </tr>
         </thead>
         <tbody>
-          {usuariosConRoles.map(usuario => (
+          {usuariosConRoles.map((usuario) => (
             <tr key={usuario.id_usuario}>
-              <td>{usuario.nombre_rol}</td> {/* Mostrar el nombre del rol */}
+              <td>{usuario.nombre_rol}</td>
               <td>{usuario.cedula}</td>
               <td>{usuario.nombre_usuario}</td>
               <td>{usuario.apellido_usuario}</td>
