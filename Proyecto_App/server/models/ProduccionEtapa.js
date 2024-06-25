@@ -4,14 +4,18 @@ const Produccion = require('./Produccion');
 const Etapa = require('./Etapa');
 
 const ProduccionEtapa = sequelize.define('produccion_etapa', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
     id_produccion: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
             model: Produccion,
             key: 'id_produccion'
-        },
-        primaryKey: true
+        }
     },
     id_etapa: {
         type: DataTypes.INTEGER,
@@ -19,8 +23,7 @@ const ProduccionEtapa = sequelize.define('produccion_etapa', {
         references: {
             model: Etapa,
             key: 'id_etapa'
-        },
-        primaryKey: true
+        }
     },
     hora_inicio: {
         type: DataTypes.TIME,

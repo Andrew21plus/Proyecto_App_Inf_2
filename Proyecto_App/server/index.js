@@ -234,18 +234,18 @@ app.get('/produccion-etapa', async (req, res) => {
     }
 });
 
-app.put('/produccion-etapa/:idProduccion/:idEtapa', async (req, res) => {
+app.put('/produccion-etapa/:id', async (req, res) => {
     try {
-        const updated = await controllers.updateProduccionEtapa(req.params.idProduccion, req.params.idEtapa, req.body);
+        const updated = await controllers.updateProduccionEtapa(req.params.id, req.body);
         res.status(200).json(updated);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
 
-app.delete('/produccion-etapa/:idProduccion/:idEtapa', async (req, res) => {
+app.delete('/produccion-etapa/:id', async (req, res) => {
     try {
-        await controllers.deleteProduccionEtapa(req.params.idProduccion, req.params.idEtapa);
+        await controllers.deleteProduccionEtapa(req.params.id);
         res.status(204).send();
     } catch (error) {
         res.status(400).json({ error: error.message });

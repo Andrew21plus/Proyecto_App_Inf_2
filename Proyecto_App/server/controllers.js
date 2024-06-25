@@ -47,8 +47,8 @@ exports.deleteProduccion = async (id) => await Produccion.destroy({ where: { id_
 // CRUD ProduccionEtapa
 exports.createProduccionEtapa = async (data) => await ProduccionEtapa.create(data);
 exports.getProduccionEtapas = async () => await ProduccionEtapa.findAll();
-exports.updateProduccionEtapa = async (idProduccion, idEtapa, data) => await ProduccionEtapa.update(data, { where: { id_produccion: idProduccion, id_etapa: idEtapa } });
-exports.deleteProduccionEtapa = async (idProduccion, idEtapa) => await ProduccionEtapa.destroy({ where: { id_produccion: idProduccion, id_etapa: idEtapa } });
+exports.updateProduccionEtapa = async (id, data) => await ProduccionEtapa.update(data, { where: { id } });
+exports.deleteProduccionEtapa = async (id) => await ProduccionEtapa.destroy({ where: { id } });
 
 // CRUD Rol
 exports.createRol = async (data) => await Rol.create(data);
