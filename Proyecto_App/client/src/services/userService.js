@@ -41,13 +41,14 @@ const validateFormData = async (formData) => {
   const usuarios = await fetchUsers(); // Obtener la lista de usuarios para validaciones
   const roles = await fetchRoles(); // Obtener la lista de roles para validaciones
 
-  if (!formData.id_rol) formErrors.id_rol = "El rol es requerido";
-  else {
+  if (!formData.id_rol) {
+    formErrors.id_rol = "El rol es requerido";
+  } else {
     // Validar que solo haya un Administrador, Gerente y Jefe de Planta
     const roleLimits = {
       'Administrador': 1,
       'Gerente': 1,
-      'Jefe de Planta': 1
+      'Jefe de Planta': 2
     };
 
     const roleCounts = usuarios.reduce((acc, usuario) => {
@@ -58,11 +59,16 @@ const validateFormData = async (formData) => {
       return acc;
     }, {});
 
-    const selectedRole = roles.find(rol => rol.id_rol === formData.id_rol)?.nombre_rol;
+    const selectedRole = roles.find(rol => rol.id_rol === parseInt(formData.id_rol))?.nombre_rol;
+    console.log("Selected Role:", selectedRole);
+    console.log("Role Counts:", roleCounts);
+
     if (roleLimits[selectedRole] && roleCounts[selectedRole] >= roleLimits[selectedRole]) {
       formErrors.id_rol = `Solo se permite un usuario con el rol de ${selectedRole}`;
     }
   }
+
+  // Continuar con las demás validaciones...
 
   if (!formData.cedula) {
     formErrors.cedula = "La cédula es requerida";
@@ -105,6 +111,8 @@ const validateFormData = async (formData) => {
   return formErrors;
 };
 
+
+
 export const fetchUsers = async () => {
   const response = await fetch(API_URL);
   if (!response.ok) {
@@ -133,6 +141,9 @@ export const createUser = async (userData) => {
 };
 
 export const updateUser = async (id, userData) => {
+  // Agregar id_usuario a formData para que la validación pueda verificar el usuario actual
+  userData.id_usuario = id;
+
   const errors = await validateFormData(userData);
   if (Object.keys(errors).length > 0) {
     return { errors };
