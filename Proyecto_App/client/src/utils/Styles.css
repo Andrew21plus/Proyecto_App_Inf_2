@@ -1,36 +1,103 @@
+/* src/utils/Styles.css */
 .s-table {
-    border-collapse: collapse;
-    width: 100%;
-  }
-  
-  .s-table th, .s-table td {
-    border: 1px solid #dddddd;
-    padding: 8px;
-    text-align: left;
-  }
-  
-  .s-table th {
-    background-color: #f2f2f2;
-  }
-  
-  .s-form {
-    margin-bottom: 16px; /* Reducido de 20px */
-  }
-  
-  .s-form input {
-    margin-bottom: 8px; /* Reducido de 10px */
-    padding: 6px; /* Reducido de 8px */
-    width: 80%; /* Ajustado al 80% del ancho original */
-  }
-  
-  .s-form button {
-    padding: 8px 16px; /* Reducido de 10px 20px */
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .s-form button:hover {
-    background-color: #0056b3;
-  }
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.s-table th, .s-table td {
+  border: 1px solid #dddddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.s-table th {
+  background-color: #f2f2f2;
+}
+
+.s-form {
+  margin-bottom: 16px; /* Reducido de 20px */
+}
+
+.s-form input {
+  margin-bottom: 8px; /* Reducido de 10px */
+  padding: 6px; /* Reducido de 8px */
+  width: 80%; /* Ajustado al 80% del ancho original */
+}
+
+.s-form button {
+  padding: 8px 16px; /* Reducido de 10px 20px */
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.s-form button:hover {
+  background-color: #0056b3;
+}
+
+/* Estilos específicos para ProfileComponent */
+.profile-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.profile-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-container label {
+  margin-bottom: 15px;
+  color: #555;
+}
+
+.profile-container label input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.profile-container .error {
+  color: red;
+  font-size: 0.875em;
+  margin-top: 5px;
+}
+
+.profile-container button {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.profile-container button[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.profile-container button[type="button"] {
+  background-color: #f44336;
+  color: white;
+  margin-left: 10px;
+}
+
+.profile-container button[type="button"]:last-child {
+  background-color: #008CBA;
+  margin-left: 0;
+}

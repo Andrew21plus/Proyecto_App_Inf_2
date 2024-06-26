@@ -35,7 +35,7 @@ const validateContrasena = (contrasena) => {
   return contrasena.length >= minLength && hasUpperCase && hasNumber && hasSpecialChar;
 };
 
-const validateFormData = async (formData) => {
+const validateFormData = async (formData, isEditing = false, currentUsuario = null) => {
   let formErrors = {};
 
   const usuarios = await fetchUsers(); // Obtener la lista de usuarios para validaciones
@@ -44,7 +44,6 @@ const validateFormData = async (formData) => {
   if (!formData.id_rol) {
     formErrors.id_rol = "El rol es requerido";
   } else {
-    // Validar que solo haya un Administrador, Gerente y Jefe de Planta
     const roleLimits = {
       'Administrador': 1,
       'Gerente': 1,
@@ -60,15 +59,21 @@ const validateFormData = async (formData) => {
     }, {});
 
     const selectedRole = roles.find(rol => rol.id_rol === parseInt(formData.id_rol))?.nombre_rol;
-    console.log("Selected Role:", selectedRole);
-    console.log("Role Counts:", roleCounts);
+
+    // Validar límites de roles solo si se está editando y el usuario actual tiene rol
+    if (isEditing && currentUsuario && currentUsuario.id_rol) {
+      const currentUserRole = roles.find(rol => rol.id_rol === currentUsuario.id_rol)?.nombre_rol;
+
+      // Restar al conteo del rol actual del usuario
+      if (roleLimits[currentUserRole]) {
+        roleCounts[currentUserRole]--;
+      }
+    }
 
     if (roleLimits[selectedRole] && roleCounts[selectedRole] >= roleLimits[selectedRole]) {
       formErrors.id_rol = `Solo se permite un usuario con el rol de ${selectedRole}`;
     }
   }
-
-  // Continuar con las demás validaciones...
 
   if (!formData.cedula) {
     formErrors.cedula = "La cédula es requerida";
@@ -96,9 +101,9 @@ const validateFormData = async (formData) => {
     formErrors.email = "El email no es válido";
   }
 
-  if (!formData.contrasena) {
+  if (!formData.contrasena && !isEditing) {
     formErrors.contrasena = "La contraseña es requerida";
-  } else if (!validateContrasena(formData.contrasena)) {
+  } else if (!validateContrasena(formData.contrasena) && !isEditing) {
     formErrors.contrasena = "La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial";
   }
 
@@ -110,8 +115,6 @@ const validateFormData = async (formData) => {
 
   return formErrors;
 };
-
-
 
 export const fetchUsers = async () => {
   const response = await fetch(API_URL);
@@ -141,10 +144,9 @@ export const createUser = async (userData) => {
 };
 
 export const updateUser = async (id, userData) => {
-  // Agregar id_usuario a formData para que la validación pueda verificar el usuario actual
   userData.id_usuario = id;
 
-  const errors = await validateFormData(userData);
+  const errors = await validateFormData(userData, true, userData);
   if (Object.keys(errors).length > 0) {
     return { errors };
   }
@@ -169,5 +171,5 @@ export const deleteUser = async (id) => {
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
-  return response.text(); // Maneja respuesta como texto
+  return response.text();
 };
