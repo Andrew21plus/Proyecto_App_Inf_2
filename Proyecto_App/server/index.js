@@ -180,6 +180,8 @@ app.get('/inventario-producto-terminado/:id', async (req, res) => {
     }
 });
 
+// index.js
+
 // Rutas 'Produccion'
 app.post('/produccion', async (req, res) => {
     try {
@@ -217,7 +219,7 @@ app.delete('/produccion/:id', async (req, res) => {
     }
 });
 
-// Rutas 'ProduccionMateriaPrima'
+// Rutas 'ProduccionMateriaPrima' (opcional, si necesitas CRUD independiente)
 app.post('/produccion-materia-prima', async (req, res) => {
     try {
         const produccionMateriaPrima = await controllers.createProduccionMateriaPrima(req.body);

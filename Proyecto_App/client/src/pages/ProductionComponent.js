@@ -1,16 +1,13 @@
-// ProductionComponent.js
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { Link } from 'react-router-dom'; 
-//import './styles.css'; 
+import { Link } from 'react-router-dom';
 import { validateProduccionFormData } from '../services/productionService.js';
 
 const ProductionComponent = () => {
   const [formData, setFormData] = useState({
-    id_materia_prima: '',
     fecha: '',
-    cantidad_uso: '',
-    descripcion: ''
+    descripcion: '',
+    materiasPrimas: [{ id_materia_prima: '', cantidad_uso: '' }] // Inicialmente un elemento vacío
   });
   const [formErrors, setFormErrors] = useState({});
   const [producciones, setProducciones] = useState([]);
@@ -26,7 +23,11 @@ const ProductionComponent = () => {
   const getProducciones = () => {
     Axios.get("http://localhost:3307/produccion")
       .then(response => {
-        setProducciones(response.data);
+        const producciones = response.data.map(produccion => ({
+          ...produccion,
+          materiasPrimas: produccion.materiasPrimas || [] // Asegurar que materiasPrimas sea un array
+        }));
+        setProducciones(producciones);
       })
       .catch(error => {
         console.error('Error fetching producciones:', error);
@@ -45,6 +46,7 @@ const ProductionComponent = () => {
 
   const addProduccion = (e) => {
     e.preventDefault();
+    console.log("Formulario enviado"); // Mensaje de depuración
     const errors = validateProduccionFormData(formData);
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -52,21 +54,24 @@ const ProductionComponent = () => {
     }
 
     const dataToSend = {
-      id_materia_prima: parseInt(formData.id_materia_prima),
       fecha: formData.fecha,
-      cantidad_uso: parseInt(formData.cantidad_uso),
-      descripcion: formData.descripcion
+      descripcion: formData.descripcion,
+      materiasPrimas: formData.materiasPrimas.map(mp => ({
+        id_materia_prima: parseInt(mp.id_materia_prima),
+        cantidad_uso: parseInt(mp.cantidad_uso)
+      }))
     };
+
+    console.log("Datos a enviar:", dataToSend); // Mensaje de depuración
 
     if (editing) {
       Axios.put(`http://localhost:3307/produccion/${currentProduccion.id_produccion}`, dataToSend)
         .then(() => {
           alert("Producción Actualizada");
           setFormData({
-            id_materia_prima: '',
             fecha: '',
-            cantidad_uso: '',
-            descripcion: ''
+            descripcion: '',
+            materiasPrimas: [{ id_materia_prima: '', cantidad_uso: '' }]
           });
           setEditing(false);
           setCurrentProduccion(null);
@@ -80,10 +85,9 @@ const ProductionComponent = () => {
         .then(() => {
           alert("Producción Registrada");
           setFormData({
-            id_materia_prima: '',
             fecha: '',
-            cantidad_uso: '',
-            descripcion: ''
+            descripcion: '',
+            materiasPrimas: [{ id_materia_prima: '', cantidad_uso: '' }]
           });
           getProducciones();
         })
@@ -91,6 +95,19 @@ const ProductionComponent = () => {
           console.error('Error registrando la producción:', error);
         });
     }
+  };
+
+  const editProduccion = (produccion) => {
+    setEditing(true);
+    setCurrentProduccion(produccion);
+    setFormData({
+      fecha: produccion.fecha,
+      descripcion: produccion.descripcion,
+      materiasPrimas: produccion.materiasPrimas.map(mp => ({
+        id_materia_prima: mp.id_materia_prima.toString(),
+        cantidad_uso: mp.cantidad_uso.toString()
+      }))
+    });
   };
 
   const deleteProduccion = (id) => {
@@ -104,21 +121,30 @@ const ProductionComponent = () => {
       });
   };
 
-  const editProduccion = (produccion) => {
-    setEditing(true);
-    setCurrentProduccion(produccion);
+  const handleInputChange = (e, index) => {
+    const { name, value } = e.target;
+    const updatedMateriasPrimas = formData.materiasPrimas.map((mp, i) => (
+      i === index ? { ...mp, [name]: value } : mp
+    ));
+    setFormData({ ...formData, materiasPrimas: updatedMateriasPrimas });
+    setFormErrors({ ...formErrors, [name]: '' });
+  };
+
+  const handleAddMateriaPrima = () => {
     setFormData({
-      id_materia_prima: produccion.id_materia_prima.toString(),
-      fecha: produccion.fecha,
-      cantidad_uso: produccion.cantidad_uso.toString(),
-      descripcion: produccion.descripcion
+      ...formData,
+      materiasPrimas: [...formData.materiasPrimas, { id_materia_prima: '', cantidad_uso: '' }]
     });
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    setFormErrors({ ...formErrors, [name]: '' }); // Clear the error when the user modifies the field
+  const handleRemoveMateriaPrima = (index) => {
+    const updatedMateriasPrimas = formData.materiasPrimas.filter((_, i) => i !== index);
+    setFormData({ ...formData, materiasPrimas: updatedMateriasPrimas });
+  };
+
+  const getNombreMateriaPrima = (id) => {
+    const materiaPrima = materiasPrimas.find(mp => mp.id_materia_prima === id);
+    return materiaPrima ? materiaPrima.descripcion : 'Desconocido';
   };
 
   return (
@@ -126,33 +152,36 @@ const ProductionComponent = () => {
       <h1>Gestión de Producción</h1>
       <h2>Producción Management</h2>
       <form onSubmit={addProduccion} className="s-form">
-        <select name="id_materia_prima" value={formData.id_materia_prima} onChange={handleInputChange}>
-          <option value="">Selecciona una Materia Prima</option>
-          {materiasPrimas.map(materiaPrima => (
-            <option key={materiaPrima.id_materia_prima} value={materiaPrima.id_materia_prima}>{materiaPrima.descripcion}</option>
-          ))}
-        </select>
-        {formErrors.id_materia_prima && <span className="error">{formErrors.id_materia_prima}</span>}
-        <br/>
-        <br/>
-        <input type="date" name="fecha" value={formData.fecha} onChange={handleInputChange} />
+        <input type="date" name="fecha" value={formData.fecha} onChange={e => setFormData({ ...formData, fecha: e.target.value })} />
         {formErrors.fecha && <span className="error">{formErrors.fecha}</span>}
-        <input type="number" name="cantidad_uso" placeholder="Cantidad de Uso" value={formData.cantidad_uso} onChange={handleInputChange} />
-        {formErrors.cantidad_uso && <span className="error">{formErrors.cantidad_uso}</span>}
-        <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} />
+        <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={e => setFormData({ ...formData, descripcion: e.target.value })} />
         {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
+
+        {formData.materiasPrimas.map((mp, index) => (
+          <div key={index}>
+            <select name="id_materia_prima" value={mp.id_materia_prima} onChange={e => handleInputChange(e, index)}>
+              <option value="">Selecciona una Materia Prima</option>
+              {materiasPrimas.map(materiaPrima => (
+                <option key={materiaPrima.id_materia_prima} value={materiaPrima.id_materia_prima}>{materiaPrima.descripcion}</option>
+              ))}
+            </select>
+            <input type="number" name="cantidad_uso" placeholder="Cantidad de Uso" value={mp.cantidad_uso} onChange={e => handleInputChange(e, index)} />
+            {formData.materiasPrimas.length > 1 && <button type="button" onClick={() => handleRemoveMateriaPrima(index)}>Eliminar</button>}
+          </div>
+        ))}
+
+        <button type="button" onClick={handleAddMateriaPrima}>Agregar Materia Prima</button>
         <br/>
-        <button type="submit">{editing ? "Actualizar Producción" : "Agregar Producción"}</button> 
+        <button type="submit">{editing ? "Actualizar Producción" : "Agregar Producción"}</button>
       </form>
       <h2>Lista de Producciones</h2>
       <table className="s-table">
         <thead>
           <tr>
             <th>ID Producción</th>
-            <th>ID Materia Prima</th>
             <th>Fecha</th>
-            <th>Cantidad de Uso</th>
             <th>Descripción</th>
+            <th>Materias Primas</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -160,10 +189,15 @@ const ProductionComponent = () => {
           {producciones.map(produccion => (
             <tr key={produccion.id_produccion}>
               <td>{produccion.id_produccion}</td>
-              <td>{produccion.id_materia_prima}</td>
               <td>{produccion.fecha}</td>
-              <td>{produccion.cantidad_uso}</td>
               <td>{produccion.descripcion}</td>
+              <td>
+                {produccion.materiasPrimas.map(mp => (
+                  <div key={mp.id}>
+                    {getNombreMateriaPrima(mp.id_materia_prima)} - {mp.cantidad_uso}
+                  </div>
+                ))}
+              </td>
               <td>
                 <button onClick={() => editProduccion(produccion)}>Editar</button>
                 <button onClick={() => deleteProduccion(produccion.id_produccion)}>Eliminar</button>
@@ -172,8 +206,8 @@ const ProductionComponent = () => {
           ))}
         </tbody>
       </table>
-      <div> 
-        <Link to="/"> 
+      <div>
+        <Link to="/">
           <br/>
           <button>Volver a la página principal</button>
         </Link>
