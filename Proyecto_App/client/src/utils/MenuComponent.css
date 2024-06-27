@@ -16,10 +16,6 @@
 }
 
 .navbar li {
-  float: left;
-}
-
-.navbar li {
   display: block;
   color: white;
   text-align: center;
@@ -31,6 +27,12 @@
 .navbar li:hover {
   background-color: #ddd;
   color: black;
+}
+
+/* Nueva clase para el elemento seleccionado */
+.navbar .selected {
+  background-color: #555; /* Cambia este color según tus preferencias */
+  color: white; /* Asegúrate de que el texto sea visible */
 }
 
 .menu-content {

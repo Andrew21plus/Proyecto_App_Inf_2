@@ -1,6 +1,4 @@
-// src/pages/PasswordResetComponent.js
 import React, { useState } from 'react';
-//import { sendPasswordResetEmail } from '../services/authService'; // Servicio para recuperar pass
 
 const PasswordResetComponent = () => {
   const [email, setEmail] = useState('');
@@ -10,10 +8,24 @@ const PasswordResetComponent = () => {
   const handlePasswordReset = async (e) => {
     e.preventDefault();
     try {
-      //await sendPasswordResetEmail(email);
-      setMessage('Se ha enviado un correo para restablecer tu contraseña.');
+      const response = await fetch('http://localhost:3307/usuarios/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        setMessage('Se ha enviado un correo para restablecer tu contraseña.');
+        setError('');
+      } else {
+        setError('Ocurrió un error al enviar el correo.');
+        setMessage('');
+      }
     } catch (err) {
       setError('Ocurrió un error al enviar el correo.');
+      setMessage('');
     }
   };
 
@@ -30,8 +42,8 @@ const PasswordResetComponent = () => {
             required
           />
         </div>
-        {message && <p>{message}</p>}
-        {error && <p>{error}</p>}
+        {message && <p style={{ color: 'green' }}>{message}</p>}
+        {error && <p style={{ color: 'red' }}>{error}</p>}
         <button type="submit">Enviar</button>
       </form>
     </div>

@@ -9,6 +9,7 @@ import SalesComponent from './SalesComponent';
 import DrawBackComponent from './DrawBackComponent';
 import PredictionsComponent from './PredictionsComponent';
 import ReportComponent from './ReportComponent';
+import ManagementRolesComponent from './ManagementRolesComponent';
 import '../utils/MenuComponent.css';
 
 const MenuComponent = () => {
@@ -54,30 +55,31 @@ const MenuComponent = () => {
         <ul>
           {isAdmin && (
             <>
-              <li onClick={() => setSelectedOption('management-user')}>Gestión de Usuarios</li>
-              <li onClick={() => setSelectedOption('profile')}>Perfil</li>
+              <li className={selectedOption === 'management-user' ? 'selected' : ''} onClick={() => setSelectedOption('management-user')}>Gestión de Usuarios</li>
+              <li className={selectedOption === 'management-roles' ? 'selected' : ''} onClick={() => setSelectedOption('management-roles')}>Gestión de Roles</li>
+              <li className={selectedOption === 'profile' ? 'selected' : ''} onClick={() => setSelectedOption('profile')}>Perfil</li>
               <li onClick={handleLogout}>Cerrar Sesión</li>
             </>
           )}
           {isManager && (
             <>
-              <li onClick={() => setSelectedOption('inventory')}>Inventario</li>
-              <li onClick={() => setSelectedOption('drawBack')}>Inconvenientes</li>
-              <li onClick={() => setSelectedOption('sales')}>Ventas</li>
-              <li onClick={() => setSelectedOption('production')}>Producción</li>
-              <li onClick={() => setSelectedOption('predictions')}>Predicciones</li>
-              <li onClick={() => setSelectedOption('report')}>Reporte</li>
-              <li onClick={() => setSelectedOption('profile')}>Perfil</li>
+              <li className={selectedOption === 'inventory' ? 'selected' : ''} onClick={() => setSelectedOption('inventory')}>Inventario</li>
+              <li className={selectedOption === 'drawBack' ? 'selected' : ''} onClick={() => setSelectedOption('drawBack')}>Inconvenientes</li>
+              <li className={selectedOption === 'sales' ? 'selected' : ''} onClick={() => setSelectedOption('sales')}>Ventas</li>
+              <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => setSelectedOption('production')}>Producción</li>
+              <li className={selectedOption === 'predictions' ? 'selected' : ''} onClick={() => setSelectedOption('predictions')}>Predicciones</li>
+              <li className={selectedOption === 'report' ? 'selected' : ''} onClick={() => setSelectedOption('report')}>Reporte</li>
+              <li className={selectedOption === 'profile' ? 'selected' : ''} onClick={() => setSelectedOption('profile')}>Perfil</li>
               <li onClick={handleLogout}>Cerrar Sesión</li>
             </>
           )}
           {isPlantChief && (
             <>
-              <li onClick={() => setSelectedOption('inventory')}>Inventario</li>
-              <li onClick={() => setSelectedOption('drawBack')}>Inconvenientes</li>
-              <li onClick={() => setSelectedOption('production')}>Producción</li>
-              <li onClick={() => setSelectedOption('production-stage')}>Producción Etapa</li>
-              <li onClick={() => setSelectedOption('profile')}>Perfil</li>
+              <li className={selectedOption === 'inventory' ? 'selected' : ''} onClick={() => setSelectedOption('inventory')}>Inventario</li>
+              <li className={selectedOption === 'drawBack' ? 'selected' : ''} onClick={() => setSelectedOption('drawBack')}>Inconvenientes</li>
+              <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => setSelectedOption('production')}>Producción</li>
+              <li className={selectedOption === 'production-stage' ? 'selected' : ''} onClick={() => setSelectedOption('production-stage')}>Producción Etapa</li>
+              <li className={selectedOption === 'profile' ? 'selected' : ''} onClick={() => setSelectedOption('profile')}>Perfil</li>
               <li onClick={handleLogout}>Cerrar Sesión</li>
             </>
           )}
@@ -94,10 +96,10 @@ const MenuComponent = () => {
         {selectedOption === 'drawBack' && <DrawBackComponent />}
         {selectedOption === 'predictions' && <PredictionsComponent />}
         {selectedOption === 'report' && <ReportComponent />}
+        {selectedOption === 'management-roles' && <ManagementRolesComponent />}
       </div>
     </div>
   );
 };
 
 export default MenuComponent;
-

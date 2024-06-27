@@ -1,7 +1,9 @@
+// LoginComponent.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Navigate, Link } from 'react-router-dom';
-import { authenticateUser } from '../services/authService'; // Importa el servicio de autenticación
+import { authenticateUser } from '../services/authService';
+import '../utils/Styles.css'; // Importa el archivo CSS
 
 const LoginComponent = () => {
   const [email, setEmail] = useState('');
@@ -13,8 +15,7 @@ const LoginComponent = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const userData = await authenticateUser(email, password); // Usa el servicio de autenticación
-
+      const userData = await authenticateUser(email, password);
       if (userData) {
         await login(userData);
         alert('Usuario Logeado Correctamente');
@@ -27,38 +28,39 @@ const LoginComponent = () => {
     }
   };
 
-  // Redirigir automáticamente si ya está autenticado
   if (user) {
     return <Navigate to="/menu" />;
   }
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    <div className="login-page">
+      <div className="login-container">
+        <h2>Ingreso de Usuario</h2>
+        <form onSubmit={handleLogin}>
+          <div>
+            <label>Correo:</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>Clave:</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          {error && <p className="error-message">{error}</p>}
+          <button type="submit">Ingresar</button>
+        </form>
+        <div className="password-reset-link">
+          <Link to="/password-reset">Olvidé mi contraseña</Link>
         </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        {error && <p>{error}</p>}
-        <button type="submit">Login</button>
-      </form>
-      <div>
-        <Link to="/password-reset">Olvidé mi contraseña</Link> {/* Enlace a recuperación de contraseña */}
       </div>
     </div>
   );

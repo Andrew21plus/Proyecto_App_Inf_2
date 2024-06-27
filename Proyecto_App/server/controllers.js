@@ -9,6 +9,7 @@ const Usuario = require('./models/Usuario');
 const UsuarioMateriaPrima = require('./models/UsuarioMateriaPrima');
 const Ventas = require('./models/Ventas');
 const ProduccionMateriaPrima = require('./models/ProduccionMateriaPrima');
+const bcrypt = require('bcrypt');
 
 // CRUD Etapa
 exports.createEtapa = async (data) => await Etapa.create(data);
@@ -86,11 +87,88 @@ exports.updateRol = async (id, data) => await Rol.update(data, { where: { id_rol
 exports.deleteRol = async (id) => await Rol.destroy({ where: { id_rol: id } });
 
 // CRUD Usuario
-exports.createUsuario = async (data) => await Usuario.create(data);
+exports.createUsuario = async (data) => {
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(data.contrasena, saltRounds);
+    data.contrasena = hashedPassword;
+    return await Usuario.create(data);
+  };
 exports.getUsuarios = async () => await Usuario.findAll();
-exports.updateUsuario = async (id, data) => await Usuario.update(data, { where: { id_usuario: id } });
+exports.updateUsuario = async (id, data) => {
+    const usuario = await Usuario.findByPk(id);
+
+    if (!usuario) {
+        throw new Error('Usuario no encontrado');
+    }
+
+    if (usuario.id_rol !== 1 && data.contrasena) {
+        const saltRounds = 10;
+        data.contrasena = await bcrypt.hash(data.contrasena, saltRounds);
+    }
+    
+    return await Usuario.update(data, { where: { id_usuario: id } });
+};
+
 exports.deleteUsuario = async (id) => await Usuario.destroy({ where: { id_usuario: id } });
 
+const generateTempPassword = () => {
+    // Generar una contraseña temporal
+    return Math.random().toString(36).slice(-8);
+};
+
+exports.resetPassword = async (email) => {
+    const usuario = await Usuario.findOne({ where: { email } });
+    if (!usuario) {
+        throw new Error('Usuario no encontrado');
+    }
+    const tempPassword = generateTempPassword();
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    await Usuario.update({ contrasena: hashedPassword }, { where: { email } });
+    return tempPassword;
+};
+
+// Función para autenticar un usuario
+exports.authenticateUser = async (email, password) => {
+    const usuario = await Usuario.findOne({ where: { email } });
+    if (!usuario) {
+        return null; // Usuario no encontrado
+    }
+
+    if (usuario.id_rol === 1) {
+        // Si el usuario es administrador, no desencriptar la contraseña
+        if (password === usuario.contrasena) {
+            return {
+                id_usuario: usuario.id_usuario,
+                email: usuario.email,
+                id_rol: usuario.id_rol,
+                cedula: usuario.cedula,
+                nombre_usuario: usuario.nombre_usuario,
+                apellido_usuario: usuario.apellido_usuario,
+                telefono: usuario.telefono,
+                // Otros datos relevantes del usuario si los necesitas
+            };
+        } else {
+            return null; // Contraseña inválida
+        }
+    } else {
+        // Si el usuario no es administrador, desencriptar la contraseña
+        const match = await bcrypt.compare(password, usuario.contrasena);
+        if (match) {
+            return {
+                id_usuario: usuario.id_usuario,
+                email: usuario.email,
+                id_rol: usuario.id_rol,
+                cedula: usuario.cedula,
+                nombre_usuario: usuario.nombre_usuario,
+                apellido_usuario: usuario.apellido_usuario,
+                telefono: usuario.telefono,
+                // Otros datos relevantes del usuario si los necesitas
+            };
+        } else {
+            return null; // Contraseña inválida
+        }
+    }
+};
 // CRUD UsuarioMateriaPrima
 exports.createUsuarioMateriaPrima = async (data) => await UsuarioMateriaPrima.create(data);
 exports.getUsuarioMateriaPrima = async () => await UsuarioMateriaPrima.findAll();

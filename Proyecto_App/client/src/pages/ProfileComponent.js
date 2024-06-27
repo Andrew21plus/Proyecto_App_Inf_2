@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { validateFormData, updateUser } from '../services/profileService';
 import '../utils/Styles.css'; // Importar los estilos
@@ -6,15 +6,28 @@ import '../utils/Styles.css'; // Importar los estilos
 const ProfileComponent = () => {
   const { user, roles, setUser } = useAuth();
   const [formData, setFormData] = useState({
-    cedula: user?.cedula || '',
-    nombre_usuario: user?.nombre_usuario || '',
-    apellido_usuario: user?.apellido_usuario || '',
-    email: user?.email || '',
-    contrasena: user?.contrasena || '',
-    rol: roles.map(role => role.nombre_rol).join(', ')
+    cedula: '',
+    nombre_usuario: '',
+    apellido_usuario: '',
+    email: '',
+    contrasena: '',
+    rol: ''
   });
   const [isEditing, setIsEditing] = useState(false);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (user && roles.length > 0) {
+      setFormData({
+        cedula: user.cedula || '',
+        nombre_usuario: user.nombre_usuario || '',
+        apellido_usuario: user.apellido_usuario || '',
+        email: user.email || '',
+        contrasena: '', // Contraseña vacía por seguridad
+        rol: roles.map(role => role.nombre_rol).join(', ')
+      });
+    }
+  }, [user, roles]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

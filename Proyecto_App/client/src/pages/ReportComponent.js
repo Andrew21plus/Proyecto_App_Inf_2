@@ -1,13 +1,10 @@
 import React from 'react';
-import { useAuth } from '../context/AuthContext';
 
-const ProfileComponent = () => {
-  const { user } = useAuth();
+const ReportComponent = () => {
 
   return (
-    <div>
-    </div>
+    <h2>Reportes</h2>
   );
 };
 
-export default ProfileComponent;
+export default ReportComponent;

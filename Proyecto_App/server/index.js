@@ -3,6 +3,7 @@ const cors = require('cors');
 const fs = require('fs');
 const sequelize = require('./database');
 const controllers = require('./controllers');
+const { sendPasswordResetEmail } = require('./emailService'); // Importa el servicio de correo
 
 const app = express();
 app.use(cors());
@@ -439,8 +440,33 @@ app.delete('/ventas/:id', async (req, res) => {
     }
 });
 
+// Ruta para recuperar contraseña
+app.post('/usuarios/reset-password', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const tempPassword = await controllers.resetPassword(email);
+        await sendPasswordResetEmail(email, tempPassword);
+        res.status(200).json({ message: 'Se ha enviado una contraseña temporal a tu correo electrónico.' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+app.post('/usuarios/login', async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        const user = await controllers.authenticateUser(email, password);
+        if (user) {
+            res.status(200).json(user);
+        } else {
+            res.status(401).json({ message: 'Credenciales inválidas' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 const PORT = process.env.PORT || 3307;
 app.listen(PORT, () => {
     console.log(`Corriendo en el puerto ${PORT}`);
 });
-

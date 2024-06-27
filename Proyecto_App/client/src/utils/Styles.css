@@ -6,7 +6,7 @@
 
 .s-table th, .s-table td {
   border: 1px solid #dddddd;
-  padding: 8px;
+  padding: 6px; /* Reducido de 8px */
   text-align: left;
 }
 
@@ -15,17 +15,24 @@
 }
 
 .s-form {
-  margin-bottom: 16px; /* Reducido de 20px */
+  margin-bottom: 16px;
 }
 
-.s-form input {
+.s-form input, .s-form select {
   margin-bottom: 8px; /* Reducido de 10px */
-  padding: 6px; /* Reducido de 8px */
-  width: 80%; /* Ajustado al 80% del ancho original */
+  padding: 4px; /* Reducido de 6px */
+  width: 60%; /* Ajustado al 60% del ancho original */
+  font-size: 0.9em; /* Tamaño de fuente reducido */
+}
+
+.s-form label {
+  font-size: 0.9em; /* Tamaño de fuente reducido */
+  margin-bottom: 4px; /* Reducido el margen inferior */
 }
 
 .s-form button {
-  padding: 8px 16px; /* Reducido de 10px 20px */
+  padding: 6px 12px; /* Reducido de 8px 16px */
+  font-size: 0.9em; /* Tamaño de fuente reducido */
   background-color: #007bff;
   color: white;
   border: none;
@@ -100,4 +107,167 @@
 .profile-container button[type="button"]:last-child {
   background-color: #008CBA;
   margin-left: 0;
+}
+
+/* Estilos Login */
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f0f0; /* Color de fondo opcional */
+}
+
+.login-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-container label {
+  margin-bottom: 5px;
+}
+
+.login-container input {
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.login-container button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-container button:hover {
+  background-color: #0056b3;
+}
+
+.login-container .error-message {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.login-container .password-reset-link {
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Estilo Gestion Roles */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px; /* Reducido el padding */
+  margin: 0 4px; /* Reducido el margen */
+}
+
+.icon-button:hover {
+  color: #007bff;
+}
+
+.edit-button:hover {
+  color: #007bff; /* Color azul para el botón de editar */
+}
+
+.delete-button:hover {
+  color: red; /* Color rojo para el botón de eliminar */
+}
+
+.icon-button.delete-clicked {
+  color: red;
+}
+
+/* Estilos para ManagementUserComponent */
+.user-management-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-management-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.user-management-container form {
+  margin-bottom: 20px;
+}
+
+.user-management-container form div {
+  margin-bottom: 8px; /* Reducido el margen inferior */
+}
+
+.user-management-container form label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.user-management-container form input,
+.user-management-container form select {
+  width: 80%; /* Ajustado al 80% del ancho */
+  padding: 6px; /* Reducido de 8px */
+  font-size: 0.9em; /* Tamaño de fuente reducido */
+}
+
+.user-management-container form button {
+  padding: 8px 16px; /* Reducido de 10px 20px */
+  font-size: 0.9em; /* Tamaño de fuente reducido */
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.user-management-container form button:hover {
+  background-color: #0056b3;
+}
+
+.user-management-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.user-management-container th,
+.user-management-container td {
+  border: 1px solid #dddddd;
+  padding: 6px; /* Reducido de 8px */
+  text-align: left;
+}
+
+.user-management-container th {
+  background-color: #f2f2f2;
+}
+
+.user-management-container .delete-button {
+  background-color: #dc3545;
+}
+
+.user-management-container .delete-button:hover {
+  background-color: #c82333;
+  color: white;
 }
