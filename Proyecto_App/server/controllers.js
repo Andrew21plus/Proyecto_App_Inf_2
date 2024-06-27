@@ -39,25 +39,57 @@ exports.getInventarioProductoTerminadoById = async (id) => {
 };
 
 // CRUD Produccion
+
 exports.createProduccion = async (data) => {
-    const { materia_prima, ...produccionData } = data;
-    const produccion = await Produccion.create(produccionData);
-    if (materia_prima && materia_prima.length) {
-        await ProduccionMateriaPrima.bulkCreate(materia_prima.map(mp => ({
-            id_produccion: produccion.id_produccion,
-            id_materia_prima: mp.id_materia_prima,
-            cantidad_uso: mp.cantidad_uso
-        })));
+    const { materiasPrimas, ...produccionData } = data;
+    console.log('Datos recibidos para la producción:', data); // Registro de depuración
+    try {
+        const produccion = await Produccion.create(produccionData);
+        console.log('Producción creada:', produccion);
+        
+        if (materiasPrimas && materiasPrimas.length > 0) {
+            const materiaPrimaData = materiasPrimas.map(mp => ({
+                id_produccion: produccion.id_produccion,
+                id_materia_prima: mp.id_materia_prima,
+                cantidad_uso: mp.cantidad_uso
+            }));
+            console.log('Datos de materias primas a insertar:', materiaPrimaData); // Registro de depuración
+
+            // Intentar insertar las materias primas y capturar cualquier error
+            try {
+                await ProduccionMateriaPrima.bulkCreate(materiaPrimaData);
+                console.log('Materias primas insertadas correctamente');
+            } catch (bulkCreateError) {
+                console.error('Error al insertar materias primas:', bulkCreateError);
+            }
+        } else {
+            console.log('No se recibieron materias primas para insertar');
+        }
+        
+        return produccion;
+    } catch (error) {
+        console.error('Error al crear la producción:', error);
     }
-    return produccion;
 };
-exports.getProducciones = async () => await Produccion.findAll({ include: InventarioMateriaPrima });
+
+
+exports.getProducciones = async () => {
+    const producciones = await Produccion.findAll({
+        include: [{
+            model: ProduccionMateriaPrima,
+            as: 'materiasPrimas'
+        }]
+    });
+    return producciones;
+};
+
+
 exports.updateProduccion = async (id, data) => {
-    const { materia_prima, ...produccionData } = data;
+    const { materiasPrimas, ...produccionData } = data;
     const produccion = await Produccion.update(produccionData, { where: { id_produccion: id } });
-    if (materia_prima && materia_prima.length) {
+    if (materiasPrimas && materiasPrimas.length > 0) {
         await ProduccionMateriaPrima.destroy({ where: { id_produccion: id } });
-        await ProduccionMateriaPrima.bulkCreate(materia_prima.map(mp => ({
+        await ProduccionMateriaPrima.bulkCreate(materiasPrimas.map(mp => ({
             id_produccion: id,
             id_materia_prima: mp.id_materia_prima,
             cantidad_uso: mp.cantidad_uso
@@ -65,7 +97,11 @@ exports.updateProduccion = async (id, data) => {
     }
     return produccion;
 };
-exports.deleteProduccion = async (id) => await Produccion.destroy({ where: { id_produccion: id } });
+
+exports.deleteProduccion = async (id) => {
+    await ProduccionMateriaPrima.destroy({ where: { id_produccion: id } }); // Asegúrate de eliminar las materias primas asociadas
+    await Produccion.destroy({ where: { id_produccion: id } });
+};
 
 // CRUD ProduccionEtapa
 exports.createProduccionEtapa = async (data) => await ProduccionEtapa.create(data);
