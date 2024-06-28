@@ -22,8 +22,9 @@ const InventoryComponent = () => {
     id_usuario: user?.id || '', // Tomar el id_usuario automáticamente
     id_materia_prima: '',
     fecha_ingreso: '',
-    cantidad_nuevo_ingreso: ''
+    cantidad_nuevo_ingreso: '',
   });
+  console.log(user);
   const [formErrors, setFormErrors] = useState({});
   const [inventarioProductoTerminado, setInventarioProductoTerminado] = useState([]);
   const [producciones, setProducciones] = useState([]);
@@ -45,7 +46,7 @@ const InventoryComponent = () => {
     if (user) {
       setFormUsuarioMateriaPrima((prevForm) => ({
         ...prevForm,
-        id_usuario: user.id
+        id_usuario: user.id_usuario
       }));
     }
   }, [user]);
