@@ -10,6 +10,7 @@ import DrawBackComponent from './DrawBackComponent';
 import PredictionsComponent from './PredictionsComponent';
 import ReportComponent from './ReportComponent';
 import ManagementRolesComponent from './ManagementRolesComponent';
+import StageComponent from './StageComponent';
 import '../utils/MenuComponent.css';
 
 const MenuComponent = () => {
@@ -66,6 +67,7 @@ const MenuComponent = () => {
               <li className={selectedOption === 'inventory' ? 'selected' : ''} onClick={() => setSelectedOption('inventory')}>Inventario</li>
               <li className={selectedOption === 'drawBack' ? 'selected' : ''} onClick={() => setSelectedOption('drawBack')}>Inconvenientes</li>
               <li className={selectedOption === 'sales' ? 'selected' : ''} onClick={() => setSelectedOption('sales')}>Ventas</li>
+              <li className={selectedOption === 'etapas' ? 'selected' : ''} onClick={() => setSelectedOption('etapas')}>Etapas</li>
               <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => setSelectedOption('production')}>Producción</li>
               <li className={selectedOption === 'predictions' ? 'selected' : ''} onClick={() => setSelectedOption('predictions')}>Predicciones</li>
               <li className={selectedOption === 'report' ? 'selected' : ''} onClick={() => setSelectedOption('report')}>Reporte</li>
@@ -93,6 +95,7 @@ const MenuComponent = () => {
         {selectedOption === 'production' && <ProductionComponent />}
         {selectedOption === 'production-stage' && <ProductionStageComponent />}
         {selectedOption === 'sales' && <SalesComponent />}
+        {selectedOption === 'etapas' && <StageComponent />}
         {selectedOption === 'drawBack' && <DrawBackComponent />}
         {selectedOption === 'predictions' && <PredictionsComponent />}
         {selectedOption === 'report' && <ReportComponent />}
