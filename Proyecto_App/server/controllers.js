@@ -26,9 +26,30 @@ exports.deleteInconveniente = async (id) => await Inconveniente.destroy({ where:
 // CRUD InventarioMateriaPrima
 exports.createInventarioMateriaPrima = async (data) => await InventarioMateriaPrima.create(data);
 exports.getInventarioMateriaPrima = async () => await InventarioMateriaPrima.findAll();
-exports.updateInventarioMateriaPrima = async (id, data) => await InventarioMateriaPrima.update(data, { where: { id_materia_prima: id } });
-exports.deleteInventarioMateriaPrima = async (id) => await InventarioMateriaPrima.destroy({ where: { id_materia_prima: id } });
+exports.updateInventarioMateriaPrima = async (id, cantidad_nuevo_ingreso) => {
+    try {
+        // Convertir cantidad_nuevo_ingreso a número
+        const cantidadIngreso = Number(cantidad_nuevo_ingreso);
+        
+        // Buscar la materia prima
+        const materiaPrima = await InventarioMateriaPrima.findOne({ where: { id_materia_prima: id } });
+        if (!materiaPrima) {
+            throw new Error('Materia prima no encontrada');
+        }
 
+        // Sumar la cantidad nueva ingreso a la cantidad disponible
+        materiaPrima.cantidad_disponible += cantidadIngreso;
+        await materiaPrima.save();
+        return materiaPrima;
+    } catch (error) {
+        throw new Error('Error al actualizar la materia prima');
+    }
+};
+exports.deleteInventarioMateriaPrima = async (id) => await InventarioMateriaPrima.destroy({ where: { id_materia_prima: id } });
+// Obtener un materia prima por ID
+exports.getInventarioMateriaPrimaById = async (id) => {
+    return await InventarioMateriaPrima.findByPk(id);
+};
 // CRUD InventarioProductoTerminado
 exports.createInventarioProductoTerminado = async (data) => await InventarioProductoTerminado.create(data);
 exports.getInventarioProductoTerminado = async () => await InventarioProductoTerminado.findAll();
@@ -206,7 +227,21 @@ exports.authenticateUser = async (email, password) => {
     }
 };
 // CRUD UsuarioMateriaPrima
-exports.createUsuarioMateriaPrima = async (data) => await UsuarioMateriaPrima.create(data);
+exports.createUsuarioMateriaPrima = async (data) => {
+    try {
+        const { id_materia_prima, cantidad_nuevo_ingreso } = data;
+        
+        // Crear el registro de usuario materia prima
+        const usuarioMateriaPrima = await UsuarioMateriaPrima.create(data);
+        
+        // Actualizar el inventario de materia prima
+        await exports.updateInventarioMateriaPrima(id_materia_prima, cantidad_nuevo_ingreso);
+
+        return usuarioMateriaPrima;
+    } catch (error) {
+        throw new Error('Error al registrar usuario materia prima');
+    }
+};
 exports.getUsuarioMateriaPrima = async () => await UsuarioMateriaPrima.findAll();
 exports.updateUsuarioMateriaPrima = async (id, data) => await UsuarioMateriaPrima.update(data, { where: { id: id } });
 exports.deleteUsuarioMateriaPrima = async (id) => await UsuarioMateriaPrima.destroy({ where: { id: id } });

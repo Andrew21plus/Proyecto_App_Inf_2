@@ -203,19 +203,20 @@ const InventoryComponent = () => {
     e.preventDefault();
     
     // Validación simple de campos vacíos
-    console.log("id_usuario:", formUsuarioMateriaPrima.id_usuario);
-    console.log("id_materia_prima:", formUsuarioMateriaPrima.id_materia_prima);
-    console.log("fecha_ingreso:", formUsuarioMateriaPrima.fecha_ingreso);
-    console.log("cantidad_nuevo_ingreso:", formUsuarioMateriaPrima.cantidad_nuevo_ingreso);
-    
     if (!formUsuarioMateriaPrima.id_usuario || !formUsuarioMateriaPrima.id_materia_prima || !formUsuarioMateriaPrima.fecha_ingreso || !formUsuarioMateriaPrima.cantidad_nuevo_ingreso) {
       alert("Por favor, complete todos los campos");
       return;
     }
+    
+    // Convertir cantidad_nuevo_ingreso a número
+    const dataToSend = {
+        ...formUsuarioMateriaPrima,
+        cantidad_nuevo_ingreso: Number(formUsuarioMateriaPrima.cantidad_nuevo_ingreso)
+    };
   
-    console.log("Datos a enviar:", formUsuarioMateriaPrima);
+    console.log("Datos a enviar:", dataToSend);
   
-    Axios.post("http://localhost:3307/usuario-materia-prima", formUsuarioMateriaPrima)
+    Axios.post("http://localhost:3307/usuario-materia-prima", dataToSend)
       .then(() => {
         alert("Datos de Usuario Materia Prima Registrados");
         setFormUsuarioMateriaPrima({
@@ -225,12 +226,12 @@ const InventoryComponent = () => {
           cantidad_nuevo_ingreso: ''
         });
         getUsuarioMateriaPrimaData(); // Actualizar la lista de datos
+        getInventarioMateriaPrima();  // Actualizar el inventario de materia prima
       })
       .catch(error => {
         console.error('Error registrando datos de usuario materia prima:', error);
       });
   };
-  
 
   const deleteInventarioPT = (id) => {
     Axios.delete(`http://localhost:3307/inventario-producto-terminado/${id}`)
@@ -300,7 +301,7 @@ const InventoryComponent = () => {
                 <option value="">Seleccione una Producción</option>
                 {producciones.map(produccion => (
                   <option key={produccion.id_produccion} value={produccion.id_produccion}>
-                    {produccion.nombre}
+                    {produccion.descripcion}
                   </option>
                 ))}
               </select>

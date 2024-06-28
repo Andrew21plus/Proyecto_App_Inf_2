@@ -130,6 +130,19 @@ app.delete('/inventario-materia-prima/:id', async (req, res) => {
     }
 });
 
+// Nueva ruta para obtener un producto terminado por ID
+app.get('/inventario-materia-prima/:id', async (req, res) => {
+    try {
+        const materiasPrimas = await controllers.getInventarioMateriaPrimaById(req.params.id);
+        if (!materiasPrimas) {
+            return res.status(404).json({ message: 'Materia Prima no encontrado' });
+        }
+        res.status(200).json(materiasPrimas);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
 // Rutas 'InventarioProductoTerminado'
 app.post('/inventario-producto-terminado', async (req, res) => {
     try {

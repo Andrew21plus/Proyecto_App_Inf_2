@@ -18,6 +18,10 @@ Produccion.init({
   descripcion: {
     type: DataTypes.TEXT,
     allowNull: false
+  },
+  nombre: { // Añadir el campo 'nombre'
+    type: DataTypes.STRING,
+    allowNull: false
   }
 }, {
   sequelize,
