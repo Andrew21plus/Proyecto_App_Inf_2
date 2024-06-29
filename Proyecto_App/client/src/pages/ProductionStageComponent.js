@@ -1,142 +1,241 @@
-// ProductionStageComponent.js
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { Link } from 'react-router-dom';
 import '../utils/Styles.css';
-import { validateProductionStageFormData } from '../services/productionstageService';
 
 const ProductionStageComponent = () => {
   const [formData, setFormData] = useState({
-    etapa: '',
-    descripcion: ''
+    id: '',
+    id_produccion: '',
+    id_etapa: '',
+    hora_inicio: '',
+    hora_fin: '',
+    estado: ''
   });
-  const [formErrors, setFormErrors] = useState({});
+  const [produccionEtapa, setProduccionEtapa] = useState([]);
+  const [producciones, setProducciones] = useState([]);
   const [etapas, setEtapas] = useState([]);
   const [editing, setEditing] = useState(false);
-  const [currentEtapa, setCurrentEtapa] = useState(null);
+  const [currentProduccionEtapa, setCurrentProduccionEtapa] = useState(null);
 
   useEffect(() => {
+    getProduccionEtapa();
+    getProducciones();
     getEtapas();
   }, []);
+
+  const getProduccionEtapa = () => {
+    Axios.get("http://localhost:3307/produccion-etapa")
+      .then(response => {
+        console.log('Producción Etapa fetched:', response.data);
+        setProduccionEtapa(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching produccion_etapa:', error);
+      });
+  };
+
+  const getProducciones = () => {
+    Axios.get("http://localhost:3307/produccion")
+      .then(response => {
+        console.log('Producciones fetched:', response.data);
+        setProducciones(response.data);
+      })
+      .catch(error => {
+        console.error('Error fetching producciones:', error);
+      });
+  };
 
   const getEtapas = () => {
     Axios.get("http://localhost:3307/etapas")
       .then(response => {
+        console.log('Etapas fetched:', response.data);
         setEtapas(response.data);
       })
       .catch(error => {
         console.error('Error fetching etapas:', error);
       });
-  }
-
-  const addEtapa = (e) => {
-    e.preventDefault();
-    const errors = validateProductionStageFormData(formData);
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-
-    if (editing) {
-      Axios.put(`http://localhost:3307/etapas/${currentEtapa.id_etapa}`, formData)
-        .then(() => {
-          alert("Etapa Actualizada");
-          setFormData({
-            etapa: '',
-            descripcion: ''
-          });
-          setEditing(false);
-          setCurrentEtapa(null);
-          getEtapas();
-        })
-        .catch(error => {
-          console.error('Error actualizando la etapa:', error);
-        });
-    } else {
-      Axios.post("http://localhost:3307/etapas", formData)
-        .then(() => {
-          alert("Etapa Registrada");
-          setFormData({
-            etapa: '',
-            descripcion: ''
-          });
-          getEtapas();
-        })
-        .catch(error => {
-          console.error('Error registrando la etapa:', error);
-        });
-    }
   };
 
-  const deleteEtapa = (id) => {
-    Axios.delete(`http://localhost:3307/etapas/${id}`)
-      .then(() => {
-        alert("Etapa Eliminada");
-        getEtapas();
+  const updateProduccionEtapa = (e) => {
+    e.preventDefault();
+
+    const dataToSend = {
+      ...formData,
+      hora_inicio: formData.hora_inicio || null,
+      hora_fin: formData.hora_fin || null,
+    };
+
+    console.log('Data to send:', dataToSend);
+
+    Axios.put(`http://localhost:3307/produccion-etapa/${currentProduccionEtapa.id}`, dataToSend)
+      .then(response => {
+        console.log('Update response:', response.data);
+        alert("Producción Etapa Actualizada");
+        resetForm();
+        getProduccionEtapa();
       })
       .catch(error => {
-        console.error('Error eliminando la etapa:', error);
+        console.error('Error actualizando produccion_etapa:', error);
       });
   };
 
-  const editEtapa = (etapa) => {
-    setEditing(true);
-    setCurrentEtapa(etapa);
+  const resetForm = () => {
     setFormData({
-      etapa: etapa.etapa,
-      descripcion: etapa.descripcion
+      id: '',
+      id_produccion: '',
+      id_etapa: '',
+      hora_inicio: '',
+      hora_fin: '',
+      estado: ''
     });
+    setEditing(false);
+    setCurrentProduccionEtapa(null);
+    console.log('Form reset');
+  };
+
+  const deleteProduccionEtapa = (id) => {
+    Axios.delete(`http://localhost:3307/produccion-etapa/${id}`)
+      .then(response => {
+        console.log('Delete response:', response.data);
+        alert("Producción Etapa Eliminada");
+        getProduccionEtapa();
+      })
+      .catch(error => {
+        console.error('Error eliminando produccion_etapa:', error);
+      });
+  };
+
+  const editProduccionEtapa = (produccionEtapa) => {
+    setEditing(true);
+    setCurrentProduccionEtapa(produccionEtapa);
+    setFormData({
+      id: produccionEtapa.id,
+      id_produccion: produccionEtapa.id_produccion,
+      id_etapa: produccionEtapa.id_etapa,
+      hora_inicio: produccionEtapa.hora_inicio,
+      hora_fin: produccionEtapa.hora_fin,
+      estado: produccionEtapa.estado
+    });
+    console.log('Editing:', produccionEtapa);
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    setFormErrors({ ...formErrors, [name]: '' }); // Clear the error when the user modifies the field
+    console.log('Input change:', name, value);
+  };
+
+  const handleEstadoChange = (e) => {
+    const { value } = e.target;
+    const currentTime = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    const selectedEtapa = etapas.find(etapa => etapa.etapa === value);
+
+    let updatedFormData = { ...formData, estado: value };
+
+    if (value === 'Inicializada') {
+      updatedFormData = { ...updatedFormData, hora_inicio: currentTime, hora_fin: '', id_etapa: selectedEtapa ? selectedEtapa.id_etapa : '' };
+    } else if (value === 'Finalizada') {
+      updatedFormData = { ...updatedFormData, hora_fin: currentTime, id_etapa: selectedEtapa ? selectedEtapa.id_etapa : '' };
+    } else {
+      updatedFormData = { ...updatedFormData, id_etapa: selectedEtapa ? selectedEtapa.id_etapa : '' };
+    }
+
+    setFormData(updatedFormData);
+    console.log('Estado change:', updatedFormData);
+  };
+
+  const getEstadoOptions = () => {
+    const currentEstado = formData.estado;
+
+    if (currentEstado === 'No Inicializada') {
+      return ['Inicializada'];
+    } else if (currentEstado === 'Inicializada') {
+      return ['Finalizada'];
+    } else {
+      return ['No Inicializada', 'Inicializada', 'Finalizada'];
+    }
   };
 
   return (
     <div>
-      <h1>Gestión de Producción Etapa</h1>
-      <h2>Etapa Management</h2>
-      <form onSubmit={addEtapa} className="s-form">
-        <input type="text" name="etapa" placeholder="Etapa" value={formData.etapa} onChange={handleInputChange} />
-        {formErrors.etapa && <span className="error">{formErrors.etapa}</span>}
-        <br/>
-        <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} />
-        {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
-        <br/>
-        <button type="submit">{editing ? "Actualizar Etapa" : "Agregar Etapa"}</button> 
-      </form>
-      <h2>Lista de Etapas</h2>
+      <h2>Producción Etapa Management</h2>
+      {editing && (
+        <form onSubmit={updateProduccionEtapa} className="s-form">
+          <label>Id Registro</label>
+          <input type="text" name="id" value={formData.id} readOnly />
+          <br />
+          <br />
+          <label>Id Producción</label>
+          <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange} disabled>
+            <option value="">Selecciona una Producción</option>
+            {producciones.map(produccion => (
+              <option key={produccion.id_produccion} value={produccion.id_produccion}>{produccion.id_produccion}</option>
+            ))}
+          </select>
+          <br />
+          <br />
+          <label>Id Etapa</label>
+          <input type="text" name="id_etapa" value={formData.id_etapa} readOnly />
+          <br />
+          <br />
+          {formData.estado === 'Inicializada' && (
+            <>
+              <label>Hora Inicio</label>
+              <input type="time" name="hora_inicio" value={formData.hora_inicio} readOnly />
+              <br />
+              <br />
+            </>
+          )}
+          {formData.estado === 'Finalizada' && (
+            <>
+              <label>Hora Fin</label>
+              <input type="time" name="hora_fin" value={formData.hora_fin} readOnly />
+              <br />
+              <br />
+            </>
+          )}
+          <label>Estado</label>
+          <select name="estado" value={formData.estado} onChange={handleEstadoChange}>
+            <option value="">Selecciona un Estado</option>
+            {getEstadoOptions().map(option => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+          <br />
+          <br />
+          <button type="submit">Actualizar Producción Etapa</button>
+        </form>
+      )}
+      <h2>Lista de Producción Etapa</h2>
       <table className="s-table">
         <thead>
           <tr>
+            <th>ID Registro</th>
+            <th>ID Producción</th>
             <th>ID Etapa</th>
-            <th>Etapa</th>
-            <th>Descripción</th>
+            <th>Hora de Inicio</th>
+            <th>Hora de Fin</th>
+            <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {etapas.map(etapa => (
-            <tr key={etapa.id_etapa}>
-              <td>{etapa.id_etapa}</td>
-              <td>{etapa.etapa}</td>
-              <td>{etapa.descripcion}</td>
+          {produccionEtapa.map(pe => (
+            <tr key={pe.id}>
+              <td>{pe.id}</td>
+              <td>{pe.id_produccion}</td>
+              <td>{pe.id_etapa}</td>
+              <td>{pe.hora_inicio}</td>
+              <td>{pe.hora_fin}</td>
+              <td>{pe.estado}</td>
               <td>
-                <button onClick={() => editEtapa(etapa)}>Editar</button>
-                <button onClick={() => deleteEtapa(etapa.id_etapa)}>Eliminar</button>
+                <button onClick={() => editProduccionEtapa(pe)}>Editar</button>
+                <button onClick={() => deleteProduccionEtapa(pe.id)}>Eliminar</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <div> 
-        <Link to="/"> 
-          <br/>
-          <button>Volver a la página principal</button>
-        </Link>
-      </div>
     </div>
   );
 };
