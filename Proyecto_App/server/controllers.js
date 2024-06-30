@@ -26,9 +26,59 @@ exports.deleteInconveniente = async (id) => await Inconveniente.destroy({ where:
 // CRUD InventarioMateriaPrima
 exports.createInventarioMateriaPrima = async (data) => await InventarioMateriaPrima.create(data);
 exports.getInventarioMateriaPrima = async () => await InventarioMateriaPrima.findAll();
-exports.updateInventarioMateriaPrima = async (id, data) => await InventarioMateriaPrima.update(data, { where: { id_materia_prima: id } });
+exports.updateInventarioMateriaPrima = async (id, cantidad) => {
+    const materiaPrima = await InventarioMateriaPrima.findByPk(id);
+    if (!materiaPrima) {
+        throw new Error('Materia Prima no encontrada');
+    }
+    materiaPrima.cantidad_disponible = cantidad;
+    await materiaPrima.save();
+    return materiaPrima;
+};
+// update para nueva cantidad materia prima
+// controllers.js
+exports.updateInventarioMateriaPrimaCantidadDisponible = async (id, cantidadNuevoIngreso) => {
+    try {
+        // Convertir cantidadNuevoIngreso a número
+        const cantidadIngreso = Number(cantidadNuevoIngreso);
+        
+        // Buscar la materia prima
+        const materiaPrima = await InventarioMateriaPrima.findByPk(id);
+        if (!materiaPrima) {
+            throw new Error('Materia Prima no encontrada');
+        }
+
+        // Log valores actuales
+        console.log(`Cantidad disponible actual: ${materiaPrima.cantidad_disponible}`);
+        console.log(`Cantidad nuevo ingreso: ${cantidadIngreso}`);
+
+        // Sumar la cantidad nueva ingreso a la cantidad disponible
+        const nuevaCantidadDisponible = materiaPrima.cantidad_disponible + cantidadIngreso;
+
+        // Log del resultado de la suma
+        console.log(`Nueva cantidad disponible (después de la suma): ${nuevaCantidadDisponible}`);
+
+        // Actualizar la cantidad disponible
+        materiaPrima.cantidad_disponible = nuevaCantidadDisponible;
+        await materiaPrima.save();
+
+        // Log del valor final guardado en la base de datos
+        console.log(`Valor final guardado en cantidad_disponible: ${materiaPrima.cantidad_disponible}`);
+
+        return materiaPrima;
+    } catch (error) {
+        console.error('Error al actualizar la cantidad disponible de materia prima:', error);
+        throw new Error('Error al actualizar la cantidad disponible de materia prima');
+    }
+};
+
+
 exports.deleteInventarioMateriaPrima = async (id) => await InventarioMateriaPrima.destroy({ where: { id_materia_prima: id } });
 
+// Obtener un materia prima por ID
+exports.getInventarioMateriaPrimaById = async (id) => {
+    return await InventarioMateriaPrima.findByPk(id);
+};
 // CRUD InventarioProductoTerminado
 exports.createInventarioProductoTerminado = async (data) => await InventarioProductoTerminado.create(data);
 exports.getInventarioProductoTerminado = async () => await InventarioProductoTerminado.findAll();
@@ -206,7 +256,21 @@ exports.authenticateUser = async (email, password) => {
     }
 };
 // CRUD UsuarioMateriaPrima
-exports.createUsuarioMateriaPrima = async (data) => await UsuarioMateriaPrima.create(data);
+exports.createUsuarioMateriaPrima = async (data) => {
+    try {
+        const { id_materia_prima, cantidad_nuevo_ingreso } = data;
+        
+        // Crear el registro de usuario materia prima
+        const usuarioMateriaPrima = await UsuarioMateriaPrima.create(data);
+        
+        // Actualizar el inventario de materia prima
+        await exports.updateInventarioMateriaPrimaCantidadDisponible(id_materia_prima, cantidad_nuevo_ingreso);
+
+        return usuarioMateriaPrima;
+    } catch (error) {
+        throw new Error('Error al registrar usuario materia prima');
+    }
+};
 exports.getUsuarioMateriaPrima = async () => await UsuarioMateriaPrima.findAll();
 exports.updateUsuarioMateriaPrima = async (id, data) => await UsuarioMateriaPrima.update(data, { where: { id: id } });
 exports.deleteUsuarioMateriaPrima = async (id) => await UsuarioMateriaPrima.destroy({ where: { id: id } });

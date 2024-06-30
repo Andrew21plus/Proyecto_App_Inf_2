@@ -114,17 +114,45 @@ app.get('/inventario-materia-prima', async (req, res) => {
 
 app.put('/inventario-materia-prima/:id', async (req, res) => {
     try {
-        const updated = await controllers.updateInventarioMateriaPrima(req.params.id, req.body);
-        res.status(200).json(updated);
+        const { cantidad_disponible } = req.body;
+        const materiaPrima = await controllers.updateInventarioMateriaPrima(req.params.id, cantidad_disponible);
+        res.status(200).json(materiaPrima);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
 
+// Nueva ruta para actualizar la cantidad disponible de materia prima
+app.put('/inventario-materia-prima/cantidad-disponible/:id', async (req, res) => {
+    try {
+        const { cantidadNuevoIngreso } = req.body;
+        const materiaPrima = await controllers.updateInventarioMateriaPrimaCantidadDisponible(req.params.id, cantidadNuevoIngreso);
+        res.status(200).json(materiaPrima);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+
+
+
 app.delete('/inventario-materia-prima/:id', async (req, res) => {
     try {
         await controllers.deleteInventarioMateriaPrima(req.params.id);
         res.status(204).send();
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// Nueva ruta para obtener un producto terminado por ID
+app.get('/inventario-materia-prima/:id', async (req, res) => {
+    try {
+        const materiaPrima = await controllers.getInventarioMateriaPrimaById(req.params.id);
+        if (!materiaPrima) {
+            return res.status(404).json({ message: 'Materia Prima no encontrado' });
+        }
+        res.status(200).json(materiaPrima);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

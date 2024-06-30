@@ -6,6 +6,7 @@ import '../utils/Styles.css';
 import { validateInventarioPTFormData, validateInventarioMPFormData } from '../services/inventoryService';
 import { useAuth } from '../context/AuthContext';
 
+
 const InventoryComponent = () => {
   const { user, roles } = useAuth(); // Obtener el usuario actual
   const [selectedForm, setSelectedForm] = useState(null);
@@ -203,19 +204,20 @@ const InventoryComponent = () => {
     e.preventDefault();
     
     // Validación simple de campos vacíos
-    console.log("id_usuario:", formUsuarioMateriaPrima.id_usuario);
-    console.log("id_materia_prima:", formUsuarioMateriaPrima.id_materia_prima);
-    console.log("fecha_ingreso:", formUsuarioMateriaPrima.fecha_ingreso);
-    console.log("cantidad_nuevo_ingreso:", formUsuarioMateriaPrima.cantidad_nuevo_ingreso);
-    
     if (!formUsuarioMateriaPrima.id_usuario || !formUsuarioMateriaPrima.id_materia_prima || !formUsuarioMateriaPrima.fecha_ingreso || !formUsuarioMateriaPrima.cantidad_nuevo_ingreso) {
       alert("Por favor, complete todos los campos");
       return;
     }
+    
+    // Convertir cantidad_nuevo_ingreso a número
+    const dataToSend = {
+        ...formUsuarioMateriaPrima,
+        cantidad_nuevo_ingreso: Number(formUsuarioMateriaPrima.cantidad_nuevo_ingreso)
+    };
   
-    console.log("Datos a enviar:", formUsuarioMateriaPrima);
+    console.log("Datos a enviar:", dataToSend);
   
-    Axios.post("http://localhost:3307/usuario-materia-prima", formUsuarioMateriaPrima)
+    Axios.post("http://localhost:3307/usuario-materia-prima", dataToSend)
       .then(() => {
         alert("Datos de Usuario Materia Prima Registrados");
         setFormUsuarioMateriaPrima({
@@ -225,12 +227,48 @@ const InventoryComponent = () => {
           cantidad_nuevo_ingreso: ''
         });
         getUsuarioMateriaPrimaData(); // Actualizar la lista de datos
+        updateInventarioMateriaPrimaCantidadDisponible(dataToSend.id_materia_prima, dataToSend.cantidad_nuevo_ingreso);
       })
       .catch(error => {
         console.error('Error registrando datos de usuario materia prima:', error);
       });
   };
-  
+
+  // Función para actualizar la cantidad disponible de materia prima
+  const updateInventarioMateriaPrimaCantidadDisponible = (id_materia_prima, cantidadNuevoIngreso) => {
+    // Obtener la cantidad disponible actual
+    Axios.get(`http://localhost:3307/inventario-materia-prima/${id_materia_prima}`)
+      .then(response => {
+        const materiaPrima = response.data;
+        console.log(`Cantidad disponible actual: ${materiaPrima.cantidad_disponible}`);
+        console.log(`Cantidad nuevo ingreso: ${cantidadNuevoIngreso}`);
+
+        // Sumar la cantidad nueva ingreso a la cantidad disponible
+        const nuevaCantidadDisponible = materiaPrima.cantidad_disponible + cantidadNuevoIngreso;
+
+        console.log(`Nueva cantidad disponible (después de la suma): ${nuevaCantidadDisponible}`);
+
+        // Actualizar la cantidad disponible
+        Axios.put(`http://localhost:3307/inventario-materia-prima/cantidad-disponible/${id_materia_prima}`, { cantidad_disponible: nuevaCantidadDisponible })
+          .then(() => {
+            console.log(`Valor final guardado en cantidad_disponible: ${nuevaCantidadDisponible}`);
+            getInventarioMateriaPrima();
+          })
+          .catch(error => {
+            console.error('Error actualizando inventario de materia prima:', error);
+          });
+      })
+      .catch(error => {
+        console.error('Error obteniendo la cantidad disponible de materia prima:', error);
+      });
+  };
+
+  const handleChangeMPOption = (option) => {
+    setSelectedMPOption(option);
+    getInventarioMateriaPrima();
+    getUsuarioMateriaPrimaData();
+  };
+
 
   const deleteInventarioPT = (id) => {
     Axios.delete(`http://localhost:3307/inventario-producto-terminado/${id}`)
@@ -300,7 +338,7 @@ const InventoryComponent = () => {
                 <option value="">Seleccione una Producción</option>
                 {producciones.map(produccion => (
                   <option key={produccion.id_produccion} value={produccion.id_produccion}>
-                    {produccion.nombre}
+                    {produccion.descripcion}
                   </option>
                 ))}
               </select>
@@ -349,8 +387,8 @@ const InventoryComponent = () => {
         <div>
           <h2>Inventario Materia Prima</h2>
           <div className="mp-options">
-            <button onClick={() => setSelectedMPOption('Registro')}>Registro Materia Prima</button>
-            <button onClick={() => setSelectedMPOption('UsuarioMateriaPrima')}>Registro Usuario Materia Prima</button>
+          <button onClick={() => handleChangeMPOption('Registro')}>Registro Materia Prima</button>
+          <button onClick={() => handleChangeMPOption('UsuarioMateriaPrima')}>Registro Usuario Materia Prima</button>
           </div>
           
           {selectedMPOption === 'Registro' && isGerente && (
