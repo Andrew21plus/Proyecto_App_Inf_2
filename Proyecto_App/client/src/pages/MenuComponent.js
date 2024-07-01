@@ -20,30 +20,39 @@ const MenuComponent = () => {
   useEffect(() => {
     if (!user) {
       setSelectedOption('');
+    } else {
+      const savedOption = localStorage.getItem('selectedOption');
+      if (savedOption) {
+        setSelectedOption(savedOption);
+      } else {
+        // Set default option based on role if no option is saved
+        const role = roles[0]?.nombre_rol;
+        switch (role) {
+          case 'Administrador':
+            setSelectedOption('management-user');
+            break;
+          case 'Gerente':
+            setSelectedOption('production');
+            break;
+          case 'Jefe de Planta':
+            setSelectedOption('production-stage');
+            break;
+          default:
+            setSelectedOption('profile');
+        }
+      }
     }
-  }, [user]);
+  }, [user, roles]);
 
-  useEffect(() => {
-    // Set default option based on role
-    const role = roles[0]?.nombre_rol;
-    switch (role) {
-      case 'Administrador':
-        setSelectedOption('management-user');
-        break;
-      case 'Gerente':
-        setSelectedOption('production');
-        break;
-      case 'Jefe de Planta':
-        setSelectedOption('production-stage');
-        break;
-      default:
-        setSelectedOption('profile');
-    }
-  }, [roles]);
+  const handleOptionClick = (option) => {
+    setSelectedOption(option);
+    localStorage.setItem('selectedOption', option);
+  };
 
   const handleLogout = () => {
     logout();
     setSelectedOption('');
+    localStorage.removeItem('selectedOption');
   };
 
   const isAdmin = roles.some(role => role.nombre_rol === 'Administrador');
@@ -56,32 +65,32 @@ const MenuComponent = () => {
         <ul>
           {isAdmin && (
             <>
-              <li className={selectedOption === 'management-user' ? 'selected' : ''} onClick={() => setSelectedOption('management-user')}>Gestión de Usuarios</li>
-              <li className={selectedOption === 'management-roles' ? 'selected' : ''} onClick={() => setSelectedOption('management-roles')}>Gestión de Roles</li>
-              <li className={selectedOption === 'profile' ? 'selected' : ''} onClick={() => setSelectedOption('profile')}>Perfil</li>
+              <li className={selectedOption === 'management-user' ? 'selected' : ''} onClick={() => handleOptionClick('management-user')}>Gestión de Usuarios</li>
+              <li className={selectedOption === 'management-roles' ? 'selected' : ''} onClick={() => handleOptionClick('management-roles')}>Gestión de Roles</li>
+              <li className={selectedOption === 'profile' ? 'selected' : ''} onClick={() => handleOptionClick('profile')}>Perfil</li>
               <li onClick={handleLogout}>Cerrar Sesión</li>
             </>
           )}
           {isManager && (
             <>
-              <li className={selectedOption === 'inventory' ? 'selected' : ''} onClick={() => setSelectedOption('inventory')}>Inventario</li>
-              <li className={selectedOption === 'drawBack' ? 'selected' : ''} onClick={() => setSelectedOption('drawBack')}>Inconvenientes</li>
-              <li className={selectedOption === 'sales' ? 'selected' : ''} onClick={() => setSelectedOption('sales')}>Ventas</li>
-              <li className={selectedOption === 'etapas' ? 'selected' : ''} onClick={() => setSelectedOption('etapas')}>Etapas</li>
-              <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => setSelectedOption('production')}>Producción</li>
-              <li className={selectedOption === 'predictions' ? 'selected' : ''} onClick={() => setSelectedOption('predictions')}>Predicciones</li>
-              <li className={selectedOption === 'report' ? 'selected' : ''} onClick={() => setSelectedOption('report')}>Reporte</li>
-              <li className={selectedOption === 'profile' ? 'selected' : ''} onClick={() => setSelectedOption('profile')}>Perfil</li>
+              <li className={selectedOption === 'inventory' ? 'selected' : ''} onClick={() => handleOptionClick('inventory')}>Inventario</li>
+              <li className={selectedOption === 'drawBack' ? 'selected' : ''} onClick={() => handleOptionClick('drawBack')}>Inconvenientes</li>
+              <li className={selectedOption === 'sales' ? 'selected' : ''} onClick={() => handleOptionClick('sales')}>Ventas</li>
+              <li className={selectedOption === 'etapas' ? 'selected' : ''} onClick={() => handleOptionClick('etapas')}>Etapas</li>
+              <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => handleOptionClick('production')}>Producción</li>
+              <li className={selectedOption === 'predictions' ? 'selected' : ''} onClick={() => handleOptionClick('predictions')}>Predicciones</li>
+              <li className={selectedOption === 'report' ? 'selected' : ''} onClick={() => handleOptionClick('report')}>Reporte</li>
+              <li className={selectedOption === 'profile' ? 'selected' : ''} onClick={() => handleOptionClick('profile')}>Perfil</li>
               <li onClick={handleLogout}>Cerrar Sesión</li>
             </>
           )}
           {isPlantChief && (
             <>
-              <li className={selectedOption === 'inventory' ? 'selected' : ''} onClick={() => setSelectedOption('inventory')}>Inventario</li>
-              <li className={selectedOption === 'drawBack' ? 'selected' : ''} onClick={() => setSelectedOption('drawBack')}>Inconvenientes</li>
-              <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => setSelectedOption('production')}>Producción</li>
-              <li className={selectedOption === 'production-stage' ? 'selected' : ''} onClick={() => setSelectedOption('production-stage')}>Producción Etapa</li>
-              <li className={selectedOption === 'profile' ? 'selected' : ''} onClick={() => setSelectedOption('profile')}>Perfil</li>
+              <li className={selectedOption === 'inventory' ? 'selected' : ''} onClick={() => handleOptionClick('inventory')}>Inventario</li>
+              <li className={selectedOption === 'drawBack' ? 'selected' : ''} onClick={() => handleOptionClick('drawBack')}>Inconvenientes</li>
+              <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => handleOptionClick('production')}>Producción</li>
+              <li className={selectedOption === 'production-stage' ? 'selected' : ''} onClick={() => handleOptionClick('production-stage')}>Producción Etapa</li>
+              <li className={selectedOption === 'profile' ? 'selected' : ''} onClick={() => handleOptionClick('profile')}>Perfil</li>
               <li onClick={handleLogout}>Cerrar Sesión</li>
             </>
           )}
