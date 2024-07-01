@@ -183,6 +183,12 @@ const ProductionComponent = () => {
     return materiaPrima ? materiaPrima.descripcion : 'Desconocido';
   };
 
+  // Obtener la fecha actual en el formato correcto
+  const fechaActual = new Date().toISOString().split('T')[0];
+
+  // Filtrar producciones para mostrar solo las de la fecha actual
+  const produccionesFiltradas = producciones.filter(produccion => produccion.fecha === fechaActual);
+
   return (
     <div>
       <h1>Gestión de Producción</h1>
@@ -224,7 +230,7 @@ const ProductionComponent = () => {
           </tr>
         </thead>
         <tbody>
-          {producciones.map(produccion => (
+          {produccionesFiltradas.map(produccion => (
             <tr key={produccion.id_produccion}>
               <td>{produccion.id_produccion}</td>
               <td>{produccion.fecha}</td>
