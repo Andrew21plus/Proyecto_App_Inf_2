@@ -16,6 +16,7 @@ const StageComponent = () => {
   const { roles } = useAuth();
 
   const isGerente = roles.some(role => role.nombre_rol === 'Gerente');
+  const predefinedEtapas = ["No Inicializada", "Inicializada", "Finalizada"];
 
   useEffect(() => {
     getEtapas();
@@ -101,11 +102,21 @@ const StageComponent = () => {
     setFormErrors({ ...formErrors, [name]: '' }); // Clear the error when the user modifies the field
   };
 
+  const isFormBlocked = () => {
+    const etapaNames = etapas.map(etapa => etapa.etapa);
+    return predefinedEtapas.every(predefined => etapaNames.includes(predefined));
+  };
+
+  const hasIncorrectEtapa = () => {
+    const etapaNames = etapas.map(etapa => etapa.etapa);
+    return predefinedEtapas.some(predefined => !etapaNames.includes(predefined));
+  };
+
   return (
     <div>
       <h1>Etapas</h1>
       <h2>Gestión de Etapas</h2>
-      {isGerente && (
+      {isGerente && !isFormBlocked() && (
         <form onSubmit={addEtapa} className="s-form">
           <input type="text" name="etapa" placeholder="Etapa" value={formData.etapa} onChange={handleInputChange} />
           {formErrors.etapa && <span className="error">{formErrors.etapa}</span>}
@@ -115,6 +126,13 @@ const StageComponent = () => {
           <br/>
           <button type="submit">{editing ? "Actualizar Etapa" : "Agregar Etapa"}</button>
         </form>
+      )}
+      {isFormBlocked() && (
+        <p>No se pueden agregar más etapas.</p>
+      )}
+      {hasIncorrectEtapa() && (
+        <p>Las etapas deberian ser "No Inicializada", "Inicializada" y "Finalizada", caso contrario eliminar o editar.</p>
+        
       )}
       <h2>Lista de Etapas</h2>
       <table className="s-table">
@@ -132,7 +150,7 @@ const StageComponent = () => {
               <td>{etapa.id_etapa}</td>
               <td>{etapa.etapa}</td>
               <td>{etapa.descripcion}</td>
-              {isGerente && (
+              {isGerente && !predefinedEtapas.includes(etapa.etapa) && (
                 <td>
                   <button onClick={() => editEtapa(etapa)}>Editar</button>
                   <button onClick={() => deleteEtapa(etapa.id_etapa)}>Eliminar</button>
