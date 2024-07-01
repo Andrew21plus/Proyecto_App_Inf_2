@@ -117,6 +117,18 @@ exports.createProduccion = async (data) => {
             console.log('No se recibieron materias primas para insertar');
         }
         
+        try {
+            const produccionEtapa = await ProduccionEtapa.create({
+                id_produccion: produccion.id_produccion,
+                id_etapa: 1, // Asumiendo que 1 es el ID de la etapa inicial
+                hora_inicio: null,
+                hora_fin: null,
+                estado: 'No inicializado'
+            });
+            console.log('Registro de producción etapa creado:', produccionEtapa);
+        } catch (etapaError) {
+            console.error('Error al crear registro de producción etapa:', etapaError);
+        }
         return produccion;
     } catch (error) {
         console.error('Error al crear la producción:', error);
