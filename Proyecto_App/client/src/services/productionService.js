@@ -1,18 +1,24 @@
 // productionService.js
+export const validateProduccionFormData = (formData) => {
+  let errors = {};
 
-export const validateProduccionFormData = (data) => {
-  const errors = {};
-  if (!data.fecha) errors.fecha = "Fecha es requerida";
-  if (!data.descripcion) errors.descripcion = "Descripción es requerida";
-  
-  data.materiasPrimas.forEach((mp, index) => {
+  // Validar fecha (si se necesitara alguna validación adicional)
+  if (!formData.fecha) {
+    errors.fecha = "La fecha es obligatoria.";
+  }
+
+  // Validar descripción
+  if (!formData.descripcion) {
+    errors.descripcion = "La descripción es obligatoria.";
+  }
+
+  // Validar cantidad de uso para cada materia prima
+  formData.materiasPrimas.forEach((mp, index) => {
     if (!mp.id_materia_prima) {
-      errors[`id_materia_prima_${index}`] = "Materia Prima es requerida";
+      errors[`id_materia_prima_${index}`] = "Selecciona una materia prima.";
     }
-    if (!mp.cantidad_uso) {
-      errors[`cantidad_uso_${index}`] = "Cantidad de Uso es requerida";
-    } else if (isNaN(mp.cantidad_uso)) {
-      errors[`cantidad_uso_${index}`] = "Cantidad de Uso debe ser un número";
+    if (mp.cantidad_uso <= 0) {
+      errors[`cantidad_uso_${index}`] = "La cantidad de uso debe ser mayor que 0.";
     }
   });
 

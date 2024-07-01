@@ -5,7 +5,7 @@ import { validateProduccionFormData } from '../services/productionService.js';
 
 const ProductionComponent = () => {
   const [formData, setFormData] = useState({
-    fecha: '',
+    fecha: new Date().toISOString().split('T')[0],  // Establecer la fecha actual
     descripcion: '',
     materiasPrimas: [{ id_materia_prima: '', cantidad_uso: '' }] // Inicialmente un elemento vacío
   });
@@ -124,10 +124,11 @@ const ProductionComponent = () => {
 
   const resetForm = () => {
     setFormData({
-      fecha: '',
+      fecha: new Date().toISOString().split('T')[0],  // Restablecer la fecha actual
       descripcion: '',
       materiasPrimas: [{ id_materia_prima: '', cantidad_uso: '' }]
     });
+    setFormErrors({});
     setEditing(false);
     setCurrentProduccion(null);
   };
@@ -187,7 +188,7 @@ const ProductionComponent = () => {
       <h1>Gestión de Producción</h1>
       <h2>Producción Management</h2>
       <form onSubmit={addProduccion} className="s-form">
-        <input type="date" name="fecha" value={formData.fecha} onChange={e => setFormData({ ...formData, fecha: e.target.value })} />
+        <input type="date" name="fecha" value={formData.fecha} readOnly />  {/* Campo de fecha no modificable */}
         {formErrors.fecha && <span className="error">{formErrors.fecha}</span>}
         <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={e => setFormData({ ...formData, descripcion: e.target.value })} />
         {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
@@ -200,7 +201,9 @@ const ProductionComponent = () => {
                 <option key={materiaPrima.id_materia_prima} value={materiaPrima.id_materia_prima}>{materiaPrima.descripcion}</option>
               ))}
             </select>
+            {formErrors[`id_materia_prima_${index}`] && <span className="error">{formErrors[`id_materia_prima_${index}`]}</span>}
             <input type="number" name="cantidad_uso" placeholder="Cantidad de Uso" value={mp.cantidad_uso} onChange={e => handleInputChange(e, index)} />
+            {formErrors[`cantidad_uso_${index}`] && <span className="error">{formErrors[`cantidad_uso_${index}`]}</span>}
             {formData.materiasPrimas.length > 1 && <button type="button" onClick={() => handleRemoveMateriaPrima(index)}>Eliminar</button>}
           </div>
         ))}
