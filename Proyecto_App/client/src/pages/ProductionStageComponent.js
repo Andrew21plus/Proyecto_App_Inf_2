@@ -184,6 +184,15 @@ const ProductionStageComponent = () => {
       });
   };
 
+  // Obtener la fecha actual en formato YYYY-MM-DD
+  const fechaActual = new Date().toISOString().split('T')[0];
+
+  // Filtrar produccionEtapa según la fecha de las producciones
+  const produccionEtapaFiltrada = produccionEtapa.filter(pe => {
+    const produccion = producciones.find(p => p.id_produccion === pe.id_produccion);
+    return produccion && produccion.fecha === fechaActual;
+  });
+
   return (
     <div>
       <h2>Producción Etapa Management</h2>
@@ -248,7 +257,7 @@ const ProductionStageComponent = () => {
           </tr>
         </thead>
         <tbody>
-          {produccionEtapa.map(pe => (
+          {produccionEtapaFiltrada.map(pe => (
             <tr key={pe.id}>
               <td>{pe.id}</td>
               <td>{pe.id_produccion}</td>
