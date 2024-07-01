@@ -169,7 +169,36 @@ exports.deleteProduccion = async (id) => {
 // CRUD ProduccionEtapa
 exports.createProduccionEtapa = async (data) => await ProduccionEtapa.create(data);
 exports.getProduccionEtapas = async () => await ProduccionEtapa.findAll();
-exports.updateProduccionEtapa = async (id, data) => await ProduccionEtapa.update(data, { where: { id } });
+exports.updateProduccionEtapa = async (id, data) => {
+    try {
+        const produccionEtapa = await ProduccionEtapa.findByPk(id);
+        if (!produccionEtapa) {
+            throw new Error('Producción Etapa no encontrada');
+        }
+
+        const updatedData = {
+            ...data,
+            hora_inicio: data.hora_inicio || produccionEtapa.hora_inicio,
+            hora_fin: data.hora_fin || produccionEtapa.hora_fin,
+        };
+
+        await produccionEtapa.update(updatedData);
+
+        if (updatedData.estado === 'Finalizada') {
+            // Crear una entrada en InventarioProductoTerminado
+            await InventarioProductoTerminado.create({
+                id_produccion: updatedData.id_produccion,
+                cantidad_disponible: 0, // Esto se actualizará desde el frontend
+                nombre: '' // Esto se actualizará desde el frontend
+            });
+        }
+
+        return produccionEtapa;
+    } catch (error) {
+        console.error('Error actualizando la Producción Etapa:', error);
+        throw error;
+    }
+};
 exports.deleteProduccionEtapa = async (id) => await ProduccionEtapa.destroy({ where: { id } });
 
 // CRUD ProduccionMateriaPrima

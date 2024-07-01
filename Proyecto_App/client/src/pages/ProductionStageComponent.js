@@ -17,6 +17,13 @@ const ProductionStageComponent = () => {
   const [editing, setEditing] = useState(false);
   const [currentProduccionEtapa, setCurrentProduccionEtapa] = useState(null);
 
+  const [showModal, setShowModal] = useState(false);
+  const [productoTerminado, setProductoTerminado] = useState({
+    id_produccion: '',
+    cantidad_disponible: '',
+    nombre: ''
+  });
+
   useEffect(() => {
     getProduccionEtapa();
     getProducciones();
@@ -71,6 +78,10 @@ const ProductionStageComponent = () => {
       .then(response => {
         console.log('Update response:', response.data);
         alert("Producción Etapa Actualizada");
+        if (dataToSend.estado === 'Finalizada') {
+          setShowModal(true);
+          setProductoTerminado({ id_produccion: dataToSend.id_produccion, cantidad_disponible: '', nombre: '' });
+        }
         resetForm();
         getProduccionEtapa();
       })
@@ -156,6 +167,23 @@ const ProductionStageComponent = () => {
     }
   };
 
+  const handleProductoTerminadoChange = (e) => {
+    const { name, value } = e.target;
+    setProductoTerminado({ ...productoTerminado, [name]: value });
+  };
+
+  const addProductoTerminado = (e) => {
+    e.preventDefault();
+    Axios.post("http://localhost:3307/inventario-producto-terminado", productoTerminado)
+      .then(() => {
+        alert("Producto Terminado Registrado");
+        setShowModal(false);
+      })
+      .catch(error => {
+        console.error('Error registrando el producto terminado:', error);
+      });
+  };
+
   return (
     <div>
       <h2>Producción Etapa Management</h2>
@@ -236,6 +264,27 @@ const ProductionStageComponent = () => {
           ))}
         </tbody>
       </table>
+
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Registrar Producto Terminado</h2>
+            <form onSubmit={addProductoTerminado}>
+              <label>ID Producción</label>
+              <input type="text" name="id_produccion" value={productoTerminado.id_produccion} readOnly />
+              <br />
+              <label>Cantidad Disponible</label>
+              <input type="number" name="cantidad_disponible" value={productoTerminado.cantidad_disponible} onChange={handleProductoTerminadoChange} required />
+              <br />
+              <label>Nombre</label>
+              <input type="text" name="nombre" value={productoTerminado.nombre} onChange={handleProductoTerminadoChange} required />
+              <br />
+              <button type="submit">Registrar</button>
+              <button type="button" onClick={() => setShowModal(false)}>Cancelar</button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
