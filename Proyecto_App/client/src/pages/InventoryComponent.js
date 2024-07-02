@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { Link } from 'react-router-dom'; // Mantener esta línea si vas a usar Link
 import '../utils/Styles.css';
 import { validateInventarioPTFormData, validateInventarioMPFormData, validateUsuarioMateriaPrimaFormData } from '../services/inventoryService';
 import { useAuth } from '../context/AuthContext';
@@ -23,7 +22,6 @@ const InventoryComponent = () => {
     fecha_ingreso: '',
     cantidad_nuevo_ingreso: '',
   });
-  console.log(user);
   const [formErrors, setFormErrors] = useState({});
   const [inventarioProductoTerminado, setInventarioProductoTerminado] = useState([]);
   const [producciones, setProducciones] = useState([]);
@@ -272,8 +270,6 @@ const InventoryComponent = () => {
 
   const handleChangeMPOption = (option) => {
     setSelectedMPOption(option);
-    getInventarioMateriaPrima();
-    getUsuarioMateriaPrimaData();
   };
 
 
@@ -339,27 +335,6 @@ const InventoryComponent = () => {
       {selectedForm === 'PT' && (
         <div>
           <h2>Inventario Producto Terminado</h2>
-          {isGerente && (
-            <form onSubmit={addInventarioPT} className="s-form">
-              <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange}>
-                <option value="">Seleccione una Producción</option>
-                {producciones.map(produccion => (
-                  <option key={produccion.id_produccion} value={produccion.id_produccion}>
-                    {produccion.descripcion}
-                  </option>
-                ))}
-              </select>
-              {formErrors.id_produccion && <span className="error">{formErrors.id_produccion}</span>}
-              <br/>
-              <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} />
-              {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
-              <br/>
-              <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} />
-              {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
-              <br/>
-              <button type="submit">{editingPT ? 'Actualizar' : 'Agregar'}</button>
-            </form>
-          )}
           <h3>Lista de Inventario Producto Terminado</h3>
           <table className="s-table">
             <thead>
@@ -394,10 +369,10 @@ const InventoryComponent = () => {
         <div>
           <h2>Inventario Materia Prima</h2>
           <div className="mp-options">
-          <button onClick={() => handleChangeMPOption('Registro')}>Registro Materia Prima</button>
-          <button onClick={() => handleChangeMPOption('UsuarioMateriaPrima')}>Registro Usuario Materia Prima</button>
+            <button onClick={() => handleChangeMPOption('Registro')}>Registro Materia Prima</button>
+            <button onClick={() => handleChangeMPOption('UsuarioMateriaPrima')}>Registro Usuario Materia Prima</button>
           </div>
-          
+
           {selectedMPOption === 'Registro' && isGerente && (
             <div>
               <form onSubmit={addInventarioMP} className="s-form">
@@ -455,6 +430,7 @@ const InventoryComponent = () => {
 
           {selectedMPOption === 'UsuarioMateriaPrima' && (
             <div>
+              <h3>Registro Usuario Materia Prima</h3>
               <form onSubmit={addUsuarioMateriaPrima} className="s-form">
                 <input type="hidden" name="id_usuario" value={formUsuarioMateriaPrima.id_usuario} />
                 <select name="id_materia_prima" value={formUsuarioMateriaPrima.id_materia_prima} onChange={handleInputChangeUsuarioMateriaPrima}>
@@ -489,6 +465,36 @@ const InventoryComponent = () => {
                       <td>{ump.id_materia_prima}</td>
                       <td>{ump.fecha_ingreso}</td>
                       <td>{ump.cantidad_nuevo_ingreso}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {isJefePlanta && selectedMPOption === 'Registro' && (
+            <div>
+              <h3>Lista de Inventario Materia Prima</h3>
+              <table className="s-table">
+                <thead>
+                  <tr>
+                    <th>ID Materia Prima</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Proveedor</th>
+                    <th>Cantidad de Ingreso</th>
+                    <th>Cantidad Disponible</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {inventarioMateriaPrima.map(inventarioMP => (
+                    <tr key={inventarioMP.id_materia_prima}>
+                      <td>{inventarioMP.id_materia_prima}</td>
+                      <td>{inventarioMP.nombre}</td>
+                      <td>{inventarioMP.descripcion}</td>
+                      <td>{inventarioMP.proveedor}</td>
+                      <td>{inventarioMP.cantidad_ingreso}</td>
+                      <td>{inventarioMP.cantidad_disponible}</td>
                     </tr>
                   ))}
                 </tbody>
