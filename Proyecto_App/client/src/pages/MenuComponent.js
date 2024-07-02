@@ -70,7 +70,7 @@ const MenuComponent = () => {
     };
 
     fetchInconvenientes();
-    const interval = setInterval(fetchInconvenientes, 1000); // Verifica cada 10 segundos
+    const interval = setInterval(fetchInconvenientes, 300000); // Verifica cada 10 segundos
 
     return () => clearInterval(interval);
   }, [inconvenientes, isGerente, showAlert, setShowAlert, firstLoad]);
