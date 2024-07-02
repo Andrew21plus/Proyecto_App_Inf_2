@@ -184,14 +184,15 @@ exports.updateProduccionEtapa = async (id, data) => {
 
         await produccionEtapa.update(updatedData);
 
-        if (updatedData.estado === 'Finalizada') {
-            // Crear una entrada en InventarioProductoTerminado
-            await InventarioProductoTerminado.create({
-                id_produccion: updatedData.id_produccion,
-                cantidad_disponible: 0, // Esto se actualizará desde el frontend
-                nombre: '' // Esto se actualizará desde el frontend
-            });
-        }
+        // Eliminar la creación automática del registro de producto terminado
+        // if (updatedData.estado === 'Finalizada') {
+        //     // Crear una entrada en InventarioProductoTerminado
+        //     await InventarioProductoTerminado.create({
+        //         id_produccion: updatedData.id_produccion,
+        //         cantidad_disponible: 0, // Esto se actualizará desde el frontend
+        //         nombre: '' // Esto se actualizará desde el frontend
+        //     });
+        // }
 
         return produccionEtapa;
     } catch (error) {
@@ -199,6 +200,7 @@ exports.updateProduccionEtapa = async (id, data) => {
         throw error;
     }
 };
+
 exports.deleteProduccionEtapa = async (id) => await ProduccionEtapa.destroy({ where: { id } });
 
 // CRUD ProduccionMateriaPrima
