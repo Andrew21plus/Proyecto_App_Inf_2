@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import { Link } from 'react-router-dom';
 import { validateProduccionFormData } from '../services/productionService.js';
+import { useAuth } from '../context/AuthContext'; // Importar el contexto de autenticación
+import '../utils/StylesPC.css';  // Asumiendo que el archivo CSS se llama ProductionComponent.css
 
 const ProductionComponent = () => {
+  const { roles } = useAuth(); // Obtener los roles del usuario actual
   const [formData, setFormData] = useState({
-    fecha: new Date().toISOString().split('T')[0],  // Establecer la fecha actual
+    fecha: new Date().toISOString().split('T')[0], // Establecer la fecha actual
     descripcion: '',
     materiasPrimas: [{ id_materia_prima: '', cantidad_uso: '' }] // Inicialmente un elemento vacío
   });
@@ -14,6 +17,9 @@ const ProductionComponent = () => {
   const [materiasPrimas, setMateriasPrimas] = useState([]);
   const [editing, setEditing] = useState(false);
   const [currentProduccion, setCurrentProduccion] = useState(null);
+
+  const isManager = roles.some(role => role.nombre_rol === 'Gerente');
+  const isPlantChief = roles.some(role => role.nombre_rol === 'Jefe de Planta');
 
   useEffect(() => {
     getProducciones();
@@ -124,7 +130,7 @@ const ProductionComponent = () => {
 
   const resetForm = () => {
     setFormData({
-      fecha: new Date().toISOString().split('T')[0],  // Restablecer la fecha actual
+      fecha: new Date().toISOString().split('T')[0], // Restablecer la fecha actual
       descripcion: '',
       materiasPrimas: [{ id_materia_prima: '', cantidad_uso: '' }]
     });
@@ -186,43 +192,43 @@ const ProductionComponent = () => {
   // Obtener la fecha actual en el formato correcto
   const fechaActual = new Date().toISOString().split('T')[0];
 
-  // Filtrar producciones para mostrar solo las de la fecha actual
-  const produccionesFiltradas = producciones.filter(produccion => produccion.fecha === fechaActual);
+  // Filtrar producciones según el rol del usuario
+  const produccionesFiltradas = isPlantChief
+    ? producciones.filter(produccion => produccion.fecha === fechaActual)
+    : producciones;
 
   return (
-    <div>
+    <div className="production-container">
       <h1>Gestión de Producción</h1>
       <h2>Producción Management</h2>
-      <form onSubmit={addProduccion} className="s-form">
-        <input type="date" name="fecha" value={formData.fecha} readOnly />  {/* Campo de fecha no modificable */}
+      <form onSubmit={addProduccion} className="production-form">
+        <input type="date" name="fecha" value={formData.fecha} readOnly className="input-field" /> {/* Campo de fecha no modificable */}
         {formErrors.fecha && <span className="error">{formErrors.fecha}</span>}
-        <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={e => setFormData({ ...formData, descripcion: e.target.value })} />
+        <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={e => setFormData({ ...formData, descripcion: e.target.value })} className="input-field" />
         {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
 
         {formData.materiasPrimas.map((mp, index) => (
-          <div key={index}>
-            <select name="id_materia_prima" value={mp.id_materia_prima} onChange={e => handleInputChange(e, index)}>
-              <option value="">Selecciona una Materia Prima</option>
-              {materiasPrimas.map(materiaPrima => (
-                <option key={materiaPrima.id_materia_prima} value={materiaPrima.id_materia_prima}>{materiaPrima.descripcion}</option>
+          <div key={index} className="materia-prima">
+            <select name="id_materia_prima" value={mp.id_materia_prima} onChange={e => handleInputChange(e, index)} className="input-field">
+              <option value="">Seleccione una materia prima</option>
+              {materiasPrimas.map(mp => (
+                <option key={mp.id_materia_prima} value={mp.id_materia_prima}>{mp.descripcion}</option>
               ))}
             </select>
             {formErrors[`id_materia_prima_${index}`] && <span className="error">{formErrors[`id_materia_prima_${index}`]}</span>}
-            <input type="number" name="cantidad_uso" placeholder="Cantidad de Uso" value={mp.cantidad_uso} onChange={e => handleInputChange(e, index)} />
+            <input type="number" name="cantidad_uso" placeholder="Cantidad de uso" value={mp.cantidad_uso} onChange={e => handleInputChange(e, index)} className="input-field" />
             {formErrors[`cantidad_uso_${index}`] && <span className="error">{formErrors[`cantidad_uso_${index}`]}</span>}
-            {formData.materiasPrimas.length > 1 && <button type="button" onClick={() => handleRemoveMateriaPrima(index)}>Eliminar</button>}
+            <button type="button" className="remove-button" onClick={() => handleRemoveMateriaPrima(index)}>Eliminar</button>
           </div>
         ))}
-
-        <button type="button" onClick={handleAddMateriaPrima}>Agregar Materia Prima</button>
-        <br/>
-        <button type="submit">{editing ? "Actualizar Producción" : "Agregar Producción"}</button>
+        <button type="button" className="add-button" onClick={handleAddMateriaPrima}>Añadir Materia Prima</button>
+        <button type="submit" className="submit-button">{editing ? 'Actualizar Producción' : 'Registrar Producción'}</button>
+        <button type="button" className="cancel-button" onClick={resetForm}>Cancelar</button>
       </form>
-      <h2>Lista de Producciones</h2>
-      <table className="s-table">
+
+      <table className="production-table">
         <thead>
           <tr>
-            <th>ID Producción</th>
             <th>Fecha</th>
             <th>Descripción</th>
             <th>Materias Primas</th>
@@ -232,30 +238,24 @@ const ProductionComponent = () => {
         <tbody>
           {produccionesFiltradas.map(produccion => (
             <tr key={produccion.id_produccion}>
-              <td>{produccion.id_produccion}</td>
               <td>{produccion.fecha}</td>
               <td>{produccion.descripcion}</td>
               <td>
-                {produccion.materiasPrimas.map(mp => (
-                  <div key={mp.id}>
-                    {getNombreMateriaPrima(mp.id_materia_prima)} - {mp.cantidad_uso}
-                  </div>
-                ))}
+                <ul>
+                  {produccion.materiasPrimas.map(mp => (
+                    <li key={mp.id_materia_prima}>{getNombreMateriaPrima(mp.id_materia_prima)} - {mp.cantidad_uso}</li>
+                  ))}
+                </ul>
               </td>
               <td>
-                <button onClick={() => editProduccion(produccion)}>Editar</button>
-                <button onClick={() => deleteProduccion(produccion.id_produccion)}>Eliminar</button>
+                <button className="edit-button" onClick={() => editProduccion(produccion)}>Editar</button>
+                <button className="delete-button" onClick={() => deleteProduccion(produccion.id_produccion)}>Eliminar</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <div>
-        <Link to="/">
-          <br/>
-          <button>Volver a la página principal</button>
-        </Link>
-      </div>
+      <Link to="/menu" className="back-link">Volver al Menú</Link>
     </div>
   );
 };
