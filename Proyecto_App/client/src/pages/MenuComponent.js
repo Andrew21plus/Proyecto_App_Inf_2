@@ -1,3 +1,4 @@
+// MenuComponent.js
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import ManagementUserComponent from './ManagementUserComponent';
@@ -12,10 +13,16 @@ import ReportComponent from './ReportComponent';
 import ManagementRolesComponent from './ManagementRolesComponent';
 import StageComponent from './StageComponent';
 import '../utils/MenuComponent.css';
+import Axios from 'axios';
+import { useAlert } from '../context/AlertContext';
 
 const MenuComponent = () => {
   const { user, roles, logout } = useAuth();
+  const { showAlert, setShowAlert } = useAlert();
   const [selectedOption, setSelectedOption] = useState('');
+  const [inconvenientes, setInconvenientes] = useState([]);
+
+  const isGerente = roles.some(role => role.nombre_rol === 'Gerente');
 
   useEffect(() => {
     if (!user) {
@@ -25,7 +32,6 @@ const MenuComponent = () => {
       if (savedOption) {
         setSelectedOption(savedOption);
       } else {
-        // Set default option based on role if no option is saved
         const role = roles[0]?.nombre_rol;
         switch (role) {
           case 'Administrador':
@@ -43,6 +49,26 @@ const MenuComponent = () => {
       }
     }
   }, [user, roles]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      Axios.get("http://localhost:3307/inconvenientes")
+        .then(response => {
+          const newInconvenientes = response.data;
+          setInconvenientes(newInconvenientes);
+
+          if (isGerente && !showAlert && inconvenientes.length !== newInconvenientes.length) {
+            alert("Se ha detectado un cambio en la tabla de inconvenientes");
+            setShowAlert(true);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching inconvenientes:', error);
+        });
+    }, 10000); // Verifica cada 10 segundos
+
+    return () => clearInterval(interval);
+  }, [inconvenientes, isGerente, showAlert, setShowAlert]);
 
   const handleOptionClick = (option) => {
     setSelectedOption(option);

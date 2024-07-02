@@ -6,10 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { validateInconvenienteFormData } from '../services/drawbackService';
 
 const DrawBackComponent = () => {
-  const [formData, setFormData] = useState({
-    id_produccion: '',
-    descripcion: ''
-  });
+  const [formData, setFormData] = useState({ id_produccion: '', descripcion: '' });
   const [formErrors, setFormErrors] = useState({});
   const [inconvenientes, setInconvenientes] = useState([]);
   const [producciones, setProducciones] = useState([]);
@@ -61,10 +58,7 @@ const DrawBackComponent = () => {
       Axios.put(`http://localhost:3307/inconvenientes/${currentInconveniente.id_inconveniente}`, dataToSend)
         .then(() => {
           alert("Inconveniente Actualizado");
-          setFormData({
-            id_produccion: '',
-            descripcion: ''
-          });
+          setFormData({ id_produccion: '', descripcion: '' });
           setEditing(false);
           setCurrentInconveniente(null);
           getInconvenientes();
@@ -76,10 +70,7 @@ const DrawBackComponent = () => {
       Axios.post("http://localhost:3307/inconvenientes", dataToSend)
         .then(() => {
           alert("Inconveniente Registrado");
-          setFormData({
-            id_produccion: '',
-            descripcion: ''
-          });
+          setFormData({ id_produccion: '', descripcion: '' });
           getInconvenientes();
         })
         .catch(error => {
@@ -102,16 +93,13 @@ const DrawBackComponent = () => {
   const editInconveniente = (inconveniente) => {
     setEditing(true);
     setCurrentInconveniente(inconveniente);
-    setFormData({
-      id_produccion: inconveniente.id_produccion.toString(),
-      descripcion: inconveniente.descripcion
-    });
+    setFormData({ id_produccion: inconveniente.id_produccion.toString(), descripcion: inconveniente.descripcion });
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    setFormErrors({ ...formErrors, [name]: '' }); // Clear the error when the user modifies the field
+    setFormErrors({ ...formErrors, [name]: '' });
   };
 
   return (

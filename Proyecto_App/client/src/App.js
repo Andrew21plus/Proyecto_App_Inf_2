@@ -15,28 +15,32 @@ import PredictionsComponent from './pages/PredictionsComponent';
 import PasswordResetComponent from './pages/PasswordResetComponent';
 import ManagementRolesComponent from './pages/ManagementRolesComponent';
 import ReportComponent from './pages/ReportComponent';
+import { AlertProvider } from './context/AlertContext';
+
 const App = () => {
   return (
     <AuthProvider>
-      <Router>
-        <div className='App'>
-          <Routes>
-            <Route path='/' element={<LoginComponent />} />
-            <Route path='/menu' element={<ProtectedRoute element={<MenuComponent />} />} />
-            <Route path='/management-user' element={<ProtectedRoute element={<ManagementUserComponent />} />} />
-            <Route path='/profile' element={<ProtectedRoute element={<ProfileComponent />} />} />
-            <Route path='/inventory' element={<ProtectedRoute element={<InventoryComponent />} />} />
-            <Route path='/production' element={<ProtectedRoute element={<ProductionComponent />} />} />
-            <Route path='/production-stage' element={<ProtectedRoute element={<ProductionStageComponent />} />} />
-            <Route path='/sales' element={<ProtectedRoute element={<SalesComponent />} />} />
-            <Route path='/drawBack' element={<ProtectedRoute element={<DrawBackComponent />} />} />
-            <Route path='/predictions' element={<ProtectedRoute element={<PredictionsComponent />} />} />
-            <Route path='/report' element={<ProtectedRoute element={<ReportComponent />} />} />
-            <Route path='/management-roles' element={<ProtectedRoute element={<ManagementRolesComponent />} />} />
-            <Route path='/password-reset' element={<PasswordResetComponent />} /> 
-          </Routes>
-        </div>
-      </Router>
+      <AlertProvider>
+        <Router>
+          <div className='App'>
+            <Routes>
+              <Route path='/' element={<LoginComponent />} />
+              <Route path='/menu' element={<ProtectedRoute element={<MenuComponent />} />} />
+              <Route path='/management-user' element={<ProtectedRoute element={<ManagementUserComponent />} />} />
+              <Route path='/profile' element={<ProtectedRoute element={<ProfileComponent />} />} />
+              <Route path='/inventory' element={<ProtectedRoute element={<InventoryComponent />} />} />
+              <Route path='/production' element={<ProtectedRoute element={<ProductionComponent />} />} />
+              <Route path='/production-stage' element={<ProtectedRoute element={<ProductionStageComponent />} />} />
+              <Route path='/sales' element={<ProtectedRoute element={<SalesComponent />} />} />
+              <Route path='/drawBack' element={<ProtectedRoute element={<DrawBackComponent />} />} />
+              <Route path='/predictions' element={<ProtectedRoute element={<PredictionsComponent />} />} />
+              <Route path='/report' element={<ProtectedRoute element={<ReportComponent />} />} />
+              <Route path='/management-roles' element={<ProtectedRoute element={<ManagementRolesComponent />} />} />
+              <Route path='/password-reset' element={<PasswordResetComponent />} /> 
+            </Routes>
+          </div>
+        </Router>
+      </AlertProvider>
     </AuthProvider>
   );
 };
