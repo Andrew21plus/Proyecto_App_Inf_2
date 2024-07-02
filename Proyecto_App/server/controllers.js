@@ -123,7 +123,7 @@ exports.createProduccion = async (data) => {
                 id_etapa: 1, // Asumiendo que 1 es el ID de la etapa inicial
                 hora_inicio: null,
                 hora_fin: null,
-                estado: 'No inicializado'
+                estado: 'No inicializada'
             });
             console.log('Registro de producción etapa creado:', produccionEtapa);
         } catch (etapaError) {
