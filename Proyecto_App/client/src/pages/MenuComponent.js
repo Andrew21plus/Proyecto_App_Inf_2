@@ -1,4 +1,3 @@
-// MenuComponent.js
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import ManagementUserComponent from './ManagementUserComponent';
@@ -21,6 +20,7 @@ const MenuComponent = () => {
   const { showAlert, setShowAlert } = useAlert();
   const [selectedOption, setSelectedOption] = useState('');
   const [inconvenientes, setInconvenientes] = useState([]);
+  const [firstLoad, setFirstLoad] = useState(true);  // Nuevo estado
 
   const isGerente = roles.some(role => role.nombre_rol === 'Gerente');
 
@@ -51,24 +51,29 @@ const MenuComponent = () => {
   }, [user, roles]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const fetchInconvenientes = () => {
       Axios.get("http://localhost:3307/inconvenientes")
         .then(response => {
           const newInconvenientes = response.data;
-          setInconvenientes(newInconvenientes);
 
-          if (isGerente && !showAlert && inconvenientes.length !== newInconvenientes.length) {
+          if (isGerente && !firstLoad && JSON.stringify(inconvenientes) !== JSON.stringify(newInconvenientes)) {
             alert("Se ha detectado un cambio en la tabla de inconvenientes");
             setShowAlert(true);
           }
+          
+          setInconvenientes(newInconvenientes);
+          setFirstLoad(false);  // Establece la primera carga a false después de la primera solicitud
         })
         .catch(error => {
           console.error('Error fetching inconvenientes:', error);
         });
-    }, 10000); // Verifica cada 10 segundos
+    };
+
+    fetchInconvenientes();
+    const interval = setInterval(fetchInconvenientes, 1000); // Verifica cada 10 segundos
 
     return () => clearInterval(interval);
-  }, [inconvenientes, isGerente, showAlert, setShowAlert]);
+  }, [inconvenientes, isGerente, showAlert, setShowAlert, firstLoad]);
 
   const handleOptionClick = (option) => {
     setSelectedOption(option);
