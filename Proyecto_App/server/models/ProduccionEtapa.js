@@ -36,7 +36,7 @@ const ProduccionEtapa = sequelize.define('produccion_etapa', {
     estado: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 'No inicializado'
+        defaultValue: 'No inicializada'
     }
 }, {
     tableName: 'produccion_etapa',
