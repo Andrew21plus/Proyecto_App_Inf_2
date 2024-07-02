@@ -20,7 +20,7 @@ const MenuComponent = () => {
   const { showAlert, setShowAlert } = useAlert();
   const [selectedOption, setSelectedOption] = useState('');
   const [inconvenientes, setInconvenientes] = useState([]);
-  const [firstLoad, setFirstLoad] = useState(true);  // Nuevo estado
+  const [firstLoad, setFirstLoad] = useState(true);
 
   const isGerente = roles.some(role => role.nombre_rol === 'Gerente');
 
@@ -62,7 +62,7 @@ const MenuComponent = () => {
           }
           
           setInconvenientes(newInconvenientes);
-          setFirstLoad(false);  // Establece la primera carga a false después de la primera solicitud
+          setFirstLoad(false);
         })
         .catch(error => {
           console.error('Error fetching inconvenientes:', error);
@@ -70,10 +70,11 @@ const MenuComponent = () => {
     };
 
     fetchInconvenientes();
-    const interval = setInterval(fetchInconvenientes, 300000); // Verifica cada 10 segundos
+    const interval = setInterval(fetchInconvenientes, 10000); // Verifica cada 10 segundos
 
-    return () => clearInterval(interval);
-  }, [inconvenientes, isGerente, showAlert, setShowAlert, firstLoad]);
+    return () => clearInterval(interval); // Limpia el intervalo cuando el componente se desmonta
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGerente, showAlert, setShowAlert, firstLoad]);
 
   const handleOptionClick = (option) => {
     setSelectedOption(option);
