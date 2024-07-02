@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import { Link } from 'react-router-dom'; 
 import { validateSalesFormData } from '../services/salesService';
+import { useAuth } from '../context/AuthContext';  // Importa el contexto de autenticación
 
 const SalesComponent = () => {
+  const { user } = useAuth();  // Obtén el usuario del contexto de autenticación
   const [formData, setFormData] = useState({
     id_usuario: '',
     id_producto: '',
@@ -12,16 +14,22 @@ const SalesComponent = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [ventas, setVentas] = useState([]);
-  const [usuarios, setUsuarios] = useState([]);
   const [productos, setProductos] = useState([]);
   const [editing, setEditing] = useState(false);
   const [currentVenta, setCurrentVenta] = useState(null);
 
   useEffect(() => {
     getVentas();
-    getUsuarios();
     getProductos();
-  }, []);
+
+    // Establece el usuario automáticamente
+    if (user) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        id_usuario: user.id_usuario
+      }));
+    }
+  }, [user]);
 
   const getVentas = () => {
     Axios.get("http://localhost:3307/ventas")
@@ -30,16 +38,6 @@ const SalesComponent = () => {
       })
       .catch(error => {
         console.error('Error fetching ventas:', error);
-      });
-  };
-
-  const getUsuarios = () => {
-    Axios.get("http://localhost:3307/usuarios")
-      .then(response => {
-        setUsuarios(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching usuarios:', error);
       });
   };
 
@@ -117,7 +115,7 @@ const SalesComponent = () => {
 
   const resetForm = () => {
     setFormData({
-      id_usuario: '',
+      id_usuario: user ? user.id_usuario : '',  // Restaura el usuario actual
       id_producto: '',
       descripcion: '',
       cantidad: ''
@@ -159,13 +157,7 @@ const SalesComponent = () => {
       <h1>Gestión de Ventas</h1>
       <h2>Venta Management</h2>
       <form onSubmit={addVenta} className="s-form">
-        <select name="id_usuario" value={formData.id_usuario} onChange={handleInputChange}>
-          <option value="">Selecciona un Usuario</option>
-          {usuarios.map(usuario => (
-            <option key={usuario.id_usuario} value={usuario.id_usuario}>{usuario.nombre_usuario}</option>
-          ))}
-        </select>
-        {formErrors.id_usuario && <span className="error">{formErrors.id_usuario}</span>}
+        <input type="text" name="id_usuario" value={user ? user.nombre_usuario : ''} disabled />
         <br/>
         <select name="id_producto" value={formData.id_producto} onChange={handleInputChange}>
           <option value="">Selecciona un Producto</option>
@@ -197,12 +189,11 @@ const SalesComponent = () => {
         </thead>
         <tbody>
           {ventas.map(venta => {
-            const usuario = usuarios.find(u => u.id_usuario === venta.id_usuario);
             const producto = productos.find(p => p.id_producto === venta.id_producto);
             return (
               <tr key={venta.id_venta}>
                 <td>{venta.id_venta}</td>
-                <td>{usuario ? usuario.nombre_usuario : 'Usuario no encontrado'}</td>
+                <td>{user ? user.nombre_usuario : 'Usuario no encontrado'}</td>
                 <td>{producto ? producto.nombre : 'Producto no encontrado'}</td>
                 <td>{venta.descripcion}</td>
                 <td>{venta.cantidad}</td>
