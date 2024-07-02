@@ -9,7 +9,7 @@ const ProductionStageComponent = () => {
     id_etapa: '',
     hora_inicio: '',
     hora_fin: '',
-    estado: ''
+    estado: 'No Inicializada' // Estado inicial por defecto
   });
   const [produccionEtapa, setProduccionEtapa] = useState([]);
   const [producciones, setProducciones] = useState([]);
@@ -33,8 +33,11 @@ const ProductionStageComponent = () => {
   const getProduccionEtapa = () => {
     Axios.get("http://localhost:3307/produccion-etapa")
       .then(response => {
-        console.log('Producción Etapa fetched:', response.data);
-        setProduccionEtapa(response.data);
+        const data = response.data.map(item => ({
+          ...item,
+          estado: item.estado || 'No Inicializada'
+        }));
+        setProduccionEtapa(data);
       })
       .catch(error => {
         console.error('Error fetching produccion_etapa:', error);
@@ -44,7 +47,6 @@ const ProductionStageComponent = () => {
   const getProducciones = () => {
     Axios.get("http://localhost:3307/produccion")
       .then(response => {
-        console.log('Producciones fetched:', response.data);
         setProducciones(response.data);
       })
       .catch(error => {
@@ -55,7 +57,6 @@ const ProductionStageComponent = () => {
   const getEtapas = () => {
     Axios.get("http://localhost:3307/etapas")
       .then(response => {
-        console.log('Etapas fetched:', response.data);
         setEtapas(response.data);
       })
       .catch(error => {
@@ -72,11 +73,8 @@ const ProductionStageComponent = () => {
       hora_fin: formData.hora_fin || null,
     };
 
-    console.log('Data to send:', dataToSend);
-
     Axios.put(`http://localhost:3307/produccion-etapa/${currentProduccionEtapa.id}`, dataToSend)
       .then(response => {
-        console.log('Update response:', response.data);
         alert("Producción Etapa Actualizada");
         if (dataToSend.estado === 'Finalizada') {
           setShowModal(true);
@@ -97,17 +95,15 @@ const ProductionStageComponent = () => {
       id_etapa: '',
       hora_inicio: '',
       hora_fin: '',
-      estado: ''
+      estado: 'No Inicializada' // Reset estado to 'No Inicializada'
     });
     setEditing(false);
     setCurrentProduccionEtapa(null);
-    console.log('Form reset');
   };
 
   const deleteProduccionEtapa = (id) => {
     Axios.delete(`http://localhost:3307/produccion-etapa/${id}`)
       .then(response => {
-        console.log('Delete response:', response.data);
         alert("Producción Etapa Eliminada");
         getProduccionEtapa();
       })
@@ -127,13 +123,11 @@ const ProductionStageComponent = () => {
       hora_fin: produccionEtapa.hora_fin,
       estado: produccionEtapa.estado
     });
-    console.log('Editing:', produccionEtapa);
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    console.log('Input change:', name, value);
   };
 
   const handleEstadoChange = (e) => {
@@ -152,7 +146,6 @@ const ProductionStageComponent = () => {
     }
 
     setFormData(updatedFormData);
-    console.log('Estado change:', updatedFormData);
   };
 
   const getEstadoOptions = () => {
@@ -184,10 +177,8 @@ const ProductionStageComponent = () => {
       });
   };
 
-  // Obtener la fecha actual en formato YYYY-MM-DD
   const fechaActual = new Date().toISOString().split('T')[0];
 
-  // Filtrar produccionEtapa según la fecha de las producciones
   const produccionEtapaFiltrada = produccionEtapa.filter(pe => {
     const produccion = producciones.find(p => p.id_produccion === pe.id_produccion);
     return produccion && produccion.fecha === fechaActual;
@@ -240,14 +231,15 @@ const ProductionStageComponent = () => {
           </select>
           <br />
           <br />
-          <button type="submit">Actualizar Producción Etapa</button>
+          <button type="submit">Actualizar</button>
+          <button type="button" onClick={resetForm}>Cancelar</button>
         </form>
       )}
-      <h2>Lista de Producción Etapa</h2>
+
       <table className="s-table">
         <thead>
           <tr>
-            <th>ID Registro</th>
+            <th>ID</th>
             <th>ID Producción</th>
             <th>ID Etapa</th>
             <th>Hora de Inicio</th>
@@ -266,8 +258,12 @@ const ProductionStageComponent = () => {
               <td>{pe.hora_fin}</td>
               <td>{pe.estado}</td>
               <td>
-                <button onClick={() => editProduccionEtapa(pe)}>Editar</button>
-                <button onClick={() => deleteProduccionEtapa(pe.id)}>Eliminar</button>
+                {pe.estado !== 'Finalizada' && (
+                  <>
+                    <button onClick={() => editProduccionEtapa(pe)}>Editar</button>
+                    <button onClick={() => deleteProduccionEtapa(pe.id)}>Eliminar</button>
+                  </>
+                )}
               </td>
             </tr>
           ))}
