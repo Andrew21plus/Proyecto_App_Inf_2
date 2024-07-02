@@ -71,7 +71,11 @@ const validateFormData = async (formData, isEditing = false, currentUsuario = nu
     }
 
     if (roleLimits[selectedRole] && roleCounts[selectedRole] >= roleLimits[selectedRole]) {
-      formErrors.id_rol = `Solo se permite un usuario con el rol de ${selectedRole}`;
+      if (selectedRole === 'Jefe de Planta') {
+        formErrors.id_rol = `Solo se permiten hasta ${roleLimits[selectedRole]} usuarios con el rol de ${selectedRole}`;
+      } else {
+        formErrors.id_rol = `Solo se permite un usuario con el rol de ${selectedRole}`;
+      }
     }
   }
 
