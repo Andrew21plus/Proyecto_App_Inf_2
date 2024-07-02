@@ -123,7 +123,7 @@ exports.createProduccion = async (data) => {
                 id_etapa: 1, // Asumiendo que 1 es el ID de la etapa inicial
                 hora_inicio: null,
                 hora_fin: null,
-                estado: 'No Inicializada'
+                estado: 'No inicializada'
             });
             console.log('Registro de producción etapa creado:', produccionEtapa);
         } catch (etapaError) {
@@ -184,16 +184,7 @@ exports.updateProduccionEtapa = async (id, data) => {
 
         await produccionEtapa.update(updatedData);
 
-        // Eliminar la creación automática del registro de producto terminado
-        // if (updatedData.estado === 'Finalizada') {
-        //     // Crear una entrada en InventarioProductoTerminado
-        //     await InventarioProductoTerminado.create({
-        //         id_produccion: updatedData.id_produccion,
-        //         cantidad_disponible: 0, // Esto se actualizará desde el frontend
-        //         nombre: '' // Esto se actualizará desde el frontend
-        //     });
-        // }
-
+        // No crear producto terminado aquí, solo actualizar la producción etapa
         return produccionEtapa;
     } catch (error) {
         console.error('Error actualizando la Producción Etapa:', error);

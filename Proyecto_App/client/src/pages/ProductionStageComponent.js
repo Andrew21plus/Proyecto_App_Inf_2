@@ -9,7 +9,7 @@ const ProductionStageComponent = () => {
     id_etapa: '',
     hora_inicio: '',
     hora_fin: '',
-    estado: 'No Inicializada' // Estado inicial por defecto
+    estado: ''
   });
   const [produccionEtapa, setProduccionEtapa] = useState([]);
   const [producciones, setProducciones] = useState([]);
@@ -33,11 +33,8 @@ const ProductionStageComponent = () => {
   const getProduccionEtapa = () => {
     Axios.get("http://localhost:3307/produccion-etapa")
       .then(response => {
-        const data = response.data.map(item => ({
-          ...item,
-          estado: item.estado || 'No Inicializada'
-        }));
-        setProduccionEtapa(data);
+        console.log('Producción Etapa fetched:', response.data);
+        setProduccionEtapa(response.data);
       })
       .catch(error => {
         console.error('Error fetching produccion_etapa:', error);
@@ -47,6 +44,7 @@ const ProductionStageComponent = () => {
   const getProducciones = () => {
     Axios.get("http://localhost:3307/produccion")
       .then(response => {
+        console.log('Producciones fetched:', response.data);
         setProducciones(response.data);
       })
       .catch(error => {
@@ -57,6 +55,7 @@ const ProductionStageComponent = () => {
   const getEtapas = () => {
     Axios.get("http://localhost:3307/etapas")
       .then(response => {
+        console.log('Etapas fetched:', response.data);
         setEtapas(response.data);
       })
       .catch(error => {
@@ -73,19 +72,23 @@ const ProductionStageComponent = () => {
       hora_fin: formData.hora_fin || null,
     };
 
-    Axios.put(`http://localhost:3307/produccion-etapa/${currentProduccionEtapa.id}`, dataToSend)
-      .then(response => {
-        alert("Producción Etapa Actualizada");
-        if (dataToSend.estado === 'Finalizada') {
-          setShowModal(true);
-          setProductoTerminado({ id_produccion: dataToSend.id_produccion, cantidad_disponible: '', nombre: '' });
-        }
-        resetForm();
-        getProduccionEtapa();
-      })
-      .catch(error => {
-        console.error('Error actualizando produccion_etapa:', error);
-      });
+    if (dataToSend.estado === 'Finalizada') {
+      // Muestra el modal para registrar el producto terminado
+      setShowModal(true);
+      setProductoTerminado({ id_produccion: dataToSend.id_produccion, cantidad_disponible: '', nombre: '' });
+    } else {
+      // Actualiza directamente la etapa si no está finalizando
+      Axios.put(`http://localhost:3307/produccion-etapa/${currentProduccionEtapa.id}`, dataToSend)
+        .then(response => {
+          console.log('Update response:', response.data);
+          alert("Producción Etapa Actualizada");
+          resetForm();
+          getProduccionEtapa();
+        })
+        .catch(error => {
+          console.error('Error actualizando produccion_etapa:', error);
+        });
+    }
   };
 
   const resetForm = () => {
@@ -95,15 +98,17 @@ const ProductionStageComponent = () => {
       id_etapa: '',
       hora_inicio: '',
       hora_fin: '',
-      estado: 'No Inicializada' // Reset estado to 'No Inicializada'
+      estado: ''
     });
     setEditing(false);
     setCurrentProduccionEtapa(null);
+    console.log('Form reset');
   };
 
   const deleteProduccionEtapa = (id) => {
     Axios.delete(`http://localhost:3307/produccion-etapa/${id}`)
       .then(response => {
+        console.log('Delete response:', response.data);
         alert("Producción Etapa Eliminada");
         getProduccionEtapa();
       })
@@ -123,11 +128,13 @@ const ProductionStageComponent = () => {
       hora_fin: produccionEtapa.hora_fin,
       estado: produccionEtapa.estado
     });
+    console.log('Editing:', produccionEtapa);
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    console.log('Input change:', name, value);
   };
 
   const handleEstadoChange = (e) => {
@@ -146,7 +153,54 @@ const ProductionStageComponent = () => {
     }
 
     setFormData(updatedFormData);
+    console.log('Estado change:', updatedFormData);
   };
+
+  const handleProductoTerminadoChange = (e) => {
+    const { name, value } = e.target;
+    setProductoTerminado({ ...productoTerminado, [name]: value });
+  };
+
+  const addProductoTerminado = (e) => {
+    e.preventDefault();
+    if (!productoTerminado.cantidad_disponible || !productoTerminado.nombre) {
+      alert('Todos los campos del producto terminado deben estar llenos');
+      return;
+    }
+
+    Axios.post("http://localhost:3307/inventario-producto-terminado", productoTerminado)
+      .then(() => {
+        alert("Producto Terminado Registrado");
+        setShowModal(false);
+        const updatedData = {
+          ...formData,
+          estado: 'Finalizada',
+          hora_fin: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+        };
+
+        Axios.put(`http://localhost:3307/produccion-etapa/${currentProduccionEtapa.id}`, updatedData)
+          .then(response => {
+            console.log('Producción Etapa actualizada con estado Finalizada:', response.data);
+            resetForm();
+            getProduccionEtapa();
+          })
+          .catch(error => {
+            console.error('Error actualizando produccion_etapa a Finalizada:', error);
+          });
+      })
+      .catch(error => {
+        console.error('Error registrando el producto terminado:', error);
+      });
+  };
+
+  // Obtener la fecha actual en formato YYYY-MM-DD
+  const fechaActual = new Date().toISOString().split('T')[0];
+
+  // Filtrar produccionEtapa según la fecha de las producciones
+  const produccionEtapaFiltrada = produccionEtapa.filter(pe => {
+    const produccion = producciones.find(p => p.id_produccion === pe.id_produccion);
+    return produccion && produccion.fecha === fechaActual;
+  });
 
   const getEstadoOptions = () => {
     const currentEstado = formData.estado;
@@ -159,30 +213,6 @@ const ProductionStageComponent = () => {
       return ['No Inicializada', 'Inicializada', 'Finalizada'];
     }
   };
-
-  const handleProductoTerminadoChange = (e) => {
-    const { name, value } = e.target;
-    setProductoTerminado({ ...productoTerminado, [name]: value });
-  };
-
-  const addProductoTerminado = (e) => {
-    e.preventDefault();
-    Axios.post("http://localhost:3307/inventario-producto-terminado", productoTerminado)
-      .then(() => {
-        alert("Producto Terminado Registrado");
-        setShowModal(false);
-      })
-      .catch(error => {
-        console.error('Error registrando el producto terminado:', error);
-      });
-  };
-
-  const fechaActual = new Date().toISOString().split('T')[0];
-
-  const produccionEtapaFiltrada = produccionEtapa.filter(pe => {
-    const produccion = producciones.find(p => p.id_produccion === pe.id_produccion);
-    return produccion && produccion.fecha === fechaActual;
-  });
 
   return (
     <div>
@@ -231,15 +261,14 @@ const ProductionStageComponent = () => {
           </select>
           <br />
           <br />
-          <button type="submit">Actualizar</button>
-          <button type="button" onClick={resetForm}>Cancelar</button>
+          <button type="submit">Actualizar Producción Etapa</button>
         </form>
       )}
-
+      <h2>Lista de Producción Etapa</h2>
       <table className="s-table">
         <thead>
           <tr>
-            <th>ID</th>
+            <th>ID Registro</th>
             <th>ID Producción</th>
             <th>ID Etapa</th>
             <th>Hora de Inicio</th>
@@ -258,12 +287,8 @@ const ProductionStageComponent = () => {
               <td>{pe.hora_fin}</td>
               <td>{pe.estado}</td>
               <td>
-                {pe.estado !== 'Finalizada' && (
-                  <>
-                    <button onClick={() => editProduccionEtapa(pe)}>Editar</button>
-                    <button onClick={() => deleteProduccionEtapa(pe.id)}>Eliminar</button>
-                  </>
-                )}
+                <button onClick={() => editProduccionEtapa(pe)}>Editar</button>
+                <button onClick={() => deleteProduccionEtapa(pe.id)}>Eliminar</button>
               </td>
             </tr>
           ))}
