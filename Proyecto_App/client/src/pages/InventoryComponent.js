@@ -1,11 +1,9 @@
-// InventoryComponent.js
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import { Link } from 'react-router-dom'; // Mantener esta línea si vas a usar Link
 import '../utils/Styles.css';
-import { validateInventarioPTFormData, validateInventarioMPFormData } from '../services/inventoryService';
+import { validateInventarioPTFormData, validateInventarioMPFormData, validateUsuarioMateriaPrimaFormData } from '../services/inventoryService';
 import { useAuth } from '../context/AuthContext';
-
 
 const InventoryComponent = () => {
   const { user, roles } = useAuth(); // Obtener el usuario actual
@@ -51,6 +49,14 @@ const InventoryComponent = () => {
       }));
     }
   }, [user]);
+
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato YYYY-MM-DD
+    setFormUsuarioMateriaPrima((prevForm) => ({
+      ...prevForm,
+      fecha_ingreso: today
+    }));
+  }, []);
 
   const getInventarioProductoTerminado = () => {
     Axios.get("http://localhost:3307/inventario-producto-terminado")
@@ -146,7 +152,8 @@ const InventoryComponent = () => {
 
   const addInventarioMP = (e) => {
     e.preventDefault();
-    const errors = validateInventarioMPFormData(formData);
+
+    const errors = validateInventarioMPFormData(formData, inventarioMateriaPrima);
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
@@ -157,7 +164,7 @@ const InventoryComponent = () => {
       descripcion: formData.descripcion,
       proveedor: formData.proveedor,
       cantidad_ingreso: parseInt(formData.cantidad_ingreso, 10),
-      cantidad_disponible: parseInt(formData.cantidad_disponible, 10)
+      cantidad_disponible: parseInt(formData.cantidad_ingreso, 10) // La cantidad disponible es igual a la cantidad de ingreso
     };
   
     console.log("Data to send:", dataToSend); // Imprime los datos a enviar
@@ -198,32 +205,32 @@ const InventoryComponent = () => {
         });
     }
   };
-  
 
   const addUsuarioMateriaPrima = (e) => {
     e.preventDefault();
-    
-    // Validación simple de campos vacíos
-    if (!formUsuarioMateriaPrima.id_usuario || !formUsuarioMateriaPrima.id_materia_prima || !formUsuarioMateriaPrima.fecha_ingreso || !formUsuarioMateriaPrima.cantidad_nuevo_ingreso) {
-      alert("Por favor, complete todos los campos");
+
+    const errors = validateUsuarioMateriaPrimaFormData(formUsuarioMateriaPrima);
+    if (Object.keys(errors).length > 0) {
+      alert(Object.values(errors).join('\n'));
       return;
     }
-    
+
     // Convertir cantidad_nuevo_ingreso a número
     const dataToSend = {
         ...formUsuarioMateriaPrima,
         cantidad_nuevo_ingreso: Number(formUsuarioMateriaPrima.cantidad_nuevo_ingreso)
     };
-  
+
     console.log("Datos a enviar:", dataToSend);
-  
+
     Axios.post("http://localhost:3307/usuario-materia-prima", dataToSend)
       .then(() => {
         alert("Datos de Usuario Materia Prima Registrados");
+        const today = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato YYYY-MM-DD
         setFormUsuarioMateriaPrima({
           id_usuario: user?.id || '',
           id_materia_prima: '',
-          fecha_ingreso: '',
+          fecha_ingreso: today, // Volver a establecer la fecha actual
           cantidad_nuevo_ingreso: ''
         });
         getUsuarioMateriaPrimaData(); // Actualizar la lista de datos
@@ -406,7 +413,7 @@ const InventoryComponent = () => {
                 <input type="text" name="cantidad_ingreso" placeholder="Cantidad de Ingreso" value={formData.cantidad_ingreso} onChange={handleInputChange} />
                 {formErrors.cantidad_ingreso && <span className="error">{formErrors.cantidad_ingreso}</span>}
                 <br/>
-                <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} />
+                <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} disabled />
                 {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
                 <br/>
                 <button type="submit">{editingMP ? 'Actualizar' : 'Agregar'}</button>
@@ -459,7 +466,7 @@ const InventoryComponent = () => {
                   ))}
                 </select>
                 <br/>
-                <input type="date" name="fecha_ingreso" placeholder="Fecha de Ingreso" value={formUsuarioMateriaPrima.fecha_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} />
+                <input type="date" name="fecha_ingreso" placeholder="Fecha de Ingreso" value={formUsuarioMateriaPrima.fecha_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} readOnly />
                 <br/>
                 <input type="text" name="cantidad_nuevo_ingreso" placeholder="Cantidad Nuevo Ingreso" value={formUsuarioMateriaPrima.cantidad_nuevo_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} />
                 <br/>
