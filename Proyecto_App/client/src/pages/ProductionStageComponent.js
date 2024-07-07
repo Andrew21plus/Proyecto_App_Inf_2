@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import '../utils/Styles.css';
+import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
 
 const ProductionStageComponent = () => {
   const [formData, setFormData] = useState({
@@ -280,21 +280,21 @@ const ProductionStageComponent = () => {
         <tbody>
           {produccionEtapaFiltrada.map(pe => (
             <tr key={pe.id}>
-              <td>{pe.id}</td>
-              <td>{pe.id_produccion}</td>
-              <td>{pe.id_etapa}</td>
-              <td>{pe.hora_inicio}</td>
-              <td>{pe.hora_fin}</td>
-              <td>{pe.estado}</td>
-              <td>
-                <button onClick={() => editProduccionEtapa(pe)}>Editar</button>
-                <button onClick={() => deleteProduccionEtapa(pe.id)}>Eliminar</button>
+              <td data-label="ID Registro">{pe.id}</td>
+              <td data-label="ID Producción">{pe.id_produccion}</td>
+              <td data-label="ID Etapa">{pe.id_etapa}</td>
+              <td data-label="Hora de Inicio">{pe.hora_inicio}</td>
+              <td data-label="Hora de Fin">{pe.hora_fin}</td>
+              <td data-label="Estado">{pe.estado}</td>
+              <td data-label="Acciones">
+                <button className="edit-button" onClick={() => editProduccionEtapa(pe)}>Editar</button>
+                <button className="delete-button" onClick={() => deleteProduccionEtapa(pe.id)}>Eliminar</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
+  
       {showModal && (
         <div className="modal">
           <div className="modal-content">
@@ -317,6 +317,7 @@ const ProductionStageComponent = () => {
       )}
     </div>
   );
+  
 };
 
 export default ProductionStageComponent;

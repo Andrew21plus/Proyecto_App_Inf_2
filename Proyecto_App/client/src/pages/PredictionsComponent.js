@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Axios from 'axios';
 import { predecirNecesidad } from '../services/predictionService';
+import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
+
 
 const PredictionsComponent = () => {
   const [productosTerminados, setProductosTerminados] = useState([]);
@@ -245,7 +247,7 @@ const PredictionsComponent = () => {
 
       <h2>Lista de Producciones</h2>
       {selectedProducto ? (
-        <table>
+        <table className="production-table">
           <thead>
             <tr>
               <th>ID Producción</th>
@@ -261,25 +263,25 @@ const PredictionsComponent = () => {
             {produccionesFiltradas.length > 0 ? (
               produccionesFiltradas.map((produccion, index) => (
                 <tr key={index}>
-                  <td>{produccion.id_produccion}</td>
-                  <td>{productosTerminados.find(producto => producto.id_produccion === produccion.id_produccion).id_producto}</td>
-                  <td>{produccion.fecha}</td>
-                  <td>{produccion.cantidad_producida}</td>
-                  <td>
+                  <td data-label="ID Producción">{produccion.id_produccion}</td>
+                  <td data-label="ID Producto">{productosTerminados.find(producto => producto.id_produccion === produccion.id_produccion).id_producto}</td>
+                  <td data-label="Fecha">{produccion.fecha}</td>
+                  <td data-label="Cantidad Producción">{produccion.cantidad_producida}</td>
+                  <td data-label="Materia Prima Usada">
                     {produccion.materiasPrimas.map(mp => (
                       <div key={mp.id_materia_prima}>
                         {mp.nombre}: {mp.cantidad_uso}
                       </div>
                     ))}
                   </td>
-                  <td>
+                  <td data-label="Materia Prima Restante">
                     {produccion.materiasPrimas.map(mp => (
                       <div key={mp.id_materia_prima}>
                         {mp.nombre}: {mp.materia_prima_restante !== undefined ? mp.materia_prima_restante : 'N/A'}
                       </div>
                     ))}
                   </td>
-                  <td>{produccion.descripcion}</td>
+                  <td data-label="Descripción">{produccion.descripcion}</td>
                 </tr>
               ))
             ) : (
@@ -295,7 +297,7 @@ const PredictionsComponent = () => {
 
       <h2>Totales por Semana</h2>
       {totalesPorSemana.length > 0 ? (
-        <table>
+        <table className="production-table">
           <thead>
             <tr>
               <th>Semana</th>
@@ -310,19 +312,19 @@ const PredictionsComponent = () => {
           <tbody>
             {totalesPorSemana.map((semana, index) => (
               <tr key={index}>
-                <td>{semana.semana}</td>
-                <td>{semana.totalProduccion}</td>
-                <td>{Object.entries(semana.totalMateriaPrimaUsada).map(([nombre, cantidad]) => (
+                <td data-label="Semana">{semana.semana}</td>
+                <td data-label="Total Producción">{semana.totalProduccion}</td>
+                <td data-label="Total Materia Prima Usada">{Object.entries(semana.totalMateriaPrimaUsada).map(([nombre, cantidad]) => (
                   <div key={nombre}>{nombre}: {cantidad}</div>
                 ))}</td>
-                <td>{Object.entries(semana.materiaPrimaRestante).map(([nombre, cantidad]) => (
+                <td data-label="Materia Prima Restante">{Object.entries(semana.materiaPrimaRestante).map(([nombre, cantidad]) => (
                   <div key={nombre}>{nombre}: {cantidad}</div>
                 ))}</td>
-                <td>{Object.entries(semana.ultimoIngreso).map(([nombre, cantidad]) => (
+                <td data-label="Último Ingreso">{Object.entries(semana.ultimoIngreso).map(([nombre, cantidad]) => (
                   <div key={nombre}>{nombre}: {cantidad}</div>
                 ))}</td>
-                <td>{new Date(semana.fechaInicio).toLocaleDateString()}</td>
-                <td>{new Date(semana.fechaFin).toLocaleDateString()}</td>
+                <td data-label="Fecha de Inicio">{new Date(semana.fechaInicio).toLocaleDateString()}</td>
+                <td data-label="Fecha de Fin">{new Date(semana.fechaFin).toLocaleDateString()}</td>
               </tr>
             ))}
           </tbody>
@@ -331,7 +333,7 @@ const PredictionsComponent = () => {
         <p>No hay datos para mostrar.</p>
       )}
     </div>
-  );
+);
 };
 
 export default PredictionsComponent;

@@ -6,6 +6,7 @@ import ManagementUserComponent from './pages/ManagementUserComponent';
 import ProfileComponent from './pages/ProfileComponent';
 import InventoryComponent from './pages/InventoryComponent';
 import ProductionComponent from './pages/ProductionComponent';
+import RegisterProductionComponent from './pages/RegisterProductionComponent';
 import ProductionStageComponent from './pages/ProductionStageComponent';
 import SalesComponent from './pages/SalesComponent';
 import { AuthProvider } from './context/AuthContext';
@@ -30,6 +31,7 @@ const App = () => {
               <Route path='/profile' element={<ProtectedRoute element={<ProfileComponent />} />} />
               <Route path='/inventory' element={<ProtectedRoute element={<InventoryComponent />} />} />
               <Route path='/production' element={<ProtectedRoute element={<ProductionComponent />} />} />
+              <Route path='/production' element={<ProtectedRoute element={<RegisterProductionComponent/>} />} />
               <Route path='/production-stage' element={<ProtectedRoute element={<ProductionStageComponent />} />} />
               <Route path='/sales' element={<ProtectedRoute element={<SalesComponent />} />} />
               <Route path='/drawBack' element={<ProtectedRoute element={<DrawBackComponent />} />} />

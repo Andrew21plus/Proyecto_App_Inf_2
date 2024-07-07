@@ -3,6 +3,9 @@ import Axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { validateStageFormData } from '../services/stageService';
+import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrashAlt, faPlus,faSave } from '@fortawesome/free-solid-svg-icons';
 
 const StageComponent = () => {
   const [formData, setFormData] = useState({
@@ -118,13 +121,15 @@ const StageComponent = () => {
       <h2>Gestión de Etapas</h2>
       {isGerente && !isFormBlocked() && (
         <form onSubmit={addEtapa} className="s-form">
-          <input type="text" name="etapa" placeholder="Etapa" value={formData.etapa} onChange={handleInputChange} />
+          <input type="text" name="etapa" placeholder="Etapa" value={formData.etapa} onChange={handleInputChange} className="input-field" />
           {formErrors.etapa && <span className="error">{formErrors.etapa}</span>}
           <br/>
-          <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} />
+          <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} className="input-field" />
           {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
           <br/>
-          <button type="submit">{editing ? "Actualizar Etapa" : "Agregar Etapa"}</button>
+          <button type="submit" className="submit-button icon-button">
+            {editing ? <><FontAwesomeIcon icon={faSave} /> Actualizar Etapa</> : <><FontAwesomeIcon icon={faPlus} /> Agregar Etapa</>}
+          </button>
         </form>
       )}
       {isFormBlocked() && (
@@ -147,13 +152,17 @@ const StageComponent = () => {
         <tbody>
           {etapas.map(etapa => (
             <tr key={etapa.id_etapa}>
-              <td>{etapa.id_etapa}</td>
-              <td>{etapa.etapa}</td>
-              <td>{etapa.descripcion}</td>
+              <td data-label="ID Etapa">{etapa.id_etapa}</td>
+              <td data-label="Etapa">{etapa.etapa}</td>
+              <td data-label="Descripción">{etapa.descripcion}</td>
               {isGerente && !predefinedEtapas.includes(etapa.etapa) && (
-                <td>
-                  <button onClick={() => editEtapa(etapa)}>Editar</button>
-                  <button onClick={() => deleteEtapa(etapa.id_etapa)}>Eliminar</button>
+                <td data-label="Acciones">
+                  <button className="edit-button icon-button" onClick={() => editEtapa(etapa)}>
+                    <FontAwesomeIcon icon={faEdit} />
+                  </button>
+                  <button className="delete-button icon-button delete-clicked" onClick={() => deleteEtapa(etapa.id_etapa)}>
+                    <FontAwesomeIcon icon={faTrashAlt} />
+                  </button>
                 </td>
               )}
             </tr>
@@ -167,7 +176,7 @@ const StageComponent = () => {
         </Link>
       </div>
     </div>
-  );
+);
 };
 
 export default StageComponent;

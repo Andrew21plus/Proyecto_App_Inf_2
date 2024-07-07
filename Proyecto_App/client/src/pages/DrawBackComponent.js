@@ -4,6 +4,10 @@ import Axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { validateInconvenienteFormData } from '../services/drawbackService';
+import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrashAlt, faPlus,faSave } from '@fortawesome/free-solid-svg-icons';
+
 
 const DrawBackComponent = () => {
   const [formData, setFormData] = useState({ id_produccion: '', descripcion: '' });
@@ -108,7 +112,7 @@ const DrawBackComponent = () => {
       <h2>Inconveniente Management</h2>
       {!isGerente && (
         <form onSubmit={addInconveniente} className="s-form">
-          <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange}>
+          <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange} className="input-field">
             <option value="">Selecciona una Producción</option>
             {producciones.map(produccion => (
               <option key={produccion.id_produccion} value={produccion.id_produccion}>{produccion.descripcion}</option>
@@ -117,10 +121,12 @@ const DrawBackComponent = () => {
           {formErrors.id_produccion && <span className="error">{formErrors.id_produccion}</span>}
           <br/>
           <br/>
-          <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} />
+          <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} className="input-field" />
           {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
           <br/>
-          <button type="submit">{editing ? "Actualizar Inconveniente" : "Agregar Inconveniente"}</button>
+          <button type="submit" className="submit-button icon-button">
+            {editing ? <><FontAwesomeIcon icon={faSave} /> Actualizar Inconveniente</> : <><FontAwesomeIcon icon={faPlus} /> Agregar Inconveniente</>}
+          </button>
         </form>
       )}
       <h2>Lista de Inconvenientes</h2>
@@ -136,13 +142,17 @@ const DrawBackComponent = () => {
         <tbody>
           {inconvenientes.map(inconveniente => (
             <tr key={inconveniente.id_inconveniente}>
-              <td>{inconveniente.id_inconveniente}</td>
-              <td>{inconveniente.id_produccion}</td>
-              <td>{inconveniente.descripcion}</td>
+              <td data-label="ID Inconveniente">{inconveniente.id_inconveniente}</td>
+              <td data-label="ID Producción">{inconveniente.id_produccion}</td>
+              <td data-label="Descripción">{inconveniente.descripcion}</td>
               {!isGerente && (
-                <td>
-                  <button onClick={() => editInconveniente(inconveniente)}>Editar</button>
-                  <button onClick={() => deleteInconveniente(inconveniente.id_inconveniente)}>Eliminar</button>
+                <td data-label="Acciones">
+                  <button className="edit-button icon-button" onClick={() => editInconveniente(inconveniente)}>
+                    <FontAwesomeIcon icon={faEdit} />
+                  </button>
+                  <button className="delete-button icon-button delete-clicked" onClick={() => deleteInconveniente(inconveniente.id_inconveniente)}>
+                    <FontAwesomeIcon icon={faTrashAlt} />
+                  </button>
                 </td>
               )}
             </tr>
@@ -156,7 +166,7 @@ const DrawBackComponent = () => {
         </Link>
       </div>
     </div>
-  );
+);
 };
 
 export default DrawBackComponent;

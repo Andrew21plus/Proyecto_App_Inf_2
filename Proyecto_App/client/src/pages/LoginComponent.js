@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Navigate, Link } from 'react-router-dom';
 import { authenticateUser } from '../services/authService';
-import '../utils/Styles.css'; // Importa el archivo CSS
+import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
 
 const LoginComponent = () => {
   const [email, setEmail] = useState('');

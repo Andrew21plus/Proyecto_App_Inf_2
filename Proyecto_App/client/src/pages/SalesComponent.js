@@ -3,6 +3,9 @@ import Axios from 'axios';
 import { Link } from 'react-router-dom'; 
 import { validateSalesFormData } from '../services/salesService';
 import { useAuth } from '../context/AuthContext';  // Importa el contexto de autenticación
+import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrashAlt, faPlus, faSave } from '@fortawesome/free-solid-svg-icons';
 
 const SalesComponent = () => {
   const { user } = useAuth();  // Obtén el usuario del contexto de autenticación
@@ -157,9 +160,9 @@ const SalesComponent = () => {
       <h1>Gestión de Ventas</h1>
       <h2>Venta Management</h2>
       <form onSubmit={addVenta} className="s-form">
-        <input type="text" name="id_usuario" value={user ? user.nombre_usuario : ''} disabled />
+        <input type="text" name="id_usuario" value={user ? user.nombre_usuario : ''} disabled className="input-field" />
         <br/>
-        <select name="id_producto" value={formData.id_producto} onChange={handleInputChange}>
+        <select name="id_producto" value={formData.id_producto} onChange={handleInputChange} className="input-field">
           <option value="">Selecciona un Producto</option>
           {productos.map(producto => (
             <option key={producto.id_producto} value={producto.id_producto}>{producto.nombre}</option>
@@ -167,13 +170,15 @@ const SalesComponent = () => {
         </select>
         {formErrors.id_producto && <span className="error">{formErrors.id_producto}</span>}
         <br/>
-        <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} />
+        <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} className="input-field" />
         {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
         <br/>
-        <input type="number" name="cantidad" placeholder="Cantidad" value={formData.cantidad} onChange={handleInputChange} />
+        <input type="number" name="cantidad" placeholder="Cantidad" value={formData.cantidad} onChange={handleInputChange} className="input-field" />
         {formErrors.cantidad && <span className="error">{formErrors.cantidad}</span>}
         <br/>
-        <button type="submit">{editing ? "Actualizar Venta" : "Agregar Venta"}</button> 
+        <button type="submit" className="submit-button icon-button">
+          {editing ? <><FontAwesomeIcon icon={faSave} /> Actualizar Venta</> : <><FontAwesomeIcon icon={faPlus} /> Agregar Venta</>}
+        </button>
       </form>
       <h2>Lista de Ventas</h2>
       <table className="s-table">
@@ -192,14 +197,18 @@ const SalesComponent = () => {
             const producto = productos.find(p => p.id_producto === venta.id_producto);
             return (
               <tr key={venta.id_venta}>
-                <td>{venta.id_venta}</td>
-                <td>{user ? user.nombre_usuario : 'Usuario no encontrado'}</td>
-                <td>{producto ? producto.nombre : 'Producto no encontrado'}</td>
-                <td>{venta.descripcion}</td>
-                <td>{venta.cantidad}</td>
-                <td>
-                  <button onClick={() => editVenta(venta)}>Editar</button>
-                  <button onClick={() => deleteVenta(venta.id_venta)}>Eliminar</button>
+                <td data-label="ID Venta">{venta.id_venta}</td>
+                <td data-label="Usuario">{user ? user.nombre_usuario : 'Usuario no encontrado'}</td>
+                <td data-label="Producto">{producto ? producto.nombre : 'Producto no encontrado'}</td>
+                <td data-label="Descripción">{venta.descripcion}</td>
+                <td data-label="Cantidad">{venta.cantidad}</td>
+                <td data-label="Acciones">
+                  <button className="edit-button icon-button" onClick={() => editVenta(venta)}>
+                    <FontAwesomeIcon icon={faEdit} />
+                  </button>
+                  <button className="delete-button icon-button delete-clicked" onClick={() => deleteVenta(venta.id_venta)}>
+                    <FontAwesomeIcon icon={faTrashAlt} />
+                  </button>
                 </td>
               </tr>
             );

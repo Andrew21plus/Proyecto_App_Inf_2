@@ -4,6 +4,7 @@ import ManagementUserComponent from './ManagementUserComponent';
 import ProfileComponent from './ProfileComponent';
 import InventoryComponent from './InventoryComponent';
 import ProductionComponent from './ProductionComponent';
+import RegisterProductionStageComponent from './RegisterProductionComponent';
 import ProductionStageComponent from './ProductionStageComponent';
 import SalesComponent from './SalesComponent';
 import DrawBackComponent from './DrawBackComponent';
@@ -21,6 +22,7 @@ const MenuComponent = () => {
   const [selectedOption, setSelectedOption] = useState('');
   const [inconvenientes, setInconvenientes] = useState([]);
   const [firstLoad, setFirstLoad] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false); // Estado para controlar el menú desplegable
 
   const isGerente = roles.some(role => role.nombre_rol === 'Gerente');
 
@@ -79,12 +81,18 @@ const MenuComponent = () => {
   const handleOptionClick = (option) => {
     setSelectedOption(option);
     localStorage.setItem('selectedOption', option);
+    setMenuOpen(false); // Cerrar el menú al seleccionar una opción en pantallas pequeñas
   };
 
   const handleLogout = () => {
     logout();
     setSelectedOption('');
     localStorage.removeItem('selectedOption');
+    setMenuOpen(false); // Cerrar el menú al cerrar sesión en pantallas pequeñas
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
   };
 
   const isAdmin = roles.some(role => role.nombre_rol === 'Administrador');
@@ -94,7 +102,8 @@ const MenuComponent = () => {
   return (
     <div className="menu">
       <nav className="navbar">
-        <ul>
+        <button className="menu-toggle" onClick={toggleMenu}>Menu</button>
+        <ul className={`menu-items ${menuOpen ? 'active' : ''}`}>
           {isAdmin && (
             <>
               <li className={selectedOption === 'management-user' ? 'selected' : ''} onClick={() => handleOptionClick('management-user')}>Gestión de Usuarios</li>
@@ -110,6 +119,7 @@ const MenuComponent = () => {
               <li className={selectedOption === 'sales' ? 'selected' : ''} onClick={() => handleOptionClick('sales')}>Ventas</li>
               <li className={selectedOption === 'etapas' ? 'selected' : ''} onClick={() => handleOptionClick('etapas')}>Etapas</li>
               <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => handleOptionClick('production')}>Producción</li>
+              <li className={selectedOption === 'production-register' ? 'selected' : ''} onClick={() => handleOptionClick('production-register')}>Registrar Producción</li>
               <li className={selectedOption === 'predictions' ? 'selected' : ''} onClick={() => handleOptionClick('predictions')}>Predicciones</li>
               <li className={selectedOption === 'report' ? 'selected' : ''} onClick={() => handleOptionClick('report')}>Reporte</li>
               <li className={selectedOption === 'profile' ? 'selected' : ''} onClick={() => handleOptionClick('profile')}>Perfil</li>
@@ -134,6 +144,7 @@ const MenuComponent = () => {
         {selectedOption === 'profile' && <ProfileComponent />}
         {selectedOption === 'inventory' && <InventoryComponent />}
         {selectedOption === 'production' && <ProductionComponent />}
+        {selectedOption === 'production-register' && <RegisterProductionStageComponent />}
         {selectedOption === 'production-stage' && <ProductionStageComponent />}
         {selectedOption === 'sales' && <SalesComponent />}
         {selectedOption === 'etapas' && <StageComponent />}

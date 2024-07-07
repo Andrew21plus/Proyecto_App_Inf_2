@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import '../utils/Styles.css';
+import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
 import { validateInventarioPTFormData, validateInventarioMPFormData, validateUsuarioMateriaPrimaFormData } from '../services/inventoryService';
 import { useAuth } from '../context/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrashAlt, faPlus,faSave } from '@fortawesome/free-solid-svg-icons';
 
 const InventoryComponent = () => {
-  const { user, roles } = useAuth(); // Obtener el usuario actual
+  const { user, roles } = useAuth();
   const [selectedForm, setSelectedForm] = useState(null);
   const [selectedMPOption, setSelectedMPOption] = useState(null);
   const [formData, setFormData] = useState({
@@ -17,7 +19,7 @@ const InventoryComponent = () => {
     cantidad_ingreso: ''
   });
   const [formUsuarioMateriaPrima, setFormUsuarioMateriaPrima] = useState({
-    id_usuario: user?.id || '', // Tomar el id_usuario automáticamente
+    id_usuario: user?.id || '',
     id_materia_prima: '',
     fecha_ingreso: '',
     cantidad_nuevo_ingreso: '',
@@ -49,7 +51,7 @@ const InventoryComponent = () => {
   }, [user]);
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0];
     setFormUsuarioMateriaPrima((prevForm) => ({
       ...prevForm,
       fecha_ingreso: today
@@ -65,7 +67,7 @@ const InventoryComponent = () => {
         console.error('Error fetching inventario_producto_terminado:', error);
       });
   };
-  
+
   const getProducciones = () => {
     Axios.get("http://localhost:3307/produccion")
       .then(response => {
@@ -75,7 +77,7 @@ const InventoryComponent = () => {
         console.error('Error fetching producciones:', error);
       });
   };
-  
+
   const getInventarioMateriaPrima = () => {
     Axios.get("http://localhost:3307/inventario-materia-prima")
       .then(response => {
@@ -99,7 +101,7 @@ const InventoryComponent = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    setFormErrors({ ...formErrors, [name]: '' }); // Clear the error when the user modifies the field
+    setFormErrors({ ...formErrors, [name]: '' });
   };
 
   const handleInputChangeUsuarioMateriaPrima = (e) => {
@@ -114,7 +116,7 @@ const InventoryComponent = () => {
       setFormErrors(errors);
       return;
     }
-    
+
     if (editingPT) {
       Axios.put(`http://localhost:3307/inventario-producto-terminado/${currentInventarioPT.id_producto}`, formData)
         .then(() => {
@@ -156,17 +158,17 @@ const InventoryComponent = () => {
       setFormErrors(errors);
       return;
     }
-  
+
     const dataToSend = {
       nombre: formData.nombre,
       descripcion: formData.descripcion,
       proveedor: formData.proveedor,
       cantidad_ingreso: parseInt(formData.cantidad_ingreso, 10),
-      cantidad_disponible: parseInt(formData.cantidad_ingreso, 10) // La cantidad disponible es igual a la cantidad de ingreso
+      cantidad_disponible: parseInt(formData.cantidad_ingreso, 10)
     };
-  
-    console.log("Data to send:", dataToSend); // Imprime los datos a enviar
-  
+
+    console.log("Data to send:", dataToSend);
+
     if (editingMP) {
       Axios.put(`http://localhost:3307/inventario-materia-prima/${currentInventarioMP.id_materia_prima}`, dataToSend)
         .then(() => {
@@ -213,10 +215,9 @@ const InventoryComponent = () => {
       return;
     }
 
-    // Convertir cantidad_nuevo_ingreso a número
     const dataToSend = {
-        ...formUsuarioMateriaPrima,
-        cantidad_nuevo_ingreso: Number(formUsuarioMateriaPrima.cantidad_nuevo_ingreso)
+      ...formUsuarioMateriaPrima,
+      cantidad_nuevo_ingreso: Number(formUsuarioMateriaPrima.cantidad_nuevo_ingreso)
     };
 
     console.log("Datos a enviar:", dataToSend);
@@ -224,14 +225,14 @@ const InventoryComponent = () => {
     Axios.post("http://localhost:3307/usuario-materia-prima", dataToSend)
       .then(() => {
         alert("Datos de Usuario Materia Prima Registrados");
-        const today = new Date().toISOString().split('T')[0]; // Obtener la fecha actual en formato YYYY-MM-DD
+        const today = new Date().toISOString().split('T')[0];
         setFormUsuarioMateriaPrima({
           id_usuario: user?.id || '',
           id_materia_prima: '',
-          fecha_ingreso: today, // Volver a establecer la fecha actual
+          fecha_ingreso: today,
           cantidad_nuevo_ingreso: ''
         });
-        getUsuarioMateriaPrimaData(); // Actualizar la lista de datos
+        getUsuarioMateriaPrimaData();
         updateInventarioMateriaPrimaCantidadDisponible(dataToSend.id_materia_prima, dataToSend.cantidad_nuevo_ingreso);
       })
       .catch(error => {
@@ -239,21 +240,17 @@ const InventoryComponent = () => {
       });
   };
 
-  // Función para actualizar la cantidad disponible de materia prima
   const updateInventarioMateriaPrimaCantidadDisponible = (id_materia_prima, cantidadNuevoIngreso) => {
-    // Obtener la cantidad disponible actual
     Axios.get(`http://localhost:3307/inventario-materia-prima/${id_materia_prima}`)
       .then(response => {
         const materiaPrima = response.data;
         console.log(`Cantidad disponible actual: ${materiaPrima.cantidad_disponible}`);
         console.log(`Cantidad nuevo ingreso: ${cantidadNuevoIngreso}`);
 
-        // Sumar la cantidad nueva ingreso a la cantidad disponible
         const nuevaCantidadDisponible = materiaPrima.cantidad_disponible + cantidadNuevoIngreso;
 
         console.log(`Nueva cantidad disponible (después de la suma): ${nuevaCantidadDisponible}`);
 
-        // Actualizar la cantidad disponible
         Axios.put(`http://localhost:3307/inventario-materia-prima/cantidad-disponible/${id_materia_prima}`, { cantidad_disponible: nuevaCantidadDisponible })
           .then(() => {
             console.log(`Valor final guardado en cantidad_disponible: ${nuevaCantidadDisponible}`);
@@ -271,7 +268,6 @@ const InventoryComponent = () => {
   const handleChangeMPOption = (option) => {
     setSelectedMPOption(option);
   };
-
 
   const deleteInventarioPT = (id) => {
     Axios.delete(`http://localhost:3307/inventario-producto-terminado/${id}`)
@@ -349,14 +345,18 @@ const InventoryComponent = () => {
             <tbody>
               {inventarioProductoTerminado.map(inventarioPT => (
                 <tr key={inventarioPT.id_producto}>
-                  <td>{inventarioPT.id_producto}</td>
-                  <td>{inventarioPT.id_produccion}</td>
-                  <td>{inventarioPT.cantidad_disponible}</td>
-                  <td>{inventarioPT.nombre}</td>
+                  <td data-label="ID Producto">{inventarioPT.id_producto}</td>
+                  <td data-label="ID Producción">{inventarioPT.id_produccion}</td>
+                  <td data-label="Cantidad Disponible">{inventarioPT.cantidad_disponible}</td>
+                  <td data-label="Nombre">{inventarioPT.nombre}</td>
                   {isGerente && (
-                    <td>
-                      <button onClick={() => editInventarioPT(inventarioPT)}>Editar</button>
-                      <button onClick={() => deleteInventarioPT(inventarioPT.id_producto)}>Eliminar</button>
+                    <td data-label="Acciones">
+                      <button className="edit-button icon-button" onClick={() => editInventarioPT(inventarioPT)}>
+                        <FontAwesomeIcon icon={faEdit} />
+                      </button>
+                      <button className="delete-button icon-button delete-clicked" onClick={() => deleteInventarioPT(inventarioPT.id_producto)}>
+                        <FontAwesomeIcon icon={faTrashAlt} />
+                      </button>
                     </td>
                   )}
                 </tr>
@@ -376,22 +376,24 @@ const InventoryComponent = () => {
           {selectedMPOption === 'Registro' && isGerente && (
             <div>
               <form onSubmit={addInventarioMP} className="s-form">
-                <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} />
+                <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} className="input-field" />
                 {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
-                <br/>
-                <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} />
+                <br />
+                <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} className="input-field" />
                 {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
-                <br/>
-                <input type="text" name="proveedor" placeholder="Proveedor" value={formData.proveedor} onChange={handleInputChange} />
+                <br />
+                <input type="text" name="proveedor" placeholder="Proveedor" value={formData.proveedor} onChange={handleInputChange} className="input-field" />
                 {formErrors.proveedor && <span className="error">{formErrors.proveedor}</span>}
-                <br/>
-                <input type="text" name="cantidad_ingreso" placeholder="Cantidad de Ingreso" value={formData.cantidad_ingreso} onChange={handleInputChange} />
+                <br />
+                <input type="text" name="cantidad_ingreso" placeholder="Cantidad de Ingreso" value={formData.cantidad_ingreso} onChange={handleInputChange} className="input-field" />
                 {formErrors.cantidad_ingreso && <span className="error">{formErrors.cantidad_ingreso}</span>}
-                <br/>
-                <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} disabled />
+                <br />
+                <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} disabled className="input-field" />
                 {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
-                <br/>
-                <button type="submit">{editingMP ? 'Actualizar' : 'Agregar'}</button>
+                <br />
+                <button type="submit" className="submit-button icon-button">
+                  {editingMP ? <><FontAwesomeIcon icon={faSave} /> Actualizar</> : <><FontAwesomeIcon icon={faPlus} /> Agregar</>}
+                </button>
               </form>
               <h3>Lista de Inventario Materia Prima</h3>
               <table className="s-table">
@@ -409,16 +411,20 @@ const InventoryComponent = () => {
                 <tbody>
                   {inventarioMateriaPrima.map(inventarioMP => (
                     <tr key={inventarioMP.id_materia_prima}>
-                      <td>{inventarioMP.id_materia_prima}</td>
-                      <td>{inventarioMP.nombre}</td>
-                      <td>{inventarioMP.descripcion}</td>
-                      <td>{inventarioMP.proveedor}</td>
-                      <td>{inventarioMP.cantidad_ingreso}</td>
-                      <td>{inventarioMP.cantidad_disponible}</td>
+                      <td data-label="ID Materia Prima">{inventarioMP.id_materia_prima}</td>
+                      <td data-label="Nombre">{inventarioMP.nombre}</td>
+                      <td data-label="Descripción">{inventarioMP.descripcion}</td>
+                      <td data-label="Proveedor">{inventarioMP.proveedor}</td>
+                      <td data-label="Cantidad de Ingreso">{inventarioMP.cantidad_ingreso}</td>
+                      <td data-label="Cantidad Disponible">{inventarioMP.cantidad_disponible}</td>
                       {isGerente && (
-                        <td>
-                          <button onClick={() => editInventarioMP(inventarioMP)}>Editar</button>
-                          <button onClick={() => deleteInventarioMP(inventarioMP.id_materia_prima)}>Eliminar</button>
+                        <td data-label="Acciones">
+                          <button className="edit-button icon-button" onClick={() => editInventarioMP(inventarioMP)}>
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button className="delete-button icon-button delete-clicked" onClick={() => deleteInventarioMP(inventarioMP.id_materia_prima)}>
+                            <FontAwesomeIcon icon={faTrashAlt} />
+                          </button>
                         </td>
                       )}
                     </tr>
@@ -433,7 +439,7 @@ const InventoryComponent = () => {
               <h3>Registro Usuario Materia Prima</h3>
               <form onSubmit={addUsuarioMateriaPrima} className="s-form">
                 <input type="hidden" name="id_usuario" value={formUsuarioMateriaPrima.id_usuario} />
-                <select name="id_materia_prima" value={formUsuarioMateriaPrima.id_materia_prima} onChange={handleInputChangeUsuarioMateriaPrima}>
+                <select name="id_materia_prima" value={formUsuarioMateriaPrima.id_materia_prima} onChange={handleInputChangeUsuarioMateriaPrima} className="input-field">
                   <option value="">Seleccione una Materia Prima</option>
                   {inventarioMateriaPrima.map(mp => (
                     <option key={mp.id_materia_prima} value={mp.id_materia_prima}>
@@ -441,12 +447,14 @@ const InventoryComponent = () => {
                     </option>
                   ))}
                 </select>
-                <br/>
-                <input type="date" name="fecha_ingreso" placeholder="Fecha de Ingreso" value={formUsuarioMateriaPrima.fecha_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} readOnly />
-                <br/>
-                <input type="text" name="cantidad_nuevo_ingreso" placeholder="Cantidad Nuevo Ingreso" value={formUsuarioMateriaPrima.cantidad_nuevo_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} />
-                <br/>
-                <button type="submit">Agregar</button>
+                <br />
+                <input type="date" name="fecha_ingreso" placeholder="Fecha de Ingreso" value={formUsuarioMateriaPrima.fecha_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} readOnly className="input-field" />
+                <br />
+                <input type="text" name="cantidad_nuevo_ingreso" placeholder="Cantidad Nuevo Ingreso" value={formUsuarioMateriaPrima.cantidad_nuevo_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} className="input-field" />
+                <br />
+                <button type="submit" className="submit-button icon-button">
+                  <FontAwesomeIcon icon={faPlus} /> Agregar
+                </button>
               </form>
               <h3>Lista de Usuario Materia Prima</h3>
               <table className="s-table">
@@ -461,10 +469,10 @@ const InventoryComponent = () => {
                 <tbody>
                   {usuarioMateriaPrimaData.map(ump => (
                     <tr key={`${ump.id_usuario}-${ump.id_materia_prima}-${ump.fecha_ingreso}`}>
-                      <td>{ump.id_usuario}</td>
-                      <td>{ump.id_materia_prima}</td>
-                      <td>{ump.fecha_ingreso}</td>
-                      <td>{ump.cantidad_nuevo_ingreso}</td>
+                      <td data-label="ID Usuario">{ump.id_usuario}</td>
+                      <td data-label="ID Materia Prima">{ump.id_materia_prima}</td>
+                      <td data-label="Fecha Ingreso">{ump.fecha_ingreso}</td>
+                      <td data-label="Cantidad Nuevo Ingreso">{ump.cantidad_nuevo_ingreso}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -489,12 +497,12 @@ const InventoryComponent = () => {
                 <tbody>
                   {inventarioMateriaPrima.map(inventarioMP => (
                     <tr key={inventarioMP.id_materia_prima}>
-                      <td>{inventarioMP.id_materia_prima}</td>
-                      <td>{inventarioMP.nombre}</td>
-                      <td>{inventarioMP.descripcion}</td>
-                      <td>{inventarioMP.proveedor}</td>
-                      <td>{inventarioMP.cantidad_ingreso}</td>
-                      <td>{inventarioMP.cantidad_disponible}</td>
+                      <td data-label="ID Materia Prima">{inventarioMP.id_materia_prima}</td>
+                      <td data-label="Nombre">{inventarioMP.nombre}</td>
+                      <td data-label="Descripción">{inventarioMP.descripcion}</td>
+                      <td data-label="Proveedor">{inventarioMP.proveedor}</td>
+                      <td data-label="Cantidad de Ingreso">{inventarioMP.cantidad_ingreso}</td>
+                      <td data-label="Cantidad Disponible">{inventarioMP.cantidad_disponible}</td>
                     </tr>
                   ))}
                 </tbody>

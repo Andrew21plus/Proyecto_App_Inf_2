@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../utils/Styles.css';
+import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
 import { fetchRoles } from '../services/roleService';
 import { createUser, updateUser, fetchUsers, deleteUser } from '../services/userService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

@@ -5,18 +5,19 @@ import { validateProduccionFormData } from '../services/productionService.js';
 import { useAuth } from '../context/AuthContext'; // Importar el contexto de autenticación
 import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrashAlt, faPlus, faCheck, faTimes, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrashAlt, faCheck, faTimes, faSave } from '@fortawesome/free-solid-svg-icons';
 
 const ProductionComponent = () => {
   const { roles } = useAuth(); // Obtener los roles del usuario actual
   const [formData, setFormData] = useState({
     fecha: new Date().toISOString().split('T')[0], // Establecer la fecha actual
     descripcion: '',
-    materiasPrimas: [{ id_materia_prima: '', cantidad_uso: '' }] // Inicialmente un elemento vacío
+    materiasPrimas: []
   });
   const [formErrors, setFormErrors] = useState({});
   const [producciones, setProducciones] = useState([]);
   const [materiasPrimas, setMateriasPrimas] = useState([]);
+  const [descripcionesUnicas, setDescripcionesUnicas] = useState([]);
   const [editing, setEditing] = useState(false);
   const [currentProduccion, setCurrentProduccion] = useState(null);
 
@@ -27,6 +28,11 @@ const ProductionComponent = () => {
     getProducciones();
     getMateriasPrimas();
   }, []);
+
+  useEffect(() => {
+    const uniqueDescriptions = [...new Set(producciones.map(p => p.descripcion))];
+    setDescripcionesUnicas(uniqueDescriptions);
+  }, [producciones]);
 
   const getProducciones = () => {
     Axios.get("http://localhost:3307/produccion")
@@ -134,7 +140,7 @@ const ProductionComponent = () => {
     setFormData({
       fecha: new Date().toISOString().split('T')[0], // Restablecer la fecha actual
       descripcion: '',
-      materiasPrimas: [{ id_materia_prima: '', cantidad_uso: '' }]
+      materiasPrimas: []
     });
     setFormErrors({});
     setEditing(false);
@@ -174,6 +180,23 @@ const ProductionComponent = () => {
     setFormErrors({ ...formErrors, [name]: '' });
   };
 
+  const handleDescripcionChange = (e) => {
+    const { value } = e.target;
+    setFormData({ ...formData, descripcion: value });
+
+    const produccionSeleccionada = producciones.find(p => p.descripcion === value);
+    if (produccionSeleccionada) {
+      setFormData({
+        ...formData,
+        descripcion: value,
+        materiasPrimas: produccionSeleccionada.materiasPrimas.map(mp => ({
+          id_materia_prima: mp.id_materia_prima,
+          cantidad_uso: ''
+        }))
+      });
+    }
+  };
+
   const handleAddMateriaPrima = () => {
     setFormData({
       ...formData,
@@ -194,10 +217,11 @@ const ProductionComponent = () => {
   // Obtener la fecha actual en el formato correcto
   const fechaActual = new Date().toISOString().split('T')[0];
 
-  // Filtrar producciones según el rol del usuario
-  const produccionesFiltradas = isPlantChief
+  // Filtrar y ordenar producciones según el rol del usuario
+  const produccionesFiltradas = (isPlantChief
     ? producciones.filter(produccion => produccion.fecha === fechaActual)
-    : producciones;
+    : producciones
+  ).sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 
   return (
     <div className="production-container">
@@ -206,18 +230,17 @@ const ProductionComponent = () => {
       <form onSubmit={addProduccion} className="production-form">
         <input type="date" name="fecha" value={formData.fecha} readOnly className="input-field" /> {/* Campo de fecha no modificable */}
         {formErrors.fecha && <span className="error">{formErrors.fecha}</span>}
-        <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={e => setFormData({ ...formData, descripcion: e.target.value })} className="input-field" />
+        <select name="descripcion" value={formData.descripcion} onChange={handleDescripcionChange} className="input-field">
+          <option value="">Seleccione una descripción</option>
+          {descripcionesUnicas.map((descripcion, index) => (
+            <option key={index} value={descripcion}>{descripcion}</option>
+          ))}
+        </select>
         {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
 
         {formData.materiasPrimas.map((mp, index) => (
           <div key={index} className="materia-prima">
-            <select name="id_materia_prima" value={mp.id_materia_prima} onChange={e => handleInputChange(e, index)} className="input-field">
-              <option value="">Seleccione una materia prima</option>
-              {materiasPrimas.map(mp => (
-                <option key={mp.id_materia_prima} value={mp.id_materia_prima}>{mp.descripcion}</option>
-              ))}
-            </select>
-            {formErrors[`id_materia_prima_${index}`] && <span className="error">{formErrors[`id_materia_prima_${index}`]}</span>}
+            <span>{getNombreMateriaPrima(mp.id_materia_prima)}</span>
             <input type="number" name="cantidad_uso" placeholder="Cantidad de uso" value={mp.cantidad_uso} onChange={e => handleInputChange(e, index)} className="input-field" />
             {formErrors[`cantidad_uso_${index}`] && <span className="error">{formErrors[`cantidad_uso_${index}`]}</span>}
             <button type="button" className="remove-button icon-button delete-clicked" onClick={() => handleRemoveMateriaPrima(index)}>
@@ -225,9 +248,6 @@ const ProductionComponent = () => {
             </button>
           </div>
         ))}
-        <button type="button" className="add-button icon-button" onClick={handleAddMateriaPrima}>
-          <FontAwesomeIcon icon={faPlus} /> Añadir Materia Prima
-        </button>
         <button type="submit" className="submit-button icon-button">
           {editing ? <><FontAwesomeIcon icon={faSave} /> Actualizar Producción</> : <><FontAwesomeIcon icon={faCheck} /> Registrar Producción</>}
         </button>
@@ -271,7 +291,7 @@ const ProductionComponent = () => {
       </table>
       <Link to="/menu" className="back-link">Volver al Menú</Link>
     </div>
-  );
+);
 };
 
 export default ProductionComponent;

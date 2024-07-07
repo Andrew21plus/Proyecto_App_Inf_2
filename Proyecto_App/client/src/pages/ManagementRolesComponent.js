@@ -1,6 +1,6 @@
 // ManagementRolesComponent.js
 import React, { useState, useEffect } from 'react';
-import '../utils/Styles.css';
+import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
 import { fetchRoles, createRole, updateRole, deleteRole } from '../services/roleService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
