@@ -1,9 +1,8 @@
-// LoginComponent.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Navigate, Link } from 'react-router-dom';
 import { authenticateUser } from '../services/authService';
-import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
+import '../utils/StylesTotal.css';
 
 const LoginComponent = () => {
   const [email, setEmail] = useState('');

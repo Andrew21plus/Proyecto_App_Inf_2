@@ -157,12 +157,6 @@ const DrawBackComponent = () => {
           ))}
         </tbody>
       </table>
-      <div>
-        <Link to="/">
-          <br/>
-          <button>Volver a la página principal</button>
-        </Link>
-      </div>
     </div>
   );
 };

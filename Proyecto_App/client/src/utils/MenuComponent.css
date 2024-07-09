@@ -1,10 +1,12 @@
+/* MenuComponent.css */
 .menu {
   text-align: center;
 }
 
 .navbar {
-  background-color: #333;
+  background-color: #0E1B26; /* Color de la paleta */
   overflow: hidden;
+  position: relative;
 }
 
 .navbar ul {
@@ -25,20 +27,55 @@
 }
 
 .navbar li:hover {
-  background-color: #ddd;
-  color: black;
+  background-color: #1D2F40; /* Color de la paleta */
+  color: white;
 }
 
 /* Nueva clase para el elemento seleccionado */
 .navbar .selected {
-  background-color: #555; /* Cambia este color según tus preferencias */
-  color: white; /* Asegúrate de que el texto sea visible */
+  background-color: #496373; /* Color de la paleta */
+  color: white;
 }
 
 .menu-content {
   margin-top: 20px;
   padding: 20px;
-  border: 1px solid #ddd;
+  border: 1px solid #7292A6; /* Color de la paleta */
   border-radius: 5px;
 }
 
+.menu-toggle {
+  display: none;
+  background-color: #0E1B26; /* Color de la paleta */
+  color: white;
+  padding: 14px 20px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .navbar ul {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .navbar ul.active {
+    display: flex;
+  }
+
+  .navbar li {
+    padding: 10px 15px;
+    text-align: left;
+  }
+
+  .menu-content {
+    padding: 15px;
+  }
+}

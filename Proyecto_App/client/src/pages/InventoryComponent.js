@@ -321,10 +321,10 @@ const InventoryComponent = () => {
       <h1>Gestión de Inventario</h1>
       <div className="form-selector">
         {(isGerente || isJefePlanta) && (
-          <>
-            <button onClick={() => setSelectedForm('PT')}>Inventario Producto Terminado</button>
-            <button onClick={() => setSelectedForm('MP')}>Inventario Materia Prima</button>
-          </>
+          <div className="button-group">
+            <button onClick={() => setSelectedForm('PT')} className="styled-button">Inventario Producto Terminado</button>
+            <button onClick={() => setSelectedForm('MP')} className="styled-button">Inventario Materia Prima</button>
+          </div>
         )}
       </div>
 
@@ -368,9 +368,9 @@ const InventoryComponent = () => {
       {selectedForm === 'MP' && (
         <div>
           <h2>Inventario Materia Prima</h2>
-          <div className="mp-options">
-            <button onClick={() => handleChangeMPOption('Registro')}>Registro Materia Prima</button>
-            <button onClick={() => handleChangeMPOption('UsuarioMateriaPrima')}>Registro Usuario Materia Prima</button>
+          <div className="mp-options button-group">
+            <button onClick={() => handleChangeMPOption('Registro')} className="styled-button">Registro Materia Prima</button>
+            <button onClick={() => handleChangeMPOption('UsuarioMateriaPrima')} className="styled-button">Registro Usuario Materia Prima</button>
           </div>
 
           {selectedMPOption === 'Registro' && isGerente && (
@@ -514,5 +514,6 @@ const InventoryComponent = () => {
     </div>
   );
 };
+
 
 export default InventoryComponent;

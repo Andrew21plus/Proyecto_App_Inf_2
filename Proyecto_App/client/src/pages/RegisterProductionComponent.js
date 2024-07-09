@@ -289,7 +289,6 @@ const ProductionComponent = () => {
           ))}
         </tbody>
       </table>
-      <Link to="/menu" className="back-link">Volver al Menú</Link>
     </div>
 );
 };

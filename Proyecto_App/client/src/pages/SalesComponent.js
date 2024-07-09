@@ -215,7 +215,6 @@ const SalesComponent = () => {
           })}
         </tbody>
       </table>
-      <Link to="/profile" className="back-link">Volver al perfil</Link>
     </div>
   );
 };

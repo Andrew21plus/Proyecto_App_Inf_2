@@ -214,3 +214,55 @@
     text-decoration: none;
   }
   
+
+/* Estilo para la página de inicio de sesión con fondo desenfocado */
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: url('../img/image.png') no-repeat center center fixed;
+  background-size: cover;
+  backdrop-filter: blur(7px); /* Aumenta el valor de desenfoque */
+}
+
+.login-container {
+  background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco semitransparente */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  text-align: center;
+}
+
+/* Estilos para botones estilizados */
+.styled-button {
+  padding: 10px 20px;
+  border: 2px solid #1D2F40;
+  border-radius: 8px;
+  background-color: #1D2F40;
+  color: #FFFFFF;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.styled-button:hover {
+  background-color: #496373;
+  color: #FFFFFF;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+
+
+
+
+
+
+
