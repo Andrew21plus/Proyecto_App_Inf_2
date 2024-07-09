@@ -1,219 +1,231 @@
 /* src/utils/StylesTotal.css */
 
+/* Importación de la fuente Merriweather */
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap');
+
+/* Aplicación de la fuente Merriweather a todo el cuerpo de la página */
+body {
+  font-family: 'Merriweather', serif;
+}
+
+/* Aplicación de la fuente Merriweather a todos los botones e inputs */
+button, input, select, textarea {
+  font-family: 'Merriweather', serif;
+}
+
 /* Contenedores generales */
 .container, .production-container, .profile-container, .user-management-container, .login-container {
-    width: 80%;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #D7D9D9; /* Fondo gris claro */
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .production-container {
-    background-color: #D7D9D9; /* Fondo gris claro */
-  }
-  
-  h1, h2 {
-    text-align: center;
-    color: #0E1B26; /* Color de la paleta */
-  }
-  
-  .profile-container h2, .login-container h2, .user-management-container h2 {
-    text-align: center;
-    color: #0E1B26; /* Color de la paleta */
-    margin-bottom: 20px;
-  }
-  
-  /* Formularios */
-  .s-form, .production-form, .profile-container form, .user-management-container form, .login-container form {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
-  }
-  
-  .s-form input, .s-form select, .production-form .input-field, .profile-container label input, .user-management-container form input, .user-management-container form select, .login-container input {
-    margin-bottom: 8px; /* Reducido de 10px */
-    padding: 4px; /* Reducido de 6px */
-    font-size: 0.9em; /* Tamaño de fuente reducido */
-    border: 1px solid #7292A6; /* Cambiado a color de la paleta */
-    border-radius: 4px;
-  }
-  
-  .production-form .input-field {
-    padding: 10px;
-    background-color: #D7D9D9;
-    color: #0E1B26;
-  }
-  
-  .profile-container button, .s-form button, .production-form .add-button, .production-form .submit-button, .production-form .cancel-button, .production-form .remove-button, .login-container button, .user-management-container form button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    color: #1D2F40;
-    background-color: transparent; /* Fondo transparente */
-  }
-  
-  .production-form .add-button, .production-form .submit-button, .production-form .cancel-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .error {
-    color: #DC3545;
-    font-size: 0.9em;
-  }
-  
-  /* Tablas */
-  .s-table, .production-table, .user-management-container table {
-    border-collapse: collapse;
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #D7D9D9; /* Fondo gris claro */
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.production-container {
+  background-color: #D7D9D9; /* Fondo gris claro */
+}
+
+h1, h2 {
+  text-align: center;
+  color: #0E1B26; /* Color de la paleta */
+}
+
+.profile-container h2, .login-container h2, .user-management-container h2 {
+  text-align: center;
+  color: #0E1B26; /* Color de la paleta */
+  margin-bottom: 20px;
+}
+
+/* Formularios */
+.s-form, .production-form, .profile-container form, .user-management-container form, .login-container form {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.s-form input, .s-form select, .production-form .input-field, .profile-container label input, .user-management-container form input, .user-management-container form select, .login-container input {
+  margin-bottom: 8px; /* Reducido de 10px */
+  padding: 4px; /* Reducido de 6px */
+  font-size: 0.9em; /* Tamaño de fuente reducido */
+  border: 1px solid #7292A6; /* Cambiado a color de la paleta */
+  border-radius: 4px;
+}
+
+.production-form .input-field {
+  padding: 10px;
+  background-color: #D7D9D9;
+  color: #0E1B26;
+}
+
+.profile-container button, .s-form button, .production-form .add-button, .production-form .submit-button, .production-form .cancel-button, .production-form .remove-button, .login-container button, .user-management-container form button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #1D2F40;
+  background-color: transparent; /* Fondo transparente */
+}
+
+.production-form .add-button, .production-form .submit-button, .production-form .cancel-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error {
+  color: #DC3545;
+  font-size: 0.9em;
+}
+
+/* Tablas */
+.s-table, .production-table, .user-management-container table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.s-table th, .s-table td, .production-table th, .production-table td, .user-management-container th, .user-management-container td {
+  border: 1px solid #7292A6;
+  padding: 10px;
+  text-align: left;
+}
+
+.production-table th, .user-management-container th {
+  background-color: #1D2F40;
+  color: white;
+}
+
+.s-table tr:nth-child(even), .production-table tr:nth-child(even), .user-management-container tr:nth-child(even) {
+  background-color: #7292A6;
+}
+
+.s-table tr:nth-child(odd), .production-table tr:nth-child(odd), .user-management-container tr:nth-child(odd) {
+  background-color: #D7D9D9;
+}
+
+.edit-button, .delete-button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #FFFFFF;
+}
+
+.delete-button {
+  background-color: #1D2F40;
+}
+
+.user-management-container .delete-button {
+  background-color: #DC3545;
+}
+
+.user-management-container .delete-button:hover {
+  background-color: #C82333;
+  color: white;
+}
+
+/* Responsive Design for Table */
+@media (max-width: 768px) {
+  .container, .production-container {
     width: 100%;
-    margin-top: 20px;
-  }
-  
-  .s-table th, .s-table td, .production-table th, .production-table td, .user-management-container th, .user-management-container td {
-    border: 1px solid #7292A6;
     padding: 10px;
+  }
+
+  .input-field, .add-button, .submit-button, .cancel-button, .remove-button, .edit-button, .delete-button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .s-table, .production-table {
+    display: block;
+    width: 100%;
+  }
+
+  .s-table thead, .production-table thead {
+    display: none;
+  }
+
+  .s-table tbody, .s-table tr, .production-table tbody, .production-table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .s-table tr, .production-table tr {
+    margin-bottom: 10px;
+    border: 1px solid #7292A6;
+    border-radius: 5px;
+    background-color: #D7D9D9;
+  }
+
+  .s-table td, .production-table td {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border: none;
+    border-bottom: 1px solid #7292A6;
+  }
+
+  .s-table td:last-child, .production-table td:last-child {
+    border-bottom: none;
+  }
+
+  .s-table td::before, .production-table td::before {
+    content: attr(data-label);
+    flex-basis: 40%;
+    font-weight: bold;
     text-align: left;
   }
-  
-  .production-table th, .user-management-container th {
-    background-color: #1D2F40;
-    color: white;
-  }
-  
-  .s-table tr:nth-child(even), .production-table tr:nth-child(even), .user-management-container tr:nth-child(even) {
-    background-color: #7292A6;
-  }
-  
-  .s-table tr:nth-child(odd), .production-table tr:nth-child(odd), .user-management-container tr:nth-child(odd) {
-    background-color: #D7D9D9;
-  }
-  
-  .edit-button, .delete-button {
-    padding: 5px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    color: #FFFFFF;
-  }
-  
-  .delete-button {
-    background-color: #1D2F40;
-  }
-  
-  .user-management-container .delete-button {
-    background-color: #DC3545;
-  }
-  
-  .user-management-container .delete-button:hover {
-    background-color: #C82333;
-    color: white;
-  }
-  
-  /* Responsive Design for Table */
-  @media (max-width: 768px) {
-    .container, .production-container {
-      width: 100%;
-      padding: 10px;
-    }
-  
-    .input-field, .add-button, .submit-button, .cancel-button, .remove-button, .edit-button, .delete-button {
-      width: 100%;
-      box-sizing: border-box;
-    }
-  
-    .s-table, .production-table {
-      display: block;
-      width: 100%;
-    }
-  
-    .s-table thead, .production-table thead {
-      display: none;
-    }
-  
-    .s-table tbody, .s-table tr, .production-table tbody, .production-table tr {
-      display: block;
-      width: 100%;
-    }
-  
-    .s-table tr, .production-table tr {
-      margin-bottom: 10px;
-      border: 1px solid #7292A6;
-      border-radius: 5px;
-      background-color: #D7D9D9;
-    }
-  
-    .s-table td, .production-table td {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px;
-      border: none;
-      border-bottom: 1px solid #7292A6;
-    }
-  
-    .s-table td:last-child, .production-table td:last-child {
-      border-bottom: none;
-    }
-  
-    .s-table td::before, .production-table td::before {
-      content: attr(data-label);
-      flex-basis: 40%;
-      font-weight: bold;
-      text-align: left;
-    }
-  }
-  
-  /* Estilo Gestion Roles */
-  .icon-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    margin: 0 4px;
-    color: #1D2F40; /* Color por defecto */
-    font-size: 1.2em; /* Aumenta el tamaño del icono */
-  }
-  
-  .icon-button:hover {
-    color: #496373; /* Cambiado a color de la paleta */
-  }
-  
-  .edit-button {
-    color: #1D2F40 !important; /* Asegura que el color sea visible */
-    background: none; /* Asegura que el fondo sea transparente */
-    border: none; /* Asegura que no haya bordes adicionales */
-  }
-  
-  .edit-button:hover {
-    color: #496373; /* Cambiado a color de la paleta */
-  }
-  
-  .delete-button {
-    color: #1D2F40 !important; /* Asegura que el color sea visible */
-    background: none; /* Asegura que el fondo sea transparente */
-    border: none; /* Asegura que no haya bordes adicionales */
-  }
-  
-  .delete-button:hover {
-    color: red;
-  }
-  
-  .icon-button.delete-clicked {
-    color: red;
-  }
-  
-  /* Back link */
-  .back-link {
-    display: block;
-    text-align: center;
-    margin-top: 20px;
-    color: #0E1B26;
-    text-decoration: none;
-  }
-  
+}
+
+/* Estilo Gestion Roles */
+.icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  margin: 0 4px;
+  color: #1D2F40; /* Color por defecto */
+  font-size: 1.2em; /* Aumenta el tamaño del icono */
+}
+
+.icon-button:hover {
+  color: #496373; /* Cambiado a color de la paleta */
+}
+
+.edit-button {
+  color: #1D2F40 !important; /* Asegura que el color sea visible */
+  background: none; /* Asegura que el fondo sea transparente */
+  border: none; /* Asegura que no haya bordes adicionales */
+}
+
+.edit-button:hover {
+  color: #496373; /* Cambiado a color de la paleta */
+}
+
+.delete-button {
+  color: #1D2F40 !important; /* Asegura que el color sea visible */
+  background: none; /* Asegura que el fondo sea transparente */
+  border: none; /* Asegura que no haya bordes adicionales */
+}
+
+.delete-button:hover {
+  color: red;
+}
+
+.icon-button.delete-clicked {
+  color: red;
+}
+
+/* Back link */
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: #0E1B26;
+  text-decoration: none;
+}
 
 /* Estilo para la página de inicio de sesión con fondo desenfocado */
 .login-page {
@@ -258,11 +270,3 @@
   justify-content: center;
   margin-bottom: 20px;
 }
-
-
-
-
-
-
-
-

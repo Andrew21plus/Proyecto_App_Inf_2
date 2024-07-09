@@ -318,43 +318,106 @@ const InventoryComponent = () => {
 
   return (
     <div>
-      <h1>Gestión de Inventario</h1>
-      <div className="form-selector">
-        {(isGerente || isJefePlanta) && (
-          <div className="button-group">
-            <button onClick={() => setSelectedForm('PT')} className="styled-button">Inventario Producto Terminado</button>
-            <button onClick={() => setSelectedForm('MP')} className="styled-button">Inventario Materia Prima</button>
-          </div>
-        )}
+  <h1>Gestión de Inventario</h1>
+  <div className="form-selector">
+    {(isGerente || isJefePlanta) && (
+      <div className="button-group">
+        <button onClick={() => setSelectedForm('PT')} className="styled-button">Inventario Producto Terminado</button>
+        <button onClick={() => setSelectedForm('MP')} className="styled-button">Inventario Materia Prima</button>
+      </div>
+    )}
+  </div>
+
+  {selectedForm === 'PT' && (
+    <div>
+      <h2>Inventario Producto Terminado</h2>
+      <h3>Lista de Inventario Producto Terminado</h3>
+      <table className="s-table">
+        <thead>
+          <tr>
+            <th>ID Producto</th>
+            <th>ID Producción</th>
+            <th>Cantidad Disponible</th>
+            <th>Nombre</th>
+            {isGerente && <th>Acciones</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {inventarioProductoTerminado.map(inventarioPT => (
+            <tr key={inventarioPT.id_producto}>
+              <td data-label="ID Producto">{inventarioPT.id_producto}</td>
+              <td data-label="ID Producción">{inventarioPT.id_produccion}</td>
+              <td data-label="Cantidad Disponible">{inventarioPT.cantidad_disponible}</td>
+              <td data-label="Nombre">{inventarioPT.nombre}</td>
+              {isGerente && (
+                <td data-label="Acciones">
+                  <button className="edit-button icon-button" onClick={() => editInventarioPT(inventarioPT)}>
+                    <FontAwesomeIcon icon={faEdit} />
+                  </button>
+                  <button className="delete-button icon-button delete-clicked" onClick={() => deleteInventarioPT(inventarioPT.id_producto)}>
+                    <FontAwesomeIcon icon={faTrashAlt} />
+                  </button>
+                </td>
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+  {selectedForm === 'MP' && (
+    <div>
+      <h2>Inventario Materia Prima</h2>
+      <div className="mp-options button-group">
+        <button onClick={() => handleChangeMPOption('Registro')} className="styled-button">Registro Materia Prima</button>
+        <button onClick={() => handleChangeMPOption('UsuarioMateriaPrima')} className="styled-button">Registro Usuario Materia Prima</button>
       </div>
 
-      {selectedForm === 'PT' && (
+      {selectedMPOption === 'Registro' && isGerente && (
         <div>
-          <h2>Inventario Producto Terminado</h2>
-          <h3>Lista de Inventario Producto Terminado</h3>
+          <form onSubmit={addInventarioMP} className="production-form">
+            <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} className="input-field" />
+            {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
+            <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} className="input-field" />
+            {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
+            <input type="text" name="proveedor" placeholder="Proveedor" value={formData.proveedor} onChange={handleInputChange} className="input-field" />
+            {formErrors.proveedor && <span className="error">{formErrors.proveedor}</span>}
+            <input type="text" name="cantidad_ingreso" placeholder="Cantidad de Ingreso" value={formData.cantidad_ingreso} onChange={handleInputChange} className="input-field" />
+            {formErrors.cantidad_ingreso && <span className="error">{formErrors.cantidad_ingreso}</span>}
+            <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} disabled className="input-field" />
+            {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
+            <button type="submit" className="submit-button icon-button">
+              {editingMP ? <><FontAwesomeIcon icon={faSave} /> Actualizar</> : <><FontAwesomeIcon icon={faPlus} /> Agregar</>}
+            </button>
+          </form>
+          <h3>Lista de Inventario Materia Prima</h3>
           <table className="s-table">
             <thead>
               <tr>
-                <th>ID Producto</th>
-                <th>ID Producción</th>
-                <th>Cantidad Disponible</th>
+                <th>ID Materia Prima</th>
                 <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Proveedor</th>
+                <th>Cantidad de Ingreso</th>
+                <th>Cantidad Disponible</th>
                 {isGerente && <th>Acciones</th>}
               </tr>
             </thead>
             <tbody>
-              {inventarioProductoTerminado.map(inventarioPT => (
-                <tr key={inventarioPT.id_producto}>
-                  <td data-label="ID Producto">{inventarioPT.id_producto}</td>
-                  <td data-label="ID Producción">{inventarioPT.id_produccion}</td>
-                  <td data-label="Cantidad Disponible">{inventarioPT.cantidad_disponible}</td>
-                  <td data-label="Nombre">{inventarioPT.nombre}</td>
+              {inventarioMateriaPrima.map(inventarioMP => (
+                <tr key={inventarioMP.id_materia_prima}>
+                  <td data-label="ID Materia Prima">{inventarioMP.id_materia_prima}</td>
+                  <td data-label="Nombre">{inventarioMP.nombre}</td>
+                  <td data-label="Descripción">{inventarioMP.descripcion}</td>
+                  <td data-label="Proveedor">{inventarioMP.proveedor}</td>
+                  <td data-label="Cantidad de Ingreso">{inventarioMP.cantidad_ingreso}</td>
+                  <td data-label="Cantidad Disponible">{inventarioMP.cantidad_disponible}</td>
                   {isGerente && (
                     <td data-label="Acciones">
-                      <button className="edit-button icon-button" onClick={() => editInventarioPT(inventarioPT)}>
+                      <button className="edit-button icon-button" onClick={() => editInventarioMP(inventarioMP)}>
                         <FontAwesomeIcon icon={faEdit} />
                       </button>
-                      <button className="delete-button icon-button delete-clicked" onClick={() => deleteInventarioPT(inventarioPT.id_producto)}>
+                      <button className="delete-button icon-button delete-clicked" onClick={() => deleteInventarioMP(inventarioMP.id_materia_prima)}>
                         <FontAwesomeIcon icon={faTrashAlt} />
                       </button>
                     </td>
@@ -365,153 +428,82 @@ const InventoryComponent = () => {
           </table>
         </div>
       )}
-      {selectedForm === 'MP' && (
+
+      {selectedMPOption === 'UsuarioMateriaPrima' && (
         <div>
-          <h2>Inventario Materia Prima</h2>
-          <div className="mp-options button-group">
-            <button onClick={() => handleChangeMPOption('Registro')} className="styled-button">Registro Materia Prima</button>
-            <button onClick={() => handleChangeMPOption('UsuarioMateriaPrima')} className="styled-button">Registro Usuario Materia Prima</button>
-          </div>
+          <h3>Registro Usuario Materia Prima</h3>
+          <form onSubmit={addUsuarioMateriaPrima} className="production-form">
+            <input type="hidden" name="id_usuario" value={formUsuarioMateriaPrima.id_usuario} />
+            <select name="id_materia_prima" value={formUsuarioMateriaPrima.id_materia_prima} onChange={handleInputChangeUsuarioMateriaPrima} className="input-field">
+              <option value="">Seleccione una Materia Prima</option>
+              {inventarioMateriaPrima.map(mp => (
+                <option key={mp.id_materia_prima} value={mp.id_materia_prima}>
+                  {mp.nombre}
+                </option>
+              ))}
+            </select>
+            <input type="date" name="fecha_ingreso" placeholder="Fecha de Ingreso" value={formUsuarioMateriaPrima.fecha_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} readOnly className="input-field" />
+            <input type="text" name="cantidad_nuevo_ingreso" placeholder="Cantidad Nuevo Ingreso" value={formUsuarioMateriaPrima.cantidad_nuevo_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} className="input-field" />
+            <button type="submit" className="submit-button icon-button">
+              <FontAwesomeIcon icon={faPlus} /> Agregar
+            </button>
+          </form>
+          <h3>Lista de Usuario Materia Prima</h3>
+          <table className="s-table">
+            <thead>
+              <tr>
+                <th>ID Usuario</th>
+                <th>ID Materia Prima</th>
+                <th>Fecha Ingreso</th>
+                <th>Cantidad Nuevo Ingreso</th>
+              </tr>
+            </thead>
+            <tbody>
+              {usuarioMateriaPrimaData.map(ump => (
+                <tr key={`${ump.id_usuario}-${ump.id_materia_prima}-${ump.fecha_ingreso}`}>
+                  <td data-label="ID Usuario">{ump.id_usuario}</td>
+                  <td data-label="ID Materia Prima">{ump.id_materia_prima}</td>
+                  <td data-label="Fecha Ingreso">{ump.fecha_ingreso}</td>
+                  <td data-label="Cantidad Nuevo Ingreso">{ump.cantidad_nuevo_ingreso}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-          {selectedMPOption === 'Registro' && isGerente && (
-            <div>
-              <form onSubmit={addInventarioMP} className="s-form">
-                <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} className="input-field" />
-                {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
-                <br />
-                <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} className="input-field" />
-                {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
-                <br />
-                <input type="text" name="proveedor" placeholder="Proveedor" value={formData.proveedor} onChange={handleInputChange} className="input-field" />
-                {formErrors.proveedor && <span className="error">{formErrors.proveedor}</span>}
-                <br />
-                <input type="text" name="cantidad_ingreso" placeholder="Cantidad de Ingreso" value={formData.cantidad_ingreso} onChange={handleInputChange} className="input-field" />
-                {formErrors.cantidad_ingreso && <span className="error">{formErrors.cantidad_ingreso}</span>}
-                <br />
-                <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} disabled className="input-field" />
-                {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
-                <br />
-                <button type="submit" className="submit-button icon-button">
-                  {editingMP ? <><FontAwesomeIcon icon={faSave} /> Actualizar</> : <><FontAwesomeIcon icon={faPlus} /> Agregar</>}
-                </button>
-              </form>
-              <h3>Lista de Inventario Materia Prima</h3>
-              <table className="s-table">
-                <thead>
-                  <tr>
-                    <th>ID Materia Prima</th>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Proveedor</th>
-                    <th>Cantidad de Ingreso</th>
-                    <th>Cantidad Disponible</th>
-                    {isGerente && <th>Acciones</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {inventarioMateriaPrima.map(inventarioMP => (
-                    <tr key={inventarioMP.id_materia_prima}>
-                      <td data-label="ID Materia Prima">{inventarioMP.id_materia_prima}</td>
-                      <td data-label="Nombre">{inventarioMP.nombre}</td>
-                      <td data-label="Descripción">{inventarioMP.descripcion}</td>
-                      <td data-label="Proveedor">{inventarioMP.proveedor}</td>
-                      <td data-label="Cantidad de Ingreso">{inventarioMP.cantidad_ingreso}</td>
-                      <td data-label="Cantidad Disponible">{inventarioMP.cantidad_disponible}</td>
-                      {isGerente && (
-                        <td data-label="Acciones">
-                          <button className="edit-button icon-button" onClick={() => editInventarioMP(inventarioMP)}>
-                            <FontAwesomeIcon icon={faEdit} />
-                          </button>
-                          <button className="delete-button icon-button delete-clicked" onClick={() => deleteInventarioMP(inventarioMP.id_materia_prima)}>
-                            <FontAwesomeIcon icon={faTrashAlt} />
-                          </button>
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {selectedMPOption === 'UsuarioMateriaPrima' && (
-            <div>
-              <h3>Registro Usuario Materia Prima</h3>
-              <form onSubmit={addUsuarioMateriaPrima} className="s-form">
-                <input type="hidden" name="id_usuario" value={formUsuarioMateriaPrima.id_usuario} />
-                <select name="id_materia_prima" value={formUsuarioMateriaPrima.id_materia_prima} onChange={handleInputChangeUsuarioMateriaPrima} className="input-field">
-                  <option value="">Seleccione una Materia Prima</option>
-                  {inventarioMateriaPrima.map(mp => (
-                    <option key={mp.id_materia_prima} value={mp.id_materia_prima}>
-                      {mp.nombre}
-                    </option>
-                  ))}
-                </select>
-                <br />
-                <input type="date" name="fecha_ingreso" placeholder="Fecha de Ingreso" value={formUsuarioMateriaPrima.fecha_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} readOnly className="input-field" />
-                <br />
-                <input type="text" name="cantidad_nuevo_ingreso" placeholder="Cantidad Nuevo Ingreso" value={formUsuarioMateriaPrima.cantidad_nuevo_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} className="input-field" />
-                <br />
-                <button type="submit" className="submit-button icon-button">
-                  <FontAwesomeIcon icon={faPlus} /> Agregar
-                </button>
-              </form>
-              <h3>Lista de Usuario Materia Prima</h3>
-              <table className="s-table">
-                <thead>
-                  <tr>
-                    <th>ID Usuario</th>
-                    <th>ID Materia Prima</th>
-                    <th>Fecha Ingreso</th>
-                    <th>Cantidad Nuevo Ingreso</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {usuarioMateriaPrimaData.map(ump => (
-                    <tr key={`${ump.id_usuario}-${ump.id_materia_prima}-${ump.fecha_ingreso}`}>
-                      <td data-label="ID Usuario">{ump.id_usuario}</td>
-                      <td data-label="ID Materia Prima">{ump.id_materia_prima}</td>
-                      <td data-label="Fecha Ingreso">{ump.fecha_ingreso}</td>
-                      <td data-label="Cantidad Nuevo Ingreso">{ump.cantidad_nuevo_ingreso}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {isJefePlanta && selectedMPOption === 'Registro' && (
-            <div>
-              <h3>Lista de Inventario Materia Prima</h3>
-              <table className="s-table">
-                <thead>
-                  <tr>
-                    <th>ID Materia Prima</th>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Proveedor</th>
-                    <th>Cantidad de Ingreso</th>
-                    <th>Cantidad Disponible</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {inventarioMateriaPrima.map(inventarioMP => (
-                    <tr key={inventarioMP.id_materia_prima}>
-                      <td data-label="ID Materia Prima">{inventarioMP.id_materia_prima}</td>
-                      <td data-label="Nombre">{inventarioMP.nombre}</td>
-                      <td data-label="Descripción">{inventarioMP.descripcion}</td>
-                      <td data-label="Proveedor">{inventarioMP.proveedor}</td>
-                      <td data-label="Cantidad de Ingreso">{inventarioMP.cantidad_ingreso}</td>
-                      <td data-label="Cantidad Disponible">{inventarioMP.cantidad_disponible}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+      {isJefePlanta && selectedMPOption === 'Registro' && (
+        <div>
+          <h3>Lista de Inventario Materia Prima</h3>
+          <table className="s-table">
+            <thead>
+              <tr>
+                <th>ID Materia Prima</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Proveedor</th>
+                <th>Cantidad de Ingreso</th>
+                <th>Cantidad Disponible</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inventarioMateriaPrima.map(inventarioMP => (
+                <tr key={inventarioMP.id_materia_prima}>
+                  <td data-label="ID Materia Prima">{inventarioMP.id_materia_prima}</td>
+                  <td data-label="Nombre">{inventarioMP.nombre}</td>
+                  <td data-label="Descripción">{inventarioMP.descripcion}</td>
+                  <td data-label="Proveedor">{inventarioMP.proveedor}</td>
+                  <td data-label="Cantidad de Ingreso">{inventarioMP.cantidad_ingreso}</td>
+                  <td data-label="Cantidad Disponible">{inventarioMP.cantidad_disponible}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
+  )}
+</div>
   );
 };
 
