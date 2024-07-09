@@ -20,6 +20,9 @@ const ProductionComponent = () => {
   const [editing, setEditing] = useState(false);
   const [currentProduccion, setCurrentProduccion] = useState(null);
 
+  const [currentPage, setCurrentPage] = useState(1); // Estado para la página actual
+  const itemsPerPage = 15; // Número de producciones por página
+
   const isManager = roles.some(role => role.nombre_rol === 'Gerente');
   const isPlantChief = roles.some(role => role.nombre_rol === 'Jefe de Planta');
 
@@ -199,6 +202,15 @@ const ProductionComponent = () => {
     ? producciones.filter(produccion => produccion.fecha === fechaActual)
     : producciones;
 
+  // Implementar paginación
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProducciones = produccionesFiltradas.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const showCancelButton = editing || formData.descripcion !== '' || formData.materiasPrimas.some(mp => mp.id_materia_prima !== '' || mp.cantidad_uso !== '');
+
   return (
     <div className="production-container">
       <h1>Gestión de Producción</h1>
@@ -231,9 +243,11 @@ const ProductionComponent = () => {
         <button type="submit" className="submit-button icon-button">
           {editing ? <><FontAwesomeIcon icon={faSave} /> Actualizar Producción</> : <><FontAwesomeIcon icon={faCheck} /> Registrar Producción</>}
         </button>
-        <button type="button" className="cancel-button icon-button" onClick={resetForm}>
-          <FontAwesomeIcon icon={faTimes} /> Cancelar
-        </button>
+        {showCancelButton && (
+          <button type="button" className="cancel-button icon-button" onClick={resetForm}>
+            <FontAwesomeIcon icon={faTimes} /> Cancelar
+          </button>
+        )}
       </form>
 
       <table className="production-table">
@@ -246,7 +260,7 @@ const ProductionComponent = () => {
           </tr>
         </thead>
         <tbody>
-          {produccionesFiltradas.map(produccion => (
+          {currentProducciones.map(produccion => (
             <tr key={produccion.id_produccion}>
               <td data-label="Fecha">{produccion.fecha}</td>
               <td data-label="Descripción">{produccion.descripcion}</td>
@@ -269,6 +283,13 @@ const ProductionComponent = () => {
           ))}
         </tbody>
       </table>
+      <div className="pagination">
+        {[...Array(Math.ceil(produccionesFiltradas.length / itemsPerPage)).keys()].map(number => (
+          <button key={number + 1} onClick={() => paginate(number + 1)} className={`page-link ${currentPage === number + 1 ? 'active' : ''}`}>
+            {number + 1}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

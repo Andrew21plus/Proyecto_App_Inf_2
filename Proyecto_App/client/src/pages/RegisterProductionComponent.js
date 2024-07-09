@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { Link } from 'react-router-dom';
 import { validateProduccionFormData } from '../services/productionService.js';
 import { useAuth } from '../context/AuthContext'; // Importar el contexto de autenticación
 import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
@@ -20,6 +19,9 @@ const ProductionComponent = () => {
   const [descripcionesUnicas, setDescripcionesUnicas] = useState([]);
   const [editing, setEditing] = useState(false);
   const [currentProduccion, setCurrentProduccion] = useState(null);
+
+  const [currentPage, setCurrentPage] = useState(1); // Estado para la página actual
+  const itemsPerPage = 15; // Número de producciones por página
 
   const isManager = roles.some(role => role.nombre_rol === 'Gerente');
   const isPlantChief = roles.some(role => role.nombre_rol === 'Jefe de Planta');
@@ -210,18 +212,24 @@ const ProductionComponent = () => {
   };
 
   const getNombreMateriaPrima = (id) => {
-    const materiaPrima = materiasPrimas.find(mp => mp.id_materia_prima === id);
+    const materiaPrima = materiasPrimas.find(mp => mp.id_materia_prima === parseInt(id));
     return materiaPrima ? materiaPrima.descripcion : 'Desconocido';
   };
 
-  // Obtener la fecha actual en el formato correcto
   const fechaActual = new Date().toISOString().split('T')[0];
 
-  // Filtrar y ordenar producciones según el rol del usuario
   const produccionesFiltradas = (isPlantChief
     ? producciones.filter(produccion => produccion.fecha === fechaActual)
     : producciones
   ).sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProducciones = produccionesFiltradas.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const showCancelButton = editing || formData.descripcion !== '' || formData.materiasPrimas.some(mp => mp.id_materia_prima !== '' || mp.cantidad_uso !== '');
 
   return (
     <div className="production-container">
@@ -251,9 +259,11 @@ const ProductionComponent = () => {
         <button type="submit" className="submit-button icon-button">
           {editing ? <><FontAwesomeIcon icon={faSave} /> Actualizar Producción</> : <><FontAwesomeIcon icon={faCheck} /> Registrar Producción</>}
         </button>
-        <button type="button" className="cancel-button icon-button" onClick={resetForm}>
-          <FontAwesomeIcon icon={faTimes} /> Cancelar
-        </button>
+        {showCancelButton && (
+          <button type="button" className="cancel-button icon-button" onClick={resetForm}>
+            <FontAwesomeIcon icon={faTimes} /> Cancelar
+          </button>
+        )}
       </form>
 
       <table className="production-table">
@@ -266,7 +276,7 @@ const ProductionComponent = () => {
           </tr>
         </thead>
         <tbody>
-          {produccionesFiltradas.map(produccion => (
+          {currentProducciones.map(produccion => (
             <tr key={produccion.id_produccion}>
               <td data-label="Fecha">{produccion.fecha}</td>
               <td data-label="Descripción">{produccion.descripcion}</td>
@@ -289,8 +299,15 @@ const ProductionComponent = () => {
           ))}
         </tbody>
       </table>
+      <div className="pagination">
+        {[...Array(Math.ceil(produccionesFiltradas.length / itemsPerPage)).keys()].map(number => (
+          <button key={number + 1} onClick={() => paginate(number + 1)} className={`page-link ${currentPage === number + 1 ? 'active' : ''}`}>
+            {number + 1}
+          </button>
+        ))}
+      </div>
     </div>
-);
+  );
 };
 
 export default ProductionComponent;
