@@ -1,13 +1,11 @@
-// DrawBackComponent.js
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { validateInconvenienteFormData } from '../services/drawbackService';
-import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
+import '../utils/StylesTotal.css';  // Asegúrate de que el archivo CSS correcto esté importado
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrashAlt, faPlus,faSave } from '@fortawesome/free-solid-svg-icons';
-
+import { faEdit, faTrashAlt, faPlus, faSave } from '@fortawesome/free-solid-svg-icons';
 
 const DrawBackComponent = () => {
   const [formData, setFormData] = useState({ id_produccion: '', descripcion: '' });
@@ -107,11 +105,11 @@ const DrawBackComponent = () => {
   };
 
   return (
-    <div>
+    <div className="production-container"> {/* Cambia la clase del contenedor */}
       <h1>Inconvenientes</h1>
       <h2>Inconveniente Management</h2>
       {!isGerente && (
-        <form onSubmit={addInconveniente} className="s-form">
+        <form onSubmit={addInconveniente} className="production-form"> {/* Cambia la clase del formulario */}
           <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange} className="input-field">
             <option value="">Selecciona una Producción</option>
             {producciones.map(produccion => (
@@ -130,7 +128,7 @@ const DrawBackComponent = () => {
         </form>
       )}
       <h2>Lista de Inconvenientes</h2>
-      <table className="s-table">
+      <table className="production-table"> {/* Cambia la clase de la tabla */}
         <thead>
           <tr>
             <th>ID Inconveniente</th>
@@ -166,7 +164,7 @@ const DrawBackComponent = () => {
         </Link>
       </div>
     </div>
-);
+  );
 };
 
 export default DrawBackComponent;
