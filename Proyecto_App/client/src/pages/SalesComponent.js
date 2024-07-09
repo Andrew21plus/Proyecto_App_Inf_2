@@ -3,7 +3,7 @@ import Axios from 'axios';
 import { Link } from 'react-router-dom'; 
 import { validateSalesFormData } from '../services/salesService';
 import { useAuth } from '../context/AuthContext';  // Importa el contexto de autenticación
-import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
+import '../utils/StylesTotal.css';  // Asegúrate de que el archivo CSS correcto esté importado
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrashAlt, faPlus, faSave } from '@fortawesome/free-solid-svg-icons';
 
@@ -156,10 +156,10 @@ const SalesComponent = () => {
   };
 
   return (
-    <div>
+    <div className="production-container"> {/* Cambia la clase del contenedor */}
       <h1>Gestión de Ventas</h1>
       <h2>Venta Management</h2>
-      <form onSubmit={addVenta} className="s-form">
+      <form onSubmit={addVenta} className="production-form"> {/* Cambia la clase del formulario */}
         <input type="text" name="id_usuario" value={user ? user.nombre_usuario : ''} disabled className="input-field" />
         <br/>
         <select name="id_producto" value={formData.id_producto} onChange={handleInputChange} className="input-field">
@@ -181,7 +181,7 @@ const SalesComponent = () => {
         </button>
       </form>
       <h2>Lista de Ventas</h2>
-      <table className="s-table">
+      <table className="production-table"> {/* Cambia la clase de la tabla */}
         <thead>
           <tr>
             <th>ID Venta</th>
@@ -198,15 +198,15 @@ const SalesComponent = () => {
             return (
               <tr key={venta.id_venta}>
                 <td data-label="ID Venta">{venta.id_venta}</td>
-                <td data-label="Usuario">{user ? user.nombre_usuario : 'Usuario no encontrado'}</td>
-                <td data-label="Producto">{producto ? producto.nombre : 'Producto no encontrado'}</td>
+                <td data-label="Usuario">{user ? user.nombre_usuario : venta.id_usuario}</td>
+                <td data-label="Producto">{producto ? producto.nombre : venta.id_producto}</td>
                 <td data-label="Descripción">{venta.descripcion}</td>
                 <td data-label="Cantidad">{venta.cantidad}</td>
                 <td data-label="Acciones">
                   <button className="edit-button icon-button" onClick={() => editVenta(venta)}>
                     <FontAwesomeIcon icon={faEdit} />
                   </button>
-                  <button className="delete-button icon-button delete-clicked" onClick={() => deleteVenta(venta.id_venta)}>
+                  <button className="delete-button icon-button" onClick={() => deleteVenta(venta.id_venta)}>
                     <FontAwesomeIcon icon={faTrashAlt} />
                   </button>
                 </td>
@@ -215,12 +215,7 @@ const SalesComponent = () => {
           })}
         </tbody>
       </table>
-      <div> 
-        <Link to="/"> 
-          <br/>
-          <button>Volver a la página principal</button>
-        </Link>
-      </div>
+      <Link to="/profile" className="back-link">Volver al perfil</Link>
     </div>
   );
 };
