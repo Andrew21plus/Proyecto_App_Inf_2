@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, Navigate, Link } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { authenticateUser } from '../services/authService';
 import '../utils/StylesTotal.css';
+import PasswordResetModal from './PasswordResetModal'; // Importar el modal
 
 const LoginComponent = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para controlar el modal
   const { user, login } = useAuth();
   const navigate = useNavigate();
 
@@ -58,9 +60,10 @@ const LoginComponent = () => {
           <button type="submit">Ingresar</button>
         </form>
         <div className="password-reset-link">
-          <Link to="/password-reset">Olvidé mi contraseña</Link>
+          <button onClick={() => setIsModalOpen(true)}>Olvidé mi contraseña</button>
         </div>
       </div>
+      <PasswordResetModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} />
     </div>
   );
 };
