@@ -17,7 +17,7 @@ import Axios from 'axios';
 import { useAlert } from '../context/AlertContext';
 
 const MenuComponent = () => {
-  const { user, roles, logout } = useAuth();
+  const { user, roles, logout, needsPasswordReset} = useAuth();
   const { showAlert, setShowAlert } = useAlert();
   const [selectedOption, setSelectedOption] = useState('');
   const [inconvenientes, setInconvenientes] = useState([]);
@@ -31,7 +31,9 @@ const MenuComponent = () => {
       setSelectedOption('');
     } else {
       const savedOption = localStorage.getItem('selectedOption');
-      if (savedOption) {
+      if (needsPasswordReset) {
+        setSelectedOption('profile');
+      } else if (savedOption) {
         setSelectedOption(savedOption);
       } else {
         const role = roles[0]?.nombre_rol;
@@ -50,7 +52,7 @@ const MenuComponent = () => {
         }
       }
     }
-  }, [user, roles]);
+  }, [user, roles, needsPasswordReset]);
 
   useEffect(() => {
     const fetchInconvenientes = () => {
@@ -79,9 +81,11 @@ const MenuComponent = () => {
   }, [isGerente, showAlert, setShowAlert, firstLoad]);
 
   const handleOptionClick = (option) => {
-    setSelectedOption(option);
-    localStorage.setItem('selectedOption', option);
-    setMenuOpen(false); // Cerrar el menú al seleccionar una opción en pantallas pequeñas
+    if (!needsPasswordReset) {
+      setSelectedOption(option);
+      localStorage.setItem('selectedOption', option);
+      setMenuOpen(false); // Cerrar el menú al seleccionar una opción en pantallas pequeñas
+    }
   };
 
   const handleLogout = () => {

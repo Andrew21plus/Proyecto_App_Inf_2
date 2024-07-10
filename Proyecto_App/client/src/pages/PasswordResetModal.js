@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
+import { useAuth } from '../context/AuthContext';
 
 Modal.setAppElement('#root'); // Establecer el elemento raíz para accesibilidad
 
@@ -7,6 +8,7 @@ const PasswordResetModal = ({ isOpen, onRequestClose }) => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const { setNeedsPasswordReset } = useAuth();
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
@@ -22,6 +24,7 @@ const PasswordResetModal = ({ isOpen, onRequestClose }) => {
       if (response.ok) {
         setMessage('Se ha enviado un correo para restablecer tu contraseña.');
         setError('');
+        setNeedsPasswordReset(true); // Establecer la bandera
       } else {
         setError('Ocurrió un error al enviar el correo.');
         setMessage('');

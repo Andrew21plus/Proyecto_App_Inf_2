@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
   const [roles, setRoles] = useState([]);
+  const [needsPasswordReset, setNeedsPasswordReset] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -39,7 +40,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, roles, setUser, login, logout }}>
+    <AuthContext.Provider value={{ user, roles, setUser, login, logout, needsPasswordReset, setNeedsPasswordReset }}>
       {children}
     </AuthContext.Provider>
   );
