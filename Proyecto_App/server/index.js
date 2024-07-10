@@ -496,6 +496,10 @@ app.post('/usuarios/login', async (req, res) => {
     }
 });
 
+app.get('/health-check', (req, res) => {
+    res.status(200).send('OK');
+  });
+
 const PORT = process.env.PORT || 3307;
 app.listen(PORT, () => {
     console.log(`Corriendo en el puerto ${PORT}`);

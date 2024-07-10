@@ -1,4 +1,6 @@
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import useServerStatus from './hooks/useServerStatus';
 import './utils/App.css';
 import LoginComponent from './pages/LoginComponent';
 import MenuComponent from './pages/MenuComponent';
@@ -17,8 +19,15 @@ import PasswordResetComponent from './pages/PasswordResetComponent';
 import ManagementRolesComponent from './pages/ManagementRolesComponent';
 import ReportComponent from './pages/ReportComponent';
 import { AlertProvider } from './context/AlertContext';
+import ServerErrorComponent from './pages/ServerErrorComponent'; // Crear este componente para manejar errores del servidor
 
 const App = () => {
+  const serverStatus = useServerStatus();
+
+  if (!serverStatus) {
+    return <ServerErrorComponent />;
+  }
+
   return (
     <AuthProvider>
       <AlertProvider>
@@ -31,7 +40,7 @@ const App = () => {
               <Route path='/profile' element={<ProtectedRoute element={<ProfileComponent />} />} />
               <Route path='/inventory' element={<ProtectedRoute element={<InventoryComponent />} />} />
               <Route path='/production' element={<ProtectedRoute element={<ProductionComponent />} />} />
-              <Route path='/production' element={<ProtectedRoute element={<RegisterProductionComponent/>} />} />
+              <Route path='/production-register' element={<ProtectedRoute element={<RegisterProductionComponent />} />} />
               <Route path='/production-stage' element={<ProtectedRoute element={<ProductionStageComponent />} />} />
               <Route path='/sales' element={<ProtectedRoute element={<SalesComponent />} />} />
               <Route path='/drawBack' element={<ProtectedRoute element={<DrawBackComponent />} />} />
@@ -48,5 +57,3 @@ const App = () => {
 };
 
 export default App;
-
-
