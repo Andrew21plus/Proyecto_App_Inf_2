@@ -12,23 +12,19 @@ const UsuarioMateriaPrima = require('./models/UsuarioMateriaPrima');
 const Ventas = require('./models/Ventas');
 
 // Definir relaciones
-Inconveniente.belongsTo(Produccion, { foreignKey: 'id_produccion' });
-InventarioProductoTerminado.belongsTo(Produccion, { foreignKey: 'id_produccion' });
+Inconveniente.belongsTo(Produccion, { foreignKey: 'id_produccion', onDelete: 'SET NULL' });
+InventarioProductoTerminado.belongsTo(Produccion, { foreignKey: 'id_produccion', onDelete: 'SET NULL' });
 
-// Eliminar la referencia directa de Produccion a InventarioMateriaPrima
-// Produccion.belongsTo(InventarioMateriaPrima, { foreignKey: 'id_materia_prima' });
+ProduccionEtapa.belongsTo(Produccion, { foreignKey: 'id_produccion', onDelete: 'SET NULL' });
+ProduccionEtapa.belongsTo(Etapa, { foreignKey: 'id_etapa', onDelete: 'SET NULL' });
 
-ProduccionEtapa.belongsTo(Produccion, { foreignKey: 'id_produccion' });
-ProduccionEtapa.belongsTo(Etapa, { foreignKey: 'id_etapa' });
-
-Usuario.belongsTo(Rol, { foreignKey: 'id_rol' });
-UsuarioMateriaPrima.belongsTo(Usuario, { foreignKey: 'id_usuario' });
+Usuario.belongsTo(Rol, { foreignKey: 'id_rol', onDelete: 'SET NULL' });
+UsuarioMateriaPrima.belongsTo(Usuario, { foreignKey: 'id_usuario', onDelete: 'SET NULL', onUpdate: 'CASCADE' });
 UsuarioMateriaPrima.belongsTo(InventarioMateriaPrima, { foreignKey: 'id_materia_prima' });
 
-Ventas.belongsTo(Usuario, { foreignKey: 'id_usuario' });
+Ventas.belongsTo(Usuario, { foreignKey: 'id_usuario', onDelete: 'SET NULL', onUpdate: 'CASCADE' });
 Ventas.belongsTo(InventarioProductoTerminado, { foreignKey: 'id_producto' });
 
-// Definir relaciones de muchos a muchos usando la tabla de unión ProduccionMateriaPrima
 Produccion.belongsToMany(InventarioMateriaPrima, { through: ProduccionMateriaPrima, foreignKey: 'id_produccion' });
 InventarioMateriaPrima.belongsToMany(Produccion, { through: ProduccionMateriaPrima, foreignKey: 'id_materia_prima' });
 
@@ -54,4 +50,3 @@ module.exports = {
     UsuarioMateriaPrima,
     Ventas
 };
-

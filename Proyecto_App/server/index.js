@@ -389,12 +389,16 @@ app.put('/usuarios/:id', async (req, res) => {
 
 app.delete('/usuarios/:id', async (req, res) => {
     try {
-        await controllers.deleteUsuario(req.params.id);
+        const { id } = req.params;
+        console.log(`Attempting to delete user with id: ${id}`);
+        await controllers.deleteUsuario(id);
         res.status(204).send();
     } catch (error) {
+        console.error(`Error deleting user with id ${req.params.id}:`, error.message);
         res.status(400).json({ error: error.message });
     }
 });
+
 
 // Rutas 'UsuarioMateriaPrima'
 app.post('/usuario-materia-prima', async (req, res) => {

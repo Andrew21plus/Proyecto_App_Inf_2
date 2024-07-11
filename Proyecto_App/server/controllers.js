@@ -229,7 +229,14 @@ exports.updateUsuario = async (id, data) => {
     return await Usuario.update(data, { where: { id_usuario: id } });
 };
 
-exports.deleteUsuario = async (id) => await Usuario.destroy({ where: { id_usuario: id } });
+exports.deleteUsuario = async (id) => {
+    const usuario = await Usuario.findByPk(id);
+    if (!usuario) {
+        throw new Error('Usuario no encontrado');
+    }
+    console.log(`Deleting user with id: ${id}`);
+    await Usuario.destroy({ where: { id_usuario: id } });
+};
 
 const generateTempPassword = () => {
     // Generar una contraseña temporal

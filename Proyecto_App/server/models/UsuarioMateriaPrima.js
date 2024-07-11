@@ -15,7 +15,9 @@ const UsuarioMateriaPrima = sequelize.define('usuario_materia_prima', {
         references: {
             model: Usuario,
             key: 'id_usuario'
-        }
+        },
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE'
     },
     id_materia_prima: {
         type: DataTypes.INTEGER,
@@ -39,4 +41,3 @@ const UsuarioMateriaPrima = sequelize.define('usuario_materia_prima', {
 });
 
 module.exports = UsuarioMateriaPrima;
-

@@ -15,7 +15,9 @@ const Ventas = sequelize.define('ventas', {
         references: {
             model: Usuario,
             key: 'id_usuario'
-        }
+        },
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE'
     },
     id_producto: {
         type: DataTypes.INTEGER,
@@ -39,4 +41,3 @@ const Ventas = sequelize.define('ventas', {
 });
 
 module.exports = Ventas;
-
