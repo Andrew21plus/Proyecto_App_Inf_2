@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { getReportData } from '../services/reportService';
+import '../utils/StylesTotal.css'; 
 
 const ReportComponent = () => {
   const [reportData, setReportData] = useState({ reportData: [], inventarioMateriaPrima: [] });
@@ -132,13 +133,12 @@ const ReportComponent = () => {
   return (
     <div>
       <h2>Reportes</h2>
-      <button onClick={fetchReportData}>Generar Reporte</button>
+      <button className="styled-button" onClick={fetchReportData}>Generar Reporte</button>
       {reportData.reportData.length > 0 && (
-        <button onClick={generatePDF}>Descargar PDF</button>
+        <button className="styled-button" onClick={generatePDF}>Descargar PDF</button>
       )}
     </div>
   );
 };
 
 export default ReportComponent;
-
