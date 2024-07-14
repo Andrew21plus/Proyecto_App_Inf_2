@@ -221,7 +221,8 @@ const ProductionComponent = () => {
   const produccionesFiltradas = (isPlantChief
     ? producciones.filter(produccion => produccion.fecha === fechaActual)
     : producciones
-  ).sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+  ).sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Cambia el orden de la ordenación aquí
+  
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
