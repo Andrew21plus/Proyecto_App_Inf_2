@@ -38,6 +38,8 @@ const ProductionComponent = () => {
           ...produccion,
           materiasPrimas: produccion.materiasPrimas || [] // Asegurar que materiasPrimas sea un array
         }));
+        // Ordenar las producciones por fecha (más reciente primero)
+        producciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
         setProducciones(producciones);
       })
       .catch(error => {
