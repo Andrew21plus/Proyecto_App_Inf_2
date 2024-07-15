@@ -120,7 +120,7 @@ const StageComponent = () => {
       <h1>Etapas</h1>
       <h2>Gestión de Etapas</h2>
       {isGerente && !isFormBlocked() && (
-        <form onSubmit={addEtapa} className="s-form">
+        <form onSubmit={addEtapa} className="production-form">
           <input type="text" name="etapa" placeholder="Etapa" value={formData.etapa} onChange={handleInputChange} className="input-field" />
           {formErrors.etapa && <span className="error">{formErrors.etapa}</span>}
           <br/>
