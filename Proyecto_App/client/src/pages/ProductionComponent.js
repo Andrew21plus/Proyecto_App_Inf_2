@@ -247,7 +247,6 @@ const ProductionComponent = () => {
   return (
     <div className="production-container">
       <h1>Gestión de Producción</h1>
-      <h2>Producción Management</h2>
       <form onSubmit={addProduccion} className="production-form">
         <input type="date" name="fecha" value={formData.fecha} readOnly className="input-field" /> {/* Campo de fecha no modificable */}
         {formErrors.fecha && <span className="error">{formErrors.fecha}</span>}
