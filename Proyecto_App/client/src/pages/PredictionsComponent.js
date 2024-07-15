@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Axios from 'axios';
 import { predecirNecesidad } from '../services/predictionService';
+import '../utils/StylesTotal.css';
 
 const PredictionsComponent = () => {
   const [productosTerminados, setProductosTerminados] = useState([]);
@@ -11,6 +12,7 @@ const PredictionsComponent = () => {
   const [totalesPorSemana, setTotalesPorSemana] = useState([]);
   const [prediccion, setPrediccion] = useState(null);
   const [cantidadesDisponibles, setCantidadesDisponibles] = useState([]);
+  const [isLoading, setIsLoading] = useState(false); // Nuevo estado para la carga
 
   useEffect(() => {
     obtenerProductosTerminados();
@@ -150,9 +152,11 @@ const PredictionsComponent = () => {
   }, [selectedProducto, filtrarProducciones]);
 
   const manejarPrediccion = async () => {
+    setIsLoading(true); // Activar la carga
     const productosSeleccionados = productosTerminados.filter(producto => producto.nombre === selectedProducto);
     if (productosSeleccionados.length === 0) {
       setPrediccion(null);
+      setIsLoading(false); // Desactivar la carga
       return;
     }
 
@@ -169,6 +173,8 @@ const PredictionsComponent = () => {
     } catch (error) {
       console.error('Error en la predicción:', error);
       setPrediccion(null);
+    } finally {
+      setIsLoading(false); // Desactivar la carga
     }
   };
 
@@ -200,20 +206,23 @@ const PredictionsComponent = () => {
   };
 
   return (
-    <div>
+    <div className="production-container">
       <h1>Predicciones</h1>
-      <select onChange={(e) => {
-        setSelectedProducto(e.target.value);
-      }}>
-        <option value="">Selecciona un producto terminado</option>
-        {Array.from(new Set(productosTerminados.map(producto => producto.nombre))).map(nombre => (
-          <option key={nombre} value={nombre}>{nombre}</option>
-        ))}
-      </select>
+      <div className="s-form">
+        <select onChange={(e) => {
+          setSelectedProducto(e.target.value);
+        }}>
+          <option value="">Selecciona un producto terminado</option>
+          {Array.from(new Set(productosTerminados.map(producto => producto.nombre))).map(nombre => (
+            <option key={nombre} value={nombre}>{nombre}</option>
+          ))}
+        </select>
+        <button className="styled-button" onClick={manejarPrediccion}>Generar Predicción</button>
+      </div>
 
-      <button onClick={manejarPrediccion}>Generar Predicción</button>
+      {isLoading && <div className="loader"></div>} {/* Mostrar loader */}
 
-      {prediccion !== null && (
+      {!isLoading && prediccion !== null && (
         <div>
           <h2>Predicción de Inventario</h2>
           <p>Se estima que para la próxima semana se producirá {Math.ceil(prediccion.tendencia.totalProduccion)} unidades de {selectedProducto}.</p>
@@ -230,7 +239,7 @@ const PredictionsComponent = () => {
 
       <h2>Totales de las Últimas 5 Semanas Completas</h2>
       {totalesPorSemana.length > 0 ? (
-        <table>
+        <table className="production-table">
           <thead>
             <tr>
               <th>Semana</th>
@@ -241,9 +250,9 @@ const PredictionsComponent = () => {
           <tbody>
             {totalesPorSemana.map((semana, index) => (
               <tr key={index}>
-                <td>{semana.semana}</td>
-                <td>{semana.totalProduccion}</td>
-                <td>{Object.entries(semana.totalMateriaPrimaUsada).map(([nombre, cantidad]) => (
+                <td data-label="Semana">{semana.semana}</td>
+                <td data-label="Total Producción">{semana.totalProduccion}</td>
+                <td data-label="Total Materia Prima Usada">{Object.entries(semana.totalMateriaPrimaUsada).map(([nombre, cantidad]) => (
                   <div key={nombre}>{nombre}: {cantidad}</div>
                 ))}</td>
               </tr>
@@ -268,7 +277,7 @@ const PredictionsComponent = () => {
         Object.entries(agruparProduccionesPorSemana(produccionesFiltradas)).map(([semana, producciones]) => (
           <div key={semana}>
             <h3>{semana}</h3>
-            <table>
+            <table className="production-table">
               <thead>
                 <tr>
                   <th>ID Producción</th>
@@ -280,10 +289,10 @@ const PredictionsComponent = () => {
               <tbody>
                 {producciones.map((produccion, index) => (
                   <tr key={index}>
-                    <td>{produccion.id_produccion}</td>
-                    <td>{produccion.fecha}</td>
-                    <td>{produccion.descripcion}</td>
-                    <td>
+                    <td data-label="ID Producción">{produccion.id_produccion}</td>
+                    <td data-label="Fecha">{produccion.fecha}</td>
+                    <td data-label="Descripción">{produccion.descripcion}</td>
+                    <td data-label="Materia Prima Usada">
                       {produccion.materiasPrimas.map(mp => (
                         <div key={mp.id_materia_prima}>
                           {materiaPrima.find(m => m.id_materia_prima === mp.id_materia_prima)?.nombre || mp.id_materia_prima}: {mp.cantidad_uso}
