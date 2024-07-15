@@ -33,7 +33,7 @@ export const predecirNecesidad = async (datosEntrenamiento, cantidadesDisponible
     model.compile({ optimizer: 'adam', loss: 'meanSquaredError' });
 
     await model.fit(normalizedInputs, normalizedLabels, {
-      epochs: 300,
+      epochs: 500,
       batchSize: 8
     });
 

@@ -290,3 +290,44 @@ h1, h2 {
   color: white;
   border: 1px solid #007bff;
 }
+
+/* Estilos para el botón de generar predicción */
+.prediction-button {
+  padding: 10px 20px;
+  border: 2px solid #1D2F40;
+  border-radius: 8px;
+  background-color: #1D2F40;
+  color: #FFFFFF;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.prediction-button:hover {
+  background-color: #496373;
+  color: #FFFFFF;
+}
+
+.loader {
+  font-size: 1.2em;
+  color: #1D2F40;
+  text-align: center;
+  margin-top: 20px;
+}
+
+
+/* Estilos para el loader */
+.loader {
+  border: 8px solid #f3f3f3; /* Light grey */
+  border-top: 8px solid #1D2F40; /* Blue */
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 2s linear infinite;
+  margin: 0 auto; /* Centrar el loader */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
