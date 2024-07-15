@@ -158,7 +158,6 @@ const SalesComponent = () => {
   return (
     <div className="production-container"> {/* Cambia la clase del contenedor */}
       <h1>Gestión de Ventas</h1>
-      <h2>Venta Management</h2>
       <form onSubmit={addVenta} className="production-form"> {/* Cambia la clase del formulario */}
         <input type="text" name="id_usuario" value={user ? user.nombre_usuario : ''} disabled className="input-field" />
         <br/>
