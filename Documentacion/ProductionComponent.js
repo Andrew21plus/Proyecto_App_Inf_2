@@ -197,6 +197,11 @@ const ProductionComponent = () => {
     return materiaPrima ? materiaPrima.descripcion : 'Desconocido';
   };
 
+  // Función para formatear la fecha en formato DD-MM-YYYY
+  const formatFecha = (fecha) => {
+    const [year, month, day] = fecha.split('-');
+    return `${day}-${month}-${year}`;
+  };
   // Obtener la fecha actual en el formato correcto
   const fechaActual = new Date().toISOString().split('T')[0];
 
@@ -204,15 +209,6 @@ const ProductionComponent = () => {
   const produccionesFiltradas = isPlantChief
     ? producciones.filter(produccion => produccion.fecha === fechaActual)
     : producciones;
-
-  // Implementar paginación
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProducciones = produccionesFiltradas.slice(indexOfFirstItem, indexOfLastItem);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  const showCancelButton = editing || formData.descripcion !== '' || formData.materiasPrimas.some(mp => mp.id_materia_prima !== '' || mp.cantidad_uso !== '');
 
   const sortProducciones = (key) => {
     let direction = 'asc';
@@ -222,7 +218,7 @@ const ProductionComponent = () => {
     setSortConfig({ key, direction });
   };
 
-  const sortedProducciones = [...currentProducciones].sort((a, b) => {
+  const sortedProducciones = [...produccionesFiltradas].sort((a, b) => {
     if (a[sortConfig.key] < b[sortConfig.key]) {
       return sortConfig.direction === 'asc' ? -1 : 1;
     }
@@ -231,6 +227,15 @@ const ProductionComponent = () => {
     }
     return 0;
   });
+
+  // Implementar paginación
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProducciones = sortedProducciones.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const showCancelButton = editing || formData.descripcion !== '' || formData.materiasPrimas.some(mp => mp.id_materia_prima !== '' || mp.cantidad_uso !== '');
 
   const getSortIcon = (key) => {
     if (sortConfig.key === key) {
@@ -294,7 +299,7 @@ const ProductionComponent = () => {
           </tr>
         </thead>
         <tbody>
-          {sortedProducciones.map(produccion => (
+          {currentProducciones.map(produccion => (
             <tr key={produccion.id_produccion}>
               <td data-label="Fecha">{produccion.fecha}</td>
               <td data-label="Descripción">{produccion.descripcion}</td>
