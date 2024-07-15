@@ -146,7 +146,7 @@ const StageComponent = () => {
             {/* <th>ID Etapa</th> */}
             <th>Etapa</th>
             <th>Descripción</th>
-            {isGerente && <th>Acciones</th>}
+            {isGerente && etapas.some(etapa => !predefinedEtapas.includes(etapa.etapa)) && <th>Acciones</th>}
           </tr>
         </thead>
         <tbody>
