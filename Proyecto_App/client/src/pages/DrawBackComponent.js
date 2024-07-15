@@ -107,7 +107,6 @@ const DrawBackComponent = () => {
   return (
     <div className="production-container"> {/* Cambia la clase del contenedor */}
       <h1>Inconvenientes</h1>
-      <h2>Inconveniente Management</h2>
       {!isGerente && (
         <form onSubmit={addInconveniente} className="production-form"> {/* Cambia la clase del formulario */}
           <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange} className="input-field">
