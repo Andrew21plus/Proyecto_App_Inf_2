@@ -1,17 +1,14 @@
 import * as tf from '@tensorflow/tfjs';
 
-export const predecirNecesidad = async (datosEntrenamiento) => {
-  // Preparar los datos
+export const predecirNecesidad = async (datosEntrenamiento, cantidadesDisponibles) => {
   const materiaPrimas = Object.keys(datosEntrenamiento[0].totalMateriaPrimaUsada);
   const inputs = datosEntrenamiento.map(d => [
     d.totalProduccion, 
-    ...materiaPrimas.map(mp => d.totalMateriaPrimaUsada[mp] || 0),
-    ...materiaPrimas.map(mp => d.materiaPrimaRestante[mp] || 0),
-    ...materiaPrimas.map(mp => d.ultimoIngreso[mp] || 0)
+    ...materiaPrimas.map(mp => d.totalMateriaPrimaUsada[mp] || 0)
   ]);
 
   const labels = materiaPrimas.reduce((acc, mp) => {
-    acc[mp] = datosEntrenamiento.map(d => d.ultimoIngreso[mp] || 0);
+    acc[mp] = datosEntrenamiento.map(d => d.totalMateriaPrimaUsada[mp] || 0);
     return acc;
   }, {});
 
@@ -43,25 +40,50 @@ export const predecirNecesidad = async (datosEntrenamiento) => {
     modelos[mp] = { model, labelMean, labelVariance };
   }
 
-  // Predecir el próximo ingreso para cada materia prima
-  const [ultimaSemana] = datosEntrenamiento.slice(-1);
+  // Predicción de la última semana
+  const ultimaSemana = datosEntrenamiento[datosEntrenamiento.length - 1];
   const inputParaPrediccion = tf.tensor2d([[
     ultimaSemana.totalProduccion, 
-    ...materiaPrimas.map(mp => ultimaSemana.totalMateriaPrimaUsada[mp] || 0),
-    ...materiaPrimas.map(mp => ultimaSemana.materiaPrimaRestante[mp] || 0),
-    ...materiaPrimas.map(mp => ultimaSemana.ultimoIngreso[mp] || 0)
+    ...materiaPrimas.map(mp => ultimaSemana.totalMateriaPrimaUsada[mp] || 0)
   ]]);
   const normalizedInputParaPrediccion = inputParaPrediccion.sub(inputMean).div(inputVariance.sqrt());
 
   const predicciones = {};
+  const tendencia = {};
+  let totalProduccionPrevista = 0;
+
   for (const mp of materiaPrimas) {
     const { model, labelMean, labelVariance } = modelos[mp];
     const prediccion = model.predict(normalizedInputParaPrediccion);
     const resultado = prediccion.mul(labelVariance.sqrt()).add(labelMean);
     const resultadoArray = await resultado.data();
-    predicciones[mp] = Math.max(0, resultadoArray[0]); // Asegurarse de que no haya valores negativos
+    const cantidadUsadaPrevista = resultadoArray[0];
+    const cantidadDisponible = cantidadesDisponibles.find(m => m.nombre === mp)?.cantidad_disponible || 0;
+
+    tendencia[mp] = Math.ceil(cantidadUsadaPrevista); // Redondear al inmediato superior
+
+    const margen = (cantidadUsadaPrevista - cantidadDisponible) * 0.3; // 30% de margen
+    const cantidadConExceso = Math.ceil(cantidadUsadaPrevista - cantidadDisponible + margen); // Redondear al inmediato superior
+
+    if (cantidadUsadaPrevista <= cantidadDisponible) {
+      predicciones[mp] = 0;
+    } else {
+      predicciones[mp] = cantidadConExceso;
+    }
   }
 
-  console.log('Resultado de las predicciones:', predicciones);
-  return predicciones;
+  // Calcular la predicción total de producción
+  const inputsParaProduccion = datosEntrenamiento.map(d => [
+    d.totalProduccion, 
+    ...materiaPrimas.map(mp => d.totalMateriaPrimaUsada[mp] || 0)
+  ]);
+  const inputTensorParaProduccion = tf.tensor2d(inputsParaProduccion);
+  const normalizedInputsParaProduccion = inputTensorParaProduccion.sub(inputMean).div(inputVariance.sqrt());
+  const prediccionProduccion = modelos[materiaPrimas[0]].model.predict(normalizedInputsParaProduccion);
+  const resultadoProduccion = prediccionProduccion.mul(tf.sqrt(inputVariance)).add(inputMean);
+  totalProduccionPrevista = Math.ceil((await resultadoProduccion.data())[0]); // Redondear al inmediato superior
+
+  tendencia.totalProduccion = totalProduccionPrevista;
+
+  return { tendencia, predicciones };
 };
