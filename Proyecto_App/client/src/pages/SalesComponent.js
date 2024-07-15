@@ -183,7 +183,6 @@ const SalesComponent = () => {
       <table className="production-table"> {/* Cambia la clase de la tabla */}
         <thead>
           <tr>
-            <th>ID Venta</th>
             <th>Usuario</th>
             <th>Producto</th>
             <th>Descripción</th>
@@ -196,7 +195,6 @@ const SalesComponent = () => {
             const producto = productos.find(p => p.id_producto === venta.id_producto);
             return (
               <tr key={venta.id_venta}>
-                <td data-label="ID Venta">{venta.id_venta}</td>
                 <td data-label="Usuario">{user ? user.nombre_usuario : venta.id_usuario}</td>
                 <td data-label="Producto">{producto ? producto.nombre : venta.id_producto}</td>
                 <td data-label="Descripción">{venta.descripcion}</td>
