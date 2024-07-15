@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { validateInconvenienteFormData } from '../services/drawbackService';
 import '../utils/StylesTotal.css';  // Asegúrate de que el archivo CSS correcto esté importado
@@ -104,6 +103,11 @@ const DrawBackComponent = () => {
     setFormErrors({ ...formErrors, [name]: '' });
   };
 
+  const getProduccionDescripcion = (id_produccion) => {
+    const produccion = producciones.find(p => p.id_produccion === id_produccion);
+    return produccion ? produccion.descripcion : 'Desconocido';
+  };
+
   return (
     <div className="production-container"> {/* Cambia la clase del contenedor */}
       <h1>Inconvenientes</h1>
@@ -130,8 +134,8 @@ const DrawBackComponent = () => {
       <table className="production-table"> {/* Cambia la clase de la tabla */}
         <thead>
           <tr>
-            <th>ID Inconveniente</th>
-            <th>ID Producción</th>
+            {/* <th>ID Inconveniente</th> */}
+            <th>Producción</th>
             <th>Descripción</th>
             {!isGerente && <th>Acciones</th>}
           </tr>
@@ -139,8 +143,8 @@ const DrawBackComponent = () => {
         <tbody>
           {inconvenientes.map(inconveniente => (
             <tr key={inconveniente.id_inconveniente}>
-              <td data-label="ID Inconveniente">{inconveniente.id_inconveniente}</td>
-              <td data-label="ID Producción">{inconveniente.id_produccion}</td>
+              {/* <td data-label="ID Inconveniente">{inconveniente.id_inconveniente}</td> */}
+              <td data-label="Producción">{getProduccionDescripcion(inconveniente.id_produccion)}</td>
               <td data-label="Descripción">{inconveniente.descripcion}</td>
               {!isGerente && (
                 <td data-label="Acciones">
