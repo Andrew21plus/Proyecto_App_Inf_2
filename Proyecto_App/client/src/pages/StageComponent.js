@@ -140,7 +140,7 @@ const StageComponent = () => {
         
       )}
       <h2>Lista de Etapas</h2>
-      <table className="s-table">
+      <table className="production-table">
         <thead>
           <tr>
             <th>ID Etapa</th>
