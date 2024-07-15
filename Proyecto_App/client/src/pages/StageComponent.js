@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { validateStageFormData } from '../services/stageService';
 import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrashAlt, faPlus,faSave } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrashAlt, faPlus, faSave } from '@fortawesome/free-solid-svg-icons';
 
 const StageComponent = () => {
   const [formData, setFormData] = useState({
@@ -143,7 +143,7 @@ const StageComponent = () => {
       <table className="production-table">
         <thead>
           <tr>
-            <th>ID Etapa</th>
+            {/* <th>ID Etapa</th> */}
             <th>Etapa</th>
             <th>Descripción</th>
             {isGerente && <th>Acciones</th>}
@@ -152,7 +152,7 @@ const StageComponent = () => {
         <tbody>
           {etapas.map(etapa => (
             <tr key={etapa.id_etapa}>
-              <td data-label="ID Etapa">{etapa.id_etapa}</td>
+              {/* <td data-label="ID Etapa">{etapa.id_etapa}</td> */}
               <td data-label="Etapa">{etapa.etapa}</td>
               <td data-label="Descripción">{etapa.descripcion}</td>
               {isGerente && !predefinedEtapas.includes(etapa.etapa) && (
@@ -170,7 +170,7 @@ const StageComponent = () => {
         </tbody>
       </table>
     </div>
-);
+  );
 };
 
 export default StageComponent;
