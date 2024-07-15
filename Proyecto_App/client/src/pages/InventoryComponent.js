@@ -332,7 +332,7 @@ const InventoryComponent = () => {
     <div>
       <h2>Inventario Producto Terminado</h2>
       <h3>Lista de Inventario Producto Terminado</h3>
-      <table className="s-table">
+      <table className="production-table">
         <thead>
           <tr>
             <th>ID Producto</th>
@@ -391,7 +391,7 @@ const InventoryComponent = () => {
             </button>
           </form>
           <h3>Lista de Inventario Materia Prima</h3>
-          <table className="s-table">
+          <table className="production-table">
             <thead>
               <tr>
                 <th>ID Materia Prima</th>
@@ -449,7 +449,7 @@ const InventoryComponent = () => {
             </button>
           </form>
           <h3>Lista de Usuario Materia Prima</h3>
-          <table className="s-table">
+          <table className="production-table">
             <thead>
               <tr>
                 <th>ID Usuario</th>
