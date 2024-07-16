@@ -58,14 +58,24 @@ const ProductionComponent = () => {
       });
   };
 
-  const addProduccion = (e) => {
+  const addProduccion = async (e) => {
     e.preventDefault();
     console.log("Formulario enviado"); // Mensaje de depuración
-    const errors = validateProduccionFormData(formData);
+  
+    // Obtener la lista de producciones actuales para validar la descripción
+    const currentProducciones = await Axios.get("http://localhost:3307/produccion")
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Error fetching producciones:', error);
+        return [];
+      });
+  
+    const errors = await validateProduccionFormData(formData, currentProducciones);
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
+  
 
     const dataToSend = {
       fecha: formData.fecha,
@@ -78,53 +88,53 @@ const ProductionComponent = () => {
 
     console.log("Datos a enviar:", dataToSend); // Mensaje de depuración
 
-    // Verificar disponibilidad de materias primas
-    const verificarDisponibilidad = dataToSend.materiasPrimas.map(mp => {
-      return Axios.get(`http://localhost:3307/inventario-materia-prima/${mp.id_materia_prima}`)
-        .then(response => {
-          const materiaPrima = response.data;
-          if (materiaPrima.cantidad_disponible < mp.cantidad_uso) {
-            throw new Error(`La cantidad usada no puede ser mayor que la cantidad disponible en inventario para la materia prima ${materiaPrima.descripcion}.`);
-          }
-          return { id_materia_prima: mp.id_materia_prima, cantidad_disponible: materiaPrima.cantidad_disponible, cantidad_uso: mp.cantidad_uso };
-        });
-    });
-
-    Promise.all(verificarDisponibilidad)
-      .then(disponibilidad => {
-        if (editing) {
-          Axios.put(`http://localhost:3307/produccion/${currentProduccion.id_produccion}`, dataToSend)
-            .then(() => {
-              disponibilidad.forEach(mp => {
-                updateInventarioMateriaPrima(mp.id_materia_prima, mp.cantidad_disponible - mp.cantidad_uso);
-              });
-              alert("Producción Actualizada");
-              resetForm();
-              getProducciones();
-            })
-            .catch(error => {
-              console.error('Error actualizando la producción:', error);
-            });
-        } else {
-          Axios.post("http://localhost:3307/produccion", dataToSend)
-            .then(() => {
-              disponibilidad.forEach(mp => {
-                updateInventarioMateriaPrima(mp.id_materia_prima, mp.cantidad_disponible - mp.cantidad_uso);
-              });
-              alert("Producción Registrada");
-              resetForm();
-              getProducciones();
-            })
-            .catch(error => {
-              console.error('Error registrando la producción:', error);
-            });
+  // Verificar disponibilidad de materias primas
+  const verificarDisponibilidad = dataToSend.materiasPrimas.map(mp => {
+    return Axios.get(`http://localhost:3307/inventario-materia-prima/${mp.id_materia_prima}`)
+      .then(response => {
+        const materiaPrima = response.data;
+        if (materiaPrima.cantidad_disponible < mp.cantidad_uso) {
+          throw new Error(`La cantidad usada no puede ser mayor que la cantidad disponible en inventario para la materia prima ${materiaPrima.descripcion}.`);
         }
-      })
-      .catch(error => {
-        alert(error.message);
-        console.error('Error verificando disponibilidad de materia prima:', error);
+        return { id_materia_prima: mp.id_materia_prima, cantidad_disponible: materiaPrima.cantidad_disponible, cantidad_uso: mp.cantidad_uso };
       });
-  };
+  });
+
+  Promise.all(verificarDisponibilidad)
+  .then(disponibilidad => {
+    if (editing) {
+      Axios.put(`http://localhost:3307/produccion/${currentProduccion.id_produccion}`, dataToSend)
+        .then(() => {
+          disponibilidad.forEach(mp => {
+            updateInventarioMateriaPrima(mp.id_materia_prima, mp.cantidad_disponible - mp.cantidad_uso);
+          });
+          alert("Producción Actualizada");
+          resetForm();
+          getProducciones();
+        })
+        .catch(error => {
+          console.error('Error actualizando la producción:', error);
+        });
+    } else {
+      Axios.post("http://localhost:3307/produccion", dataToSend)
+        .then(() => {
+          disponibilidad.forEach(mp => {
+            updateInventarioMateriaPrima(mp.id_materia_prima, mp.cantidad_disponible - mp.cantidad_uso);
+          });
+          alert("Producción Registrada");
+          resetForm();
+          getProducciones();
+        })
+        .catch(error => {
+          console.error('Error registrando la producción:', error);
+        });
+    }
+  })
+  .catch(error => {
+    alert(error.message);
+    console.error('Error verificando disponibilidad de materia prima:', error);
+  });
+};
 
   const updateInventarioMateriaPrima = (id_materia_prima, nuevaCantidad) => {
     Axios.put(`http://localhost:3307/inventario-materia-prima/${id_materia_prima}`, { cantidad_disponible: nuevaCantidad })

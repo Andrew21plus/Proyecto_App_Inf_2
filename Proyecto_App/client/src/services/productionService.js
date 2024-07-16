@@ -1,5 +1,6 @@
-// productionService.js
-export const validateProduccionFormData = (formData) => {
+import Axios from 'axios';
+
+export const validateProduccionFormData = async (formData, producciones) => {
   let errors = {};
 
   // Validar fecha (si se necesitara alguna validación adicional)
@@ -10,6 +11,12 @@ export const validateProduccionFormData = (formData) => {
   // Validar descripción
   if (!formData.descripcion) {
     errors.descripcion = "La descripción es obligatoria.";
+  } else {
+    // Verificar si la descripción ya existe en producciones
+    const descripcionExistente = producciones.some(produccion => produccion.descripcion.toLowerCase() === formData.descripcion.toLowerCase());
+    if (descripcionExistente) {
+      errors.descripcion = "La producción ya existe. Ingrese una diferente.";
+    }
   }
 
   // Validar cantidad de uso para cada materia prima
