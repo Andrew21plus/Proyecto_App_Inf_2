@@ -4,7 +4,7 @@ import { validateProduccionFormData } from '../services/productionService.js';
 import { useAuth } from '../context/AuthContext'; // Importar el contexto de autenticación
 import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrashAlt, faCheck, faTimes, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrashAlt, faPlus, faCheck, faTimes, faSave, faSort, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
 
 const ProductionComponent = () => {
   const { roles } = useAuth(); // Obtener los roles del usuario actual
@@ -25,6 +25,9 @@ const ProductionComponent = () => {
 
   const isManager = roles.some(role => role.nombre_rol === 'Gerente');
   const isPlantChief = roles.some(role => role.nombre_rol === 'Jefe de Planta');
+
+  // Estados para la ordenación
+  const [sortConfig, setSortConfig] = useState({ key: 'fecha', direction: 'desc' });
 
   useEffect(() => {
     getProducciones();
@@ -221,16 +224,40 @@ const ProductionComponent = () => {
   const produccionesFiltradas = (isPlantChief
     ? producciones.filter(produccion => produccion.fecha === fechaActual)
     : producciones
-  ).sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Cambia el orden de la ordenación aquí
-  
+  );
+
+  const sortProducciones = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedProducciones = [...produccionesFiltradas].sort((a, b) => {
+    if (a[sortConfig.key] < b[sortConfig.key]) {
+      return sortConfig.direction === 'asc' ? -1 : 1;
+    }
+    if (a[sortConfig.key] > b[sortConfig.key]) {
+      return sortConfig.direction === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProducciones = produccionesFiltradas.slice(indexOfFirstItem, indexOfLastItem);
+  const currentProducciones = sortedProducciones.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const showCancelButton = editing || formData.descripcion !== '' || formData.materiasPrimas.some(mp => mp.id_materia_prima !== '' || mp.cantidad_uso !== '');
+
+  const getSortIcon = (key) => {
+    if (sortConfig.key === key) {
+      return sortConfig.direction === 'asc' ? <FontAwesomeIcon icon={faSortUp} /> : <FontAwesomeIcon icon={faSortDown} />;
+    }
+    return <FontAwesomeIcon icon={faSort} />;
+  };
 
   return (
     <div className="production-container">
@@ -270,9 +297,15 @@ const ProductionComponent = () => {
       <table className="production-table">
         <thead>
           <tr>
-            <th>Fecha</th>
-            <th>Descripción</th>
-            <th>Materias Primas</th>
+            <th onClick={() => sortProducciones('fecha')}>
+              Fecha {getSortIcon('fecha')}
+            </th>
+            <th onClick={() => sortProducciones('descripcion')}>
+              Descripción {getSortIcon('descripcion')}
+            </th>
+            <th onClick={() => sortProducciones('materiasPrimas')}>
+              Materias Primas {getSortIcon('materiasPrimas')}
+            </th>
             <th>Acciones</th>
           </tr>
         </thead>
