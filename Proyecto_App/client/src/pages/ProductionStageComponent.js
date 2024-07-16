@@ -216,7 +216,6 @@ const ProductionStageComponent = () => {
 
   return (
     <div>
-      <h2>Producción Etapa Management</h2>
       {editing && (
         <form onSubmit={updateProduccionEtapa} className="s-form">
           <label>Id Registro</label>
@@ -265,6 +264,7 @@ const ProductionStageComponent = () => {
         </form>
       )}
       <h2>Lista de Producción Etapa</h2>
+      <h3>Producciones Diarias</h3>
       <table className="s-table">
         <thead>
           <tr>
