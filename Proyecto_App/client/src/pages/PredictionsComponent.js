@@ -13,6 +13,7 @@ const PredictionsComponent = () => {
   const [prediccion, setPrediccion] = useState(null);
   const [cantidadesDisponibles, setCantidadesDisponibles] = useState([]);
   const [isLoading, setIsLoading] = useState(false); // Nuevo estado para la carga
+  const [error, setError] = useState(''); // Nuevo estado para el error
 
   useEffect(() => {
     obtenerProductosTerminados();
@@ -152,6 +153,11 @@ const PredictionsComponent = () => {
   }, [selectedProducto, filtrarProducciones]);
 
   const manejarPrediccion = async () => {
+    if (!selectedProducto) {
+      setError('Por favor, selecciona un producto terminado antes de generar una predicción.');
+      return;
+    }
+    setError('');
     setIsLoading(true); // Activar la carga
     const productosSeleccionados = productosTerminados.filter(producto => producto.nombre === selectedProducto);
     if (productosSeleccionados.length === 0) {
@@ -219,6 +225,8 @@ const PredictionsComponent = () => {
         </select>
         <button className="styled-button" onClick={manejarPrediccion}>Generar Predicción</button>
       </div>
+
+      {error && <p className="error">{error}</p>} {/* Mostrar mensaje de error */}
 
       {isLoading && <div className="loader"></div>} {/* Mostrar loader */}
 

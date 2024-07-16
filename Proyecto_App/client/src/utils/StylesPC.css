@@ -109,3 +109,26 @@
     text-decoration: none;
   }
   
+  /* Estilos para el botón de generar predicción */
+.prediction-button {
+  padding: 10px 20px;
+  border: 2px solid #1D2F40;
+  border-radius: 8px;
+  background-color: #1D2F40;
+  color: #FFFFFF;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.prediction-button:hover {
+  background-color: #496373;
+  color: #FFFFFF;
+}
+
+.loader {
+  font-size: 1.2em;
+  color: #1D2F40;
+  text-align: center;
+  margin-top: 20px;
+}

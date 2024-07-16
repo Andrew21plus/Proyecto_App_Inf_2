@@ -233,7 +233,7 @@ h1, h2 {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: url('../img/Fondo_alt1.png') no-repeat center center fixed;
+  background: url('../img/Fondo_alt2.png') no-repeat center center fixed;
   background-size: cover;
   backdrop-filter: blur(7px); /* Aumenta el valor de desenfoque */
 }

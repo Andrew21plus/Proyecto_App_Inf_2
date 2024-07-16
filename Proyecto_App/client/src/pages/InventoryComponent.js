@@ -351,9 +351,6 @@ const InventoryComponent = () => {
               <td data-label="Nombre">{inventarioPT.nombre}</td>
               {isGerente && (
                 <td data-label="Acciones">
-                  <button className="edit-button icon-button" onClick={() => editInventarioPT(inventarioPT)}>
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
                   <button className="delete-button icon-button delete-clicked" onClick={() => deleteInventarioPT(inventarioPT.id_producto)}>
                     <FontAwesomeIcon icon={faTrashAlt} />
                   </button>
