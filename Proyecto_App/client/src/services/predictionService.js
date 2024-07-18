@@ -35,14 +35,14 @@ export const predecirNecesidad = async (datosEntrenamiento, cantidadesDisponible
     model.compile({ optimizer: 'adam', loss: 'meanSquaredError' });
 
     await model.fit(normalizedInputs, normalizedLabels, {
-      epochs: 1000,
-      batchSize: 16
+      epochs: 500,
+      batchSize: 8
     });
 
     modelos[mp] = { model, labelMean, labelVariance };
   }
 
-  // Predicción de la última semana
+  // Predicción de la próxima semana usando la última semana de datos de entrenamiento
   const ultimaSemana = datosEntrenamiento[datosEntrenamiento.length - 1];
   const inputParaPrediccion = tf.tensor2d([[
     ultimaSemana.totalProduccion, 
@@ -74,7 +74,7 @@ export const predecirNecesidad = async (datosEntrenamiento, cantidadesDisponible
     }
   }
 
-  // Calcular la predicción total de producción
+  // Calcular la predicción total de producción usando todos los datos históricos
   const inputsParaProduccion = datosEntrenamiento.map(d => [
     d.totalProduccion, 
     ...materiaPrimas.map(mp => d.totalMateriaPrimaUsada[mp] || 0)
@@ -83,7 +83,7 @@ export const predecirNecesidad = async (datosEntrenamiento, cantidadesDisponible
   const normalizedInputsParaProduccion = inputTensorParaProduccion.sub(inputMean).div(inputVariance.sqrt());
   const prediccionProduccion = modelos[materiaPrimas[0]].model.predict(normalizedInputsParaProduccion);
   const resultadoProduccion = prediccionProduccion.mul(tf.sqrt(inputVariance)).add(inputMean);
-  totalProduccionPrevista = Math.ceil((await resultadoProduccion.data())[0]); // Redondear al inmediato superior
+  totalProduccionPrevista = Math.ceil((await resultadoProduccion.data()).reduce((acc, val) => acc + val, 0) / inputsParaProduccion.length); // Promedio de la predicción total
 
   tendencia.totalProduccion = totalProduccionPrevista;
 

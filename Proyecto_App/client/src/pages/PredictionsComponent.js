@@ -102,7 +102,7 @@ const PredictionsComponent = () => {
         fechaFin: semanas[clave].fechaFin,
       }))
       .sort((a, b) => new Date(b.fechaFin) - new Date(a.fechaFin)) // Ordenar por fecha de fin descendente
-      .slice(0, 3); // Tomar las últimas 5 semanas
+      .slice(0, 3); // Tomar las últimas 3 semanas
 
     return semanasOrdenadas;
   }, [materiaPrima]);
