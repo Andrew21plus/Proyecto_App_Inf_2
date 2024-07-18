@@ -102,7 +102,7 @@ const PredictionsComponent = () => {
         fechaFin: semanas[clave].fechaFin,
       }))
       .sort((a, b) => new Date(b.fechaFin) - new Date(a.fechaFin)) // Ordenar por fecha de fin descendente
-      .slice(0, 5); // Tomar las últimas 5 semanas
+      .slice(0, 3); // Tomar las últimas 5 semanas
 
     return semanasOrdenadas;
   }, [materiaPrima]);
@@ -238,14 +238,14 @@ const PredictionsComponent = () => {
             <p key={nombre}>
               {cantidad === 0
                 ? `Para esta producción se estima que se usará ${Math.ceil(prediccion.tendencia[nombre])} unidades de ${nombre}. Con ${cantidadesDisponibles.find(c => c.nombre === nombre)?.cantidad_disponible} unidades disponibles, no es necesario comprar más ${nombre}.`
-                : `Para esta producción se estima que se usará ${Math.ceil(prediccion.tendencia[nombre])} unidades de ${nombre}. Con ${cantidadesDisponibles.find(c => c.nombre === nombre)?.cantidad_disponible}, para la próxima semana se necesita comprar ${Math.ceil(cantidad)} unidades de ${nombre}.`
+                : `Para esta producción se estima que se usará ${Math.ceil(prediccion.tendencia[nombre])} unidades de ${nombre}. Con ${cantidadesDisponibles.find(c => c.nombre === nombre)?.cantidad_disponible} unidades disponibles, para la próxima semana se necesita comprar ${Math.ceil(cantidad)} unidades de ${nombre}.`
               }
             </p>
           ))}
         </div>
       )}
 
-      <h2>Totales de las Últimas 5 Semanas Completas</h2>
+      <h2>Totales de las Últimas 3 Semanas Completas</h2>
       {totalesPorSemana.length > 0 ? (
         <table className="production-table">
           <thead>

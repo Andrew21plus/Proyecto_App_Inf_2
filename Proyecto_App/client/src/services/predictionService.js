@@ -26,15 +26,17 @@ export const predecirNecesidad = async (datosEntrenamiento, cantidadesDisponible
 
     // Crear y entrenar el modelo
     const model = tf.sequential();
-    model.add(tf.layers.dense({ units: 8, activation: 'relu', inputShape: [inputs[0].length] }));
-    model.add(tf.layers.dense({ units: 4, activation: 'relu' }));
+    model.add(tf.layers.dense({ units: 64, activation: 'relu', inputShape: [inputs[0].length] }));
+    model.add(tf.layers.dense({ units: 32, activation: 'relu' }));
+    model.add(tf.layers.dense({ units: 16, activation: 'relu' }));
+    model.add(tf.layers.dense({ units: 8, activation: 'relu' }));
     model.add(tf.layers.dense({ units: 1 }));
 
     model.compile({ optimizer: 'adam', loss: 'meanSquaredError' });
 
     await model.fit(normalizedInputs, normalizedLabels, {
-      epochs: 500,
-      batchSize: 8
+      epochs: 1000,
+      batchSize: 16
     });
 
     modelos[mp] = { model, labelMean, labelVariance };

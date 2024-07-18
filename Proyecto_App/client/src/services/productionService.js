@@ -11,13 +11,13 @@ export const validateProduccionFormData = async (formData, producciones) => {
   // Validar descripción
   if (!formData.descripcion) {
     errors.descripcion = "La descripción es obligatoria.";
-  } else {
+  } /*else {
     // Verificar si la descripción ya existe en producciones
     const descripcionExistente = producciones.some(produccion => produccion.descripcion.toLowerCase() === formData.descripcion.toLowerCase());
     if (descripcionExistente) {
       errors.descripcion = "La producción ya existe. Ingrese una diferente.";
     }
-  }
+  }*/
 // Validar duplicados de materias primas
 const selectedMateriasPrimas = formData.materiasPrimas.map(mp => mp.id_materia_prima);
 const hasDuplicates = new Set(selectedMateriasPrimas).size !== selectedMateriasPrimas.length;
