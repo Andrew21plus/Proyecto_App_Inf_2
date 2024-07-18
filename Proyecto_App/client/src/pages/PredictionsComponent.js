@@ -245,31 +245,34 @@ const PredictionsComponent = () => {
         </div>
       )}
 
-      <h2>Totales de las Últimas 3 Semanas Completas</h2>
-      {totalesPorSemana.length > 0 ? (
-        <table className="production-table">
-          <thead>
-            <tr>
-              <th>Semana</th>
-              <th>Total Producción</th>
-              <th>Total Materia Prima Usada</th>
-            </tr>
-          </thead>
-          <tbody>
-            {totalesPorSemana.map((semana, index) => (
-              <tr key={index}>
-                <td data-label="Semana">{semana.semana}</td>
-                <td data-label="Total Producción">{semana.totalProduccion}</td>
-                <td data-label="Total Materia Prima Usada">{Object.entries(semana.totalMateriaPrimaUsada).map(([nombre, cantidad]) => (
-                  <div key={nombre}>{nombre}: {cantidad}</div>
-                ))}</td>
+      {/* Ocultar la tabla de totales por semana */}
+      <div style={{ display: 'none' }}>
+        <h2>Totales de las Últimas 3 Semanas Completas</h2>
+        {totalesPorSemana.length > 0 ? (
+          <table className="production-table">
+            <thead>
+              <tr>
+                <th>Semana</th>
+                <th>Total Producción</th>
+                <th>Total Materia Prima Usada</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p>No hay datos para mostrar.</p>
-      )}
+            </thead>
+            <tbody>
+              {totalesPorSemana.map((semana, index) => (
+                <tr key={index}>
+                  <td data-label="Semana">{semana.semana}</td>
+                  <td data-label="Total Producción">{semana.totalProduccion}</td>
+                  <td data-label="Total Materia Prima Usada">{Object.entries(semana.totalMateriaPrimaUsada).map(([nombre, cantidad]) => (
+                    <div key={nombre}>{nombre}: {cantidad}</div>
+                  ))}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>No hay datos para mostrar.</p>
+        )}
+      </div>
 
       <h2>Cantidades Disponibles de Materias Primas</h2>
       {selectedProducto && cantidadesDisponibles.length > 0 && (
