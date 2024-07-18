@@ -169,7 +169,9 @@ const ProductionComponent = () => {
       }))
     });
   };
-
+  const getSelectedMateriasPrimas = () => {
+    return formData.materiasPrimas.map(mp => mp.id_materia_prima);
+  };
   const deleteProduccion = (id) => {
     Axios.delete(`http://localhost:3307/produccion/${id}`)
       .then(() => {
@@ -187,7 +189,9 @@ const ProductionComponent = () => {
       i === index ? { ...mp, [name]: value } : mp
     ));
     setFormData({ ...formData, materiasPrimas: updatedMateriasPrimas });
-    setFormErrors({ ...formErrors, [name]: '' });
+    if (formErrors[name]) {
+      setFormErrors({ ...formErrors, [name]: '' });
+    }
   };
 
   const handleAddMateriaPrima = () => {
@@ -265,12 +269,23 @@ const ProductionComponent = () => {
 
         {formData.materiasPrimas.map((mp, index) => (
           <div key={index} className="materia-prima">
-            <select name="id_materia_prima" value={mp.id_materia_prima} onChange={e => handleInputChange(e, index)} className="input-field">
-              <option value="">Seleccione una materia prima</option>
-              {materiasPrimas.map(mp => (
-                <option key={mp.id_materia_prima} value={mp.id_materia_prima}>{mp.descripcion}</option>
-              ))}
-            </select>
+            <select 
+  name="id_materia_prima" 
+  value={mp.id_materia_prima} 
+  onChange={e => handleInputChange(e, index)} 
+  className="input-field"
+>
+  <option value="">Seleccione una materia prima</option>
+  {materiasPrimas.map(mp => (
+    <option 
+      key={mp.id_materia_prima} 
+      value={mp.id_materia_prima}
+      disabled={getSelectedMateriasPrimas().includes(mp.id_materia_prima.toString())}
+    >
+      {mp.descripcion}
+    </option>
+  ))}
+</select>
             {formErrors[`id_materia_prima_${index}`] && <span className="error">{formErrors[`id_materia_prima_${index}`]}</span>}
             <input type="number" name="cantidad_uso" placeholder="Cantidad de uso" value={mp.cantidad_uso} onChange={e => handleInputChange(e, index)} className="input-field" />
             {formErrors[`cantidad_uso_${index}`] && <span className="error">{formErrors[`cantidad_uso_${index}`]}</span>}

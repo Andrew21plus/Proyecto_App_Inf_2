@@ -18,7 +18,12 @@ export const validateProduccionFormData = async (formData, producciones) => {
       errors.descripcion = "La producción ya existe. Ingrese una diferente.";
     }
   }
-
+// Validar duplicados de materias primas
+const selectedMateriasPrimas = formData.materiasPrimas.map(mp => mp.id_materia_prima);
+const hasDuplicates = new Set(selectedMateriasPrimas).size !== selectedMateriasPrimas.length;
+if (hasDuplicates) {
+  errors.materiasPrimas = 'No se pueden seleccionar materias primas duplicadas';
+}
   // Validar cantidad de uso para cada materia prima
   formData.materiasPrimas.forEach((mp, index) => {
     if (!mp.id_materia_prima) {
