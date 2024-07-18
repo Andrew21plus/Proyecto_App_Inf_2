@@ -265,7 +265,7 @@ const ProductionStageComponent = () => {
       )}
       <h2>Lista de Producción Etapa</h2>
       <h3>Producciones Diarias</h3>
-      <table className="s-table">
+      <table className="production-table">
         <thead>
           <tr>
             <th>ID Registro</th>
