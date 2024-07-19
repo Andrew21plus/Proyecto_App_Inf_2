@@ -1,5 +1,5 @@
 import React from 'react';
-import './ServerErrorComponent.css';
+import '../utils/Server.css';
 
 const ServerErrorComponent = () => {
   return (
