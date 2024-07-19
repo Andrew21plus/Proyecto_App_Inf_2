@@ -20,7 +20,7 @@ import ManagementRolesComponent from './pages/ManagementRolesComponent';
 import ReportComponent from './pages/ReportComponent';
 import { AlertProvider } from './context/AlertContext';
 import ServerErrorComponent from './pages/ServerErrorComponent'; // Crear este componente para manejar errores del servidor
-
+import TicTacToeComponent from './pages/TicTacToeComponent';
 const App = () => {
   const serverStatus = useServerStatus();
 
@@ -48,6 +48,7 @@ const App = () => {
               <Route path='/report' element={<ProtectedRoute element={<ReportComponent />} />} />
               <Route path='/management-roles' element={<ProtectedRoute element={<ManagementRolesComponent />} />} />
               <Route path='/password-reset' element={<PasswordResetComponent />} /> 
+              <Route path='/game' element={<ProtectedRoute element={<TicTacToeComponent />} />} /> {/* Nueva ruta */}
             </Routes>
           </div>
         </Router>
