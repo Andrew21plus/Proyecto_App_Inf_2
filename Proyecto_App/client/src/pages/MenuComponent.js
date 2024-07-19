@@ -1,3 +1,4 @@
+// src/pages/MenuComponent.js
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import ManagementUserComponent from './ManagementUserComponent';
@@ -15,14 +16,18 @@ import StageComponent from './StageComponent';
 import '../utils/MenuComponent.css';
 import Axios from 'axios';
 import { useAlert } from '../context/AlertContext';
+import Modal from '../components/Modal';
+import TicTacToeComponent from './TicTacToeComponent';
 
 const MenuComponent = () => {
-  const { user, roles, logout, needsPasswordReset} = useAuth();
+  const { user, roles, logout, needsPasswordReset } = useAuth();
   const { showAlert, setShowAlert } = useAlert();
   const [selectedOption, setSelectedOption] = useState('');
   const [inconvenientes, setInconvenientes] = useState([]);
   const [firstLoad, setFirstLoad] = useState(true);
-  const [menuOpen, setMenuOpen] = useState(false); // Estado para controlar el menú desplegable
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [key, setKey] = useState(0);
 
   const isGerente = roles.some(role => role.nombre_rol === 'Gerente');
 
@@ -84,7 +89,7 @@ const MenuComponent = () => {
     if (!needsPasswordReset) {
       setSelectedOption(option);
       localStorage.setItem('selectedOption', option);
-      setMenuOpen(false); // Cerrar el menú al seleccionar una opción en pantallas pequeñas
+      setMenuOpen(false);
     }
   };
 
@@ -92,11 +97,19 @@ const MenuComponent = () => {
     logout();
     setSelectedOption('');
     localStorage.removeItem('selectedOption');
-    setMenuOpen(false); // Cerrar el menú al cerrar sesión en pantallas pequeñas
+    setMenuOpen(false);
   };
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
+  };
+
+  const toggleModal = () => {
+    setShowModal(!showModal);
+  };
+
+  const reloadGame = () => {
+    setKey(prevKey => prevKey + 1); // Cambia la clave para forzar la recarga del componente del juego
   };
 
   const isAdmin = roles.some(role => role.nombre_rol === 'Administrador');
@@ -157,8 +170,19 @@ const MenuComponent = () => {
         {selectedOption === 'report' && <ReportComponent />}
         {selectedOption === 'management-roles' && <ManagementRolesComponent />}
       </div>
+      <br/>
+      <footer className="footer">
+        <span className="easter-egg" onClick={toggleModal}>
+          &copy; 2024 optifab. Todos los derechos reservados.
+        </span>
+      </footer>
+
+      <Modal show={showModal} handleClose={toggleModal} handleReload={reloadGame}>
+        <TicTacToeComponent key={key} />
+      </Modal>
     </div>
   );
 };
 
 export default MenuComponent;
+
