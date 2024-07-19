@@ -24,6 +24,7 @@ const InventoryComponent = () => {
     fecha_ingreso: '',
     cantidad_nuevo_ingreso: '',
   });
+  /* eslint-disable no-unused-vars */
   const [formErrors, setFormErrors] = useState({});
   const [inventarioProductoTerminado, setInventarioProductoTerminado] = useState([]);
   const [producciones, setProducciones] = useState([]);

@@ -13,6 +13,7 @@ const ProductionComponent = () => {
     descripcion: '',
     materiasPrimas: []
   });
+  /* eslint-disable no-unused-vars */
   const [formErrors, setFormErrors] = useState({});
   const [producciones, setProducciones] = useState([]);
   const [materiasPrimas, setMateriasPrimas] = useState([]);

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { Link } from 'react-router-dom';
 import { validateProduccionFormData } from '../services/productionService.js';
 import { useAuth } from '../context/AuthContext'; // Importar el contexto de autenticación
 import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
@@ -8,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrashAlt, faPlus, faCheck, faTimes, faSave, faSort, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
 
 const ProductionComponent = () => {
+  /* eslint-disable no-unused-vars */
   const { roles } = useAuth(); // Obtener los roles del usuario actual
   const [formData, setFormData] = useState({
     fecha: new Date().toISOString().split('T')[0], // Establecer la fecha actual

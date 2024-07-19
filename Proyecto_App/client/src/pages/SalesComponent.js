@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { Link } from 'react-router-dom'; 
 import { validateSalesFormData } from '../services/salesService';
 import { useAuth } from '../context/AuthContext';  // Importa el contexto de autenticación
 import '../utils/StylesTotal.css';  // Asegúrate de que el archivo CSS correcto esté importado
