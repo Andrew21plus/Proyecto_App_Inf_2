@@ -1,0 +1,15 @@
+.server-error {
+    text-align: center;
+    margin-top: 50px;
+    color: #ff0000; /* Rojo */
+    font-family: Arial, sans-serif;
+  }
+  
+  .server-error h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+  }
+  
+  .server-error p {
+    font-size: 18px;
+  }
