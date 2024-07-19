@@ -1,0 +1,31 @@
+/* src/utils/TicTacToeComponent.css */
+.game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .status {
+    margin-bottom: 10px;
+    font-size: 20px;
+  }
+  
+  .board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 5px;
+  }
+  
+  .square {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+    background-color: #fff;
+    border: 2px solid #000;
+  }
+  
