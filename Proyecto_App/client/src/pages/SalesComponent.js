@@ -20,6 +20,9 @@ const SalesComponent = () => {
   const [editing, setEditing] = useState(false);
   const [currentVenta, setCurrentVenta] = useState(null);
 
+  const [currentPage, setCurrentPage] = useState(1); // Estado para la página actual
+  const itemsPerPage = 5; // Número de ventas por página
+
   useEffect(() => {
     getVentas();
     getProductos();
@@ -154,6 +157,33 @@ const SalesComponent = () => {
     setFormErrors({ ...formErrors, [name]: '' }); // Clear the error when the user modifies the field
   };
 
+  // Paginación
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentVentas = ventas.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const renderPagination = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(ventas.length / itemsPerPage); i++) {
+      pageNumbers.push(i);
+    }
+    return (
+      <div className="pagination">
+        {pageNumbers.map(number => (
+          <button
+            key={number}
+            onClick={() => paginate(number)}
+            className={`page-link ${currentPage === number ? 'active' : ''}`}
+          >
+            {number}
+          </button>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="production-container"> {/* Cambia la clase del contenedor */}
       <h1>Gestión de Ventas</h1>
@@ -190,27 +220,24 @@ const SalesComponent = () => {
           </tr>
         </thead>
         <tbody>
-          {ventas.map(venta => {
+          {currentVentas.map(venta => {
             const producto = productos.find(p => p.id_producto === venta.id_producto);
             return (
               <tr key={venta.id_venta}>
-                <td data-label="Usuario">{user ? user.nombre_usuario : venta.id_usuario}</td>
-                <td data-label="Producto">{producto ? producto.nombre : venta.id_producto}</td>
-                <td data-label="Descripción">{venta.descripcion}</td>
-                <td data-label="Cantidad">{venta.cantidad}</td>
-                <td data-label="Acciones">
-                  <button className="edit-button icon-button" onClick={() => editVenta(venta)}>
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
-                  <button className="delete-button icon-button" onClick={() => deleteVenta(venta.id_venta)}>
-                    <FontAwesomeIcon icon={faTrashAlt} />
-                  </button>
+                <td>{user && user.nombre_usuario}</td>
+                <td>{producto ? producto.nombre : 'Producto no encontrado'}</td>
+                <td>{venta.descripcion}</td>
+                <td>{venta.cantidad}</td>
+                <td>
+                  <button onClick={() => editVenta(venta)} className="icon-button"><FontAwesomeIcon icon={faEdit} /></button>
+                  <button onClick={() => deleteVenta(venta.id_venta)} className="icon-button"><FontAwesomeIcon icon={faTrashAlt} /></button>
                 </td>
               </tr>
             );
           })}
         </tbody>
       </table>
+      {renderPagination()} {/* Renderizar la paginación */}
     </div>
   );
 };
