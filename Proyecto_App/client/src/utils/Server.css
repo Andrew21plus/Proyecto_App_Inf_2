@@ -1,15 +1,21 @@
 .server-error {
+    background-color: #ff4d4d; /* Un rojo claro */
+    height: 100vh; /* Ocupa toda la altura de la pantalla */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
     text-align: center;
-    margin-top: 50px;
-    color: #ff0000; /* Rojo */
-    font-family: Arial, sans-serif;
+    padding: 20px;
   }
   
   .server-error h1 {
-    font-size: 36px;
-    margin-bottom: 20px;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
   }
   
   .server-error p {
-    font-size: 18px;
+    font-size: 1.2rem;
   }
+  
