@@ -19,3 +19,8 @@
     font-size: 1.2rem;
   }
   
+  .server-error .fa-exclamation-triangle {
+    margin-bottom: 1rem;
+    color: yellow; /* Cambia el color del icono si lo deseas */
+  }
+  
