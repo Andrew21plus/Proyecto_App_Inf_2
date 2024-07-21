@@ -1,0 +1,59 @@
+/* src/utils/AnimatedHelperComponent.css */
+.animated-helper-container {
+    position: fixed;
+    bottom: 20px;
+    right: 75px;  /* Cambiado de left a right */
+    z-index: 1000;
+    display: flex;
+    align-items: flex-end;
+  }
+  
+  .helper-character {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    background: url('https://cdn-icons-png.flaticon.com/512/2728/2728601.png') no-repeat center center;
+    background-size: contain;
+    animation: float 2s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translatey(0px);
+    }
+    50% {
+      transform: translatey(-10px);
+    }
+  }
+  
+  .bubble {
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    padding: 10px;
+    background: white;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .bubble p {
+    margin: 0;
+  }
+  
+  .close-button {
+    margin-top: 10px;
+    background: none;  /* Sin fondo */
+    color: #007bff;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 20px;  /* Tamaño del icono */
+  }
+  
+  .close-button:hover {
+    color: #0056b3;
+  }
+  

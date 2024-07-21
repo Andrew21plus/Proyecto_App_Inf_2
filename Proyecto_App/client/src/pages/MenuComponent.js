@@ -18,6 +18,9 @@ import Axios from 'axios';
 import { useAlert } from '../context/AlertContext';
 import Modal from '../components/Modal';
 import TicTacToeComponent from './TicTacToeComponent';
+import AnimatedHelperComponent from '../components/AnimatedHelperComponent';  // Importa el componente de ayuda animado
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Para el icono de ayuda
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons'; // Icono de ayuda
 
 const MenuComponent = () => {
   const { user, roles, logout, needsPasswordReset } = useAuth();
@@ -27,6 +30,7 @@ const MenuComponent = () => {
   const [firstLoad, setFirstLoad] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showHelper, setShowHelper] = useState(false);  // Estado para mostrar el ayudante
   const [key, setKey] = useState(0);
 
   const isGerente = roles.some(role => role.nombre_rol === 'Gerente');
@@ -112,6 +116,10 @@ const MenuComponent = () => {
     setKey(prevKey => prevKey + 1); // Cambia la clave para forzar la recarga del componente del juego
   };
 
+  const toggleHelper = () => {
+    setShowHelper(!showHelper);
+  };
+
   const isAdmin = roles.some(role => role.nombre_rol === 'Administrador');
   const isManager = roles.some(role => role.nombre_rol === 'Gerente');
   const isPlantChief = roles.some(role => role.nombre_rol === 'Jefe de Planta');
@@ -175,14 +183,18 @@ const MenuComponent = () => {
         <span className="easter-egg" onClick={toggleModal}>
           &copy; 2024 optifab. Todos los derechos reservados.
         </span>
+        <span className="help-icon" onClick={toggleHelper}>
+          <FontAwesomeIcon icon={faQuestionCircle} />
+        </span>
       </footer>
 
       <Modal show={showModal} handleClose={toggleModal} handleReload={reloadGame}>
         <TicTacToeComponent key={key} />
       </Modal>
+
+      {showHelper && <AnimatedHelperComponent selectedOption={selectedOption} handleClose={toggleHelper} />}
     </div>
   );
 };
 
 export default MenuComponent;
-
