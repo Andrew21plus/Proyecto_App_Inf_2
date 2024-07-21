@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import { validateSalesFormData } from '../services/salesService';
 import { useAuth } from '../context/AuthContext';  // Importa el contexto de autenticación
-import '../utils/StylesTotal.css';  // Asegúrate de que el archivo CSS correcto esté importado
+import '../utils/StylesTotal.css';  
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrashAlt, faPlus, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrashAlt, faPlus, faSave, faSort, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
 
 const SalesComponent = () => {
   const { user } = useAuth();  // Obtén el usuario del contexto de autenticación
@@ -21,7 +21,10 @@ const SalesComponent = () => {
   const [currentVenta, setCurrentVenta] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1); // Estado para la página actual
-  const itemsPerPage = 5; // Número de ventas por página
+  const itemsPerPage = 15; // Número de ventas por página
+
+  // Estados para la ordenación
+  const [sortConfig, setSortConfig] = useState({ key: 'id_venta', direction: 'asc' });
 
   useEffect(() => {
     getVentas();
@@ -157,10 +160,28 @@ const SalesComponent = () => {
     setFormErrors({ ...formErrors, [name]: '' }); // Clear the error when the user modifies the field
   };
 
+  const sortVentas = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedVentas = [...ventas].sort((a, b) => {
+    if (a[sortConfig.key] < b[sortConfig.key]) {
+      return sortConfig.direction === 'asc' ? -1 : 1;
+    }
+    if (a[sortConfig.key] > b[sortConfig.key]) {
+      return sortConfig.direction === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+
   // Paginación
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentVentas = ventas.slice(indexOfFirstItem, indexOfLastItem);
+  const currentVentas = sortedVentas.slice(indexOfFirstItem, indexOfLastItem);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -182,6 +203,13 @@ const SalesComponent = () => {
         ))}
       </div>
     );
+  };
+
+  const getSortIcon = (key) => {
+    if (sortConfig.key === key) {
+      return sortConfig.direction === 'asc' ? <FontAwesomeIcon icon={faSortUp} /> : <FontAwesomeIcon icon={faSortDown} />;
+    }
+    return <FontAwesomeIcon icon={faSort} />;
   };
 
   return (
@@ -212,10 +240,18 @@ const SalesComponent = () => {
       <table className="production-table"> {/* Cambia la clase de la tabla */}
         <thead>
           <tr>
-            <th>Usuario</th>
-            <th>Producto</th>
-            <th>Descripción</th>
-            <th>Cantidad</th>
+            <th onClick={() => sortVentas('id_usuario')}>
+              Usuario {getSortIcon('id_usuario')}
+            </th>
+            <th onClick={() => sortVentas('id_producto')}>
+              Producto {getSortIcon('id_producto')}
+            </th>
+            <th onClick={() => sortVentas('descripcion')}>
+              Descripción {getSortIcon('descripcion')}
+            </th>
+            <th onClick={() => sortVentas('cantidad')}>
+              Cantidad {getSortIcon('cantidad')}
+            </th>
             <th>Acciones</th>
           </tr>
         </thead>

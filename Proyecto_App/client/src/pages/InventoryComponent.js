@@ -4,7 +4,7 @@ import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama Sty
 import { validateInventarioPTFormData, validateInventarioMPFormData, validateUsuarioMateriaPrimaFormData } from '../services/inventoryService';
 import { useAuth } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrashAlt, faPlus,faSave } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrashAlt, faPlus, faSave, faSort, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
 
 const InventoryComponent = () => {
   const { user, roles } = useAuth();
@@ -34,6 +34,14 @@ const InventoryComponent = () => {
   const [editingMP, setEditingMP] = useState(false);
   const [currentInventarioPT, setCurrentInventarioPT] = useState(null);
   const [currentInventarioMP, setCurrentInventarioMP] = useState(null);
+
+  const [currentPagePT, setCurrentPagePT] = useState(1); // Estado para la página actual de Producto Terminado
+  const [currentPageMP, setCurrentPageMP] = useState(1); // Estado para la página actual de Materia Prima
+  const [currentPageUMP, setCurrentPageUMP] = useState(1); // Estado para la página actual de Usuario Materia Prima
+  const itemsPerPage = 15; // Número de ítems por página
+
+  // Estados para la ordenación
+  const [sortConfig, setSortConfig] = useState({ key: 'id_producto', direction: 'asc' });
 
   useEffect(() => {
     getInventarioProductoTerminado();
@@ -317,105 +325,132 @@ const InventoryComponent = () => {
   const isGerente = roles.some(role => role.nombre_rol === 'Gerente');
   const isJefePlanta = roles.some(role => role.nombre_rol === 'Jefe de Planta');
 
+  const sortInventario = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedInventarioProductoTerminado = [...inventarioProductoTerminado].sort((a, b) => {
+    if (a[sortConfig.key] < b[sortConfig.key]) {
+      return sortConfig.direction === 'asc' ? -1 : 1;
+    }
+    if (a[sortConfig.key] > b[sortConfig.key]) {
+      return sortConfig.direction === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const sortedInventarioMateriaPrima = [...inventarioMateriaPrima].sort((a, b) => {
+    if (a[sortConfig.key] < b[sortConfig.key]) {
+      return sortConfig.direction === 'asc' ? -1 : 1;
+    }
+    if (a[sortConfig.key] > b[sortConfig.key]) {
+      return sortConfig.direction === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+
+  const sortedUsuarioMateriaPrimaData = [...usuarioMateriaPrimaData].sort((a, b) => {
+    if (a[sortConfig.key] < b[sortConfig.key]) {
+      return sortConfig.direction === 'asc' ? -1 : 1;
+    }
+    if (a[sortConfig.key] > b[sortConfig.key]) {
+      return sortConfig.direction === 'asc' ? 1 : -1;
+    }
+    return 0;
+  });
+
+  // Paginación
+  const indexOfLastItemPT = currentPagePT * itemsPerPage;
+  const indexOfFirstItemPT = indexOfLastItemPT - itemsPerPage;
+  const currentInventarioPTPage = sortedInventarioProductoTerminado.slice(indexOfFirstItemPT, indexOfLastItemPT);
+
+  const indexOfLastItemMP = currentPageMP * itemsPerPage;
+  const indexOfFirstItemMP = indexOfLastItemMP - itemsPerPage;
+  const currentInventarioMPPage = sortedInventarioMateriaPrima.slice(indexOfFirstItemMP, indexOfLastItemMP);
+
+  const indexOfLastItemUMP = currentPageUMP * itemsPerPage;
+  const indexOfFirstItemUMP = indexOfLastItemUMP - itemsPerPage;
+  const currentUsuarioMateriaPrimaPage = sortedUsuarioMateriaPrimaData.slice(indexOfFirstItemUMP, indexOfLastItemUMP);
+
+  const paginatePT = (pageNumber) => setCurrentPagePT(pageNumber);
+  const paginateMP = (pageNumber) => setCurrentPageMP(pageNumber);
+  const paginateUMP = (pageNumber) => setCurrentPageUMP(pageNumber);
+
+  const renderPagination = (dataLength, paginate, currentPage) => {
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(dataLength / itemsPerPage); i++) {
+      pageNumbers.push(i);
+    }
+    return (
+      <div className="pagination">
+        {pageNumbers.map(number => (
+          <button
+            key={number}
+            onClick={() => paginate(number)}
+            className={`page-link ${currentPage === number ? 'active' : ''}`}
+          >
+            {number}
+          </button>
+        ))}
+      </div>
+    );
+  };
+
+  const getSortIcon = (key) => {
+    if (sortConfig.key === key) {
+      return sortConfig.direction === 'asc' ? <FontAwesomeIcon icon={faSortUp} /> : <FontAwesomeIcon icon={faSortDown} />;
+    }
+    return <FontAwesomeIcon icon={faSort} />;
+  };
+
   return (
     <div>
-  <h1>Gestión de Inventario</h1>
-  <div className="form-selector">
-    {(isGerente || isJefePlanta) && (
-      <div className="button-group">
-        <button onClick={() => setSelectedForm('PT')} className="styled-button">Inventario Producto Terminado</button>
-        <button onClick={() => setSelectedForm('MP')} className="styled-button">Inventario Materia Prima</button>
-      </div>
-    )}
-  </div>
-
-  {selectedForm === 'PT' && (
-    <div>
-      <h2>Inventario Producto Terminado</h2>
-      <h3>Lista de Inventario Producto Terminado</h3>
-      <table className="production-table">
-        <thead>
-          <tr>
-            <th>ID Producto</th>
-            <th>ID Producción</th>
-            <th>Cantidad Disponible</th>
-            <th>Nombre</th>
-            {isGerente && <th>Acciones</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {inventarioProductoTerminado.map(inventarioPT => (
-            <tr key={inventarioPT.id_producto}>
-              <td data-label="ID Producto">{inventarioPT.id_producto}</td>
-              <td data-label="ID Producción">{inventarioPT.id_produccion}</td>
-              <td data-label="Cantidad Disponible">{inventarioPT.cantidad_disponible}</td>
-              <td data-label="Nombre">{inventarioPT.nombre}</td>
-              {isGerente && (
-                <td data-label="Acciones">
-                  <button className="delete-button icon-button delete-clicked" onClick={() => deleteInventarioPT(inventarioPT.id_producto)}>
-                    <FontAwesomeIcon icon={faTrashAlt} />
-                  </button>
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )}
-  {selectedForm === 'MP' && (
-    <div>
-      <h2>Inventario Materia Prima</h2>
-      <div className="mp-options button-group">
-        <button onClick={() => handleChangeMPOption('Registro')} className="styled-button">Registro Materia Prima</button>
-        <button onClick={() => handleChangeMPOption('UsuarioMateriaPrima')} className="styled-button">Registro Usuario Materia Prima</button>
+      <h1>Gestión de Inventario</h1>
+      <div className="form-selector">
+        {(isGerente || isJefePlanta) && (
+          <div className="button-group">
+            <button onClick={() => setSelectedForm('PT')} className="styled-button">Inventario Producto Terminado</button>
+            <button onClick={() => setSelectedForm('MP')} className="styled-button">Inventario Materia Prima</button>
+          </div>
+        )}
       </div>
 
-      {selectedMPOption === 'Registro' && isGerente && (
+      {selectedForm === 'PT' && (
         <div>
-          <form onSubmit={addInventarioMP} className="production-form">
-            <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} className="input-field" />
-            {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
-            <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} className="input-field" />
-            {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
-            <input type="text" name="proveedor" placeholder="Proveedor" value={formData.proveedor} onChange={handleInputChange} className="input-field" />
-            {formErrors.proveedor && <span className="error">{formErrors.proveedor}</span>}
-            <input type="text" name="cantidad_ingreso" placeholder="Cantidad de Ingreso" value={formData.cantidad_ingreso} onChange={handleInputChange} className="input-field" />
-            {formErrors.cantidad_ingreso && <span className="error">{formErrors.cantidad_ingreso}</span>}
-            <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} disabled className="input-field" />
-            {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
-            <button type="submit" className="submit-button icon-button">
-              {editingMP ? <><FontAwesomeIcon icon={faSave} /> Actualizar</> : <><FontAwesomeIcon icon={faPlus} /> Agregar</>}
-            </button>
-          </form>
-          <h3>Lista de Inventario Materia Prima</h3>
+          <h2>Inventario Producto Terminado</h2>
+          <h3>Lista de Inventario Producto Terminado</h3>
           <table className="production-table">
             <thead>
               <tr>
-                <th>ID Materia Prima</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Proveedor</th>
-                <th>Cantidad de Ingreso</th>
-                <th>Cantidad Disponible</th>
+                <th onClick={() => sortInventario('id_producto')}>
+                  ID Producto {getSortIcon('id_producto')}
+                </th>
+                <th onClick={() => sortInventario('id_produccion')}>
+                  ID Producción {getSortIcon('id_produccion')}
+                </th>
+                <th onClick={() => sortInventario('cantidad_disponible')}>
+                  Cantidad Disponible {getSortIcon('cantidad_disponible')}
+                </th>
+                <th onClick={() => sortInventario('nombre')}>
+                  Nombre {getSortIcon('nombre')}
+                </th>
                 {isGerente && <th>Acciones</th>}
               </tr>
             </thead>
             <tbody>
-              {inventarioMateriaPrima.map(inventarioMP => (
-                <tr key={inventarioMP.id_materia_prima}>
-                  <td data-label="ID Materia Prima">{inventarioMP.id_materia_prima}</td>
-                  <td data-label="Nombre">{inventarioMP.nombre}</td>
-                  <td data-label="Descripción">{inventarioMP.descripcion}</td>
-                  <td data-label="Proveedor">{inventarioMP.proveedor}</td>
-                  <td data-label="Cantidad de Ingreso">{inventarioMP.cantidad_ingreso}</td>
-                  <td data-label="Cantidad Disponible">{inventarioMP.cantidad_disponible}</td>
+              {currentInventarioPTPage.map(inventarioPT => (
+                <tr key={inventarioPT.id_producto}>
+                  <td data-label="ID Producto">{inventarioPT.id_producto}</td>
+                  <td data-label="ID Producción">{inventarioPT.id_produccion}</td>
+                  <td data-label="Cantidad Disponible">{inventarioPT.cantidad_disponible}</td>
+                  <td data-label="Nombre">{inventarioPT.nombre}</td>
                   {isGerente && (
                     <td data-label="Acciones">
-                      <button className="edit-button icon-button" onClick={() => editInventarioMP(inventarioMP)}>
-                        <FontAwesomeIcon icon={faEdit} />
-                      </button>
-                      <button className="delete-button icon-button delete-clicked" onClick={() => deleteInventarioMP(inventarioMP.id_materia_prima)}>
+                      <button className="delete-button icon-button delete-clicked" onClick={() => deleteInventarioPT(inventarioPT.id_producto)}>
                         <FontAwesomeIcon icon={faTrashAlt} />
                       </button>
                     </td>
@@ -424,86 +459,185 @@ const InventoryComponent = () => {
               ))}
             </tbody>
           </table>
+          {renderPagination(inventarioProductoTerminado.length, paginatePT, currentPagePT)}
         </div>
       )}
 
-      {selectedMPOption === 'UsuarioMateriaPrima' && (
+      {selectedForm === 'MP' && (
         <div>
-          <h3>Registro Usuario Materia Prima</h3>
-          <form onSubmit={addUsuarioMateriaPrima} className="production-form">
-            <input type="hidden" name="id_usuario" value={formUsuarioMateriaPrima.id_usuario} />
-            <select name="id_materia_prima" value={formUsuarioMateriaPrima.id_materia_prima} onChange={handleInputChangeUsuarioMateriaPrima} className="input-field">
-              <option value="">Seleccione una Materia Prima</option>
-              {inventarioMateriaPrima.map(mp => (
-                <option key={mp.id_materia_prima} value={mp.id_materia_prima}>
-                  {mp.nombre}
-                </option>
-              ))}
-            </select>
-            <input type="date" name="fecha_ingreso" placeholder="Fecha de Ingreso" value={formUsuarioMateriaPrima.fecha_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} readOnly className="input-field" />
-            <input type="text" name="cantidad_nuevo_ingreso" placeholder="Cantidad Nuevo Ingreso" value={formUsuarioMateriaPrima.cantidad_nuevo_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} className="input-field" />
-            <button type="submit" className="submit-button icon-button">
-              <FontAwesomeIcon icon={faPlus} /> Agregar
-            </button>
-          </form>
-          <h3>Lista de Usuario Materia Prima</h3>
-          <table className="production-table">
-            <thead>
-              <tr>
-                <th>ID Usuario</th>
-                <th>ID Materia Prima</th>
-                <th>Fecha Ingreso</th>
-                <th>Cantidad Nuevo Ingreso</th>
-              </tr>
-            </thead>
-            <tbody>
-              {usuarioMateriaPrimaData.map(ump => (
-                <tr key={`${ump.id_usuario}-${ump.id_materia_prima}-${ump.fecha_ingreso}`}>
-                  <td data-label="ID Usuario">{ump.id_usuario}</td>
-                  <td data-label="ID Materia Prima">{ump.id_materia_prima}</td>
-                  <td data-label="Fecha Ingreso">{ump.fecha_ingreso}</td>
-                  <td data-label="Cantidad Nuevo Ingreso">{ump.cantidad_nuevo_ingreso}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+          <h2>Inventario Materia Prima</h2>
+          <div className="mp-options button-group">
+            <button onClick={() => handleChangeMPOption('Registro')} className="styled-button">Registro Materia Prima</button>
+            <button onClick={() => handleChangeMPOption('UsuarioMateriaPrima')} className="styled-button">Registro Usuario Materia Prima</button>
+          </div>
 
-      {isJefePlanta && selectedMPOption === 'Registro' && (
-        <div>
-          <h3>Lista de Inventario Materia Prima</h3>
-          <table className="s-table">
-            <thead>
-              <tr>
-                <th>ID Materia Prima</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Proveedor</th>
-                <th>Cantidad de Ingreso</th>
-                <th>Cantidad Disponible</th>
-              </tr>
-            </thead>
-            <tbody>
-              {inventarioMateriaPrima.map(inventarioMP => (
-                <tr key={inventarioMP.id_materia_prima}>
-                  <td data-label="ID Materia Prima">{inventarioMP.id_materia_prima}</td>
-                  <td data-label="Nombre">{inventarioMP.nombre}</td>
-                  <td data-label="Descripción">{inventarioMP.descripcion}</td>
-                  <td data-label="Proveedor">{inventarioMP.proveedor}</td>
-                  <td data-label="Cantidad de Ingreso">{inventarioMP.cantidad_ingreso}</td>
-                  <td data-label="Cantidad Disponible">{inventarioMP.cantidad_disponible}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {selectedMPOption === 'Registro' && isGerente && (
+            <div>
+              <form onSubmit={addInventarioMP} className="production-form">
+                <input type="text" name="nombre" placeholder="Nombre" value={formData.nombre} onChange={handleInputChange} className="input-field" />
+                {formErrors.nombre && <span className="error">{formErrors.nombre}</span>}
+                <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={handleInputChange} className="input-field" />
+                {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
+                <input type="text" name="proveedor" placeholder="Proveedor" value={formData.proveedor} onChange={handleInputChange} className="input-field" />
+                {formErrors.proveedor && <span className="error">{formErrors.proveedor}</span>}
+                <input type="text" name="cantidad_ingreso" placeholder="Cantidad de Ingreso" value={formData.cantidad_ingreso} onChange={handleInputChange} className="input-field" />
+                {formErrors.cantidad_ingreso && <span className="error">{formErrors.cantidad_ingreso}</span>}
+                <input type="text" name="cantidad_disponible" placeholder="Cantidad Disponible" value={formData.cantidad_disponible} onChange={handleInputChange} disabled className="input-field" />
+                {formErrors.cantidad_disponible && <span className="error">{formErrors.cantidad_disponible}</span>}
+                <button type="submit" className="submit-button icon-button">
+                  {editingMP ? <><FontAwesomeIcon icon={faSave} /> Actualizar</> : <><FontAwesomeIcon icon={faPlus} /> Agregar</>}
+                </button>
+              </form>
+              <h3>Lista de Inventario Materia Prima</h3>
+              <table className="production-table">
+                <thead>
+                  <tr>
+                    <th onClick={() => sortInventario('id_materia_prima')}>
+                      ID Materia Prima {getSortIcon('id_materia_prima')}
+                    </th>
+                    <th onClick={() => sortInventario('nombre')}>
+                      Nombre {getSortIcon('nombre')}
+                    </th>
+                    <th onClick={() => sortInventario('descripcion')}>
+                      Descripción {getSortIcon('descripcion')}
+                    </th>
+                    <th onClick={() => sortInventario('proveedor')}>
+                      Proveedor {getSortIcon('proveedor')}
+                    </th>
+                    <th onClick={() => sortInventario('cantidad_ingreso')}>
+                      Cantidad de Ingreso {getSortIcon('cantidad_ingreso')}
+                    </th>
+                    <th onClick={() => sortInventario('cantidad_disponible')}>
+                      Cantidad Disponible {getSortIcon('cantidad_disponible')}
+                    </th>
+                    {isGerente && <th>Acciones</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentInventarioMPPage.map(inventarioMP => (
+                    <tr key={inventarioMP.id_materia_prima}>
+                      <td data-label="ID Materia Prima">{inventarioMP.id_materia_prima}</td>
+                      <td data-label="Nombre">{inventarioMP.nombre}</td>
+                      <td data-label="Descripción">{inventarioMP.descripcion}</td>
+                      <td data-label="Proveedor">{inventarioMP.proveedor}</td>
+                      <td data-label="Cantidad de Ingreso">{inventarioMP.cantidad_ingreso}</td>
+                      <td data-label="Cantidad Disponible">{inventarioMP.cantidad_disponible}</td>
+                      {isGerente && (
+                        <td data-label="Acciones">
+                          <button className="edit-button icon-button" onClick={() => editInventarioMP(inventarioMP)}>
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button className="delete-button icon-button delete-clicked" onClick={() => deleteInventarioMP(inventarioMP.id_materia_prima)}>
+                            <FontAwesomeIcon icon={faTrashAlt} />
+                          </button>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {renderPagination(inventarioMateriaPrima.length, paginateMP, currentPageMP)}
+            </div>
+          )}
+
+          {selectedMPOption === 'UsuarioMateriaPrima' && (
+            <div>
+              <h3>Registro Usuario Materia Prima</h3>
+              <form onSubmit={addUsuarioMateriaPrima} className="production-form">
+                <input type="hidden" name="id_usuario" value={formUsuarioMateriaPrima.id_usuario} />
+                <select name="id_materia_prima" value={formUsuarioMateriaPrima.id_materia_prima} onChange={handleInputChangeUsuarioMateriaPrima} className="input-field">
+                  <option value="">Seleccione una Materia Prima</option>
+                  {inventarioMateriaPrima.map(mp => (
+                    <option key={mp.id_materia_prima} value={mp.id_materia_prima}>
+                      {mp.nombre}
+                    </option>
+                  ))}
+                </select>
+                <input type="date" name="fecha_ingreso" placeholder="Fecha de Ingreso" value={formUsuarioMateriaPrima.fecha_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} readOnly className="input-field" />
+                <input type="text" name="cantidad_nuevo_ingreso" placeholder="Cantidad Nuevo Ingreso" value={formUsuarioMateriaPrima.cantidad_nuevo_ingreso} onChange={handleInputChangeUsuarioMateriaPrima} className="input-field" />
+                <button type="submit" className="submit-button icon-button">
+                  <FontAwesomeIcon icon={faPlus} /> Agregar
+                </button>
+              </form>
+              <h3>Lista de Usuario Materia Prima</h3>
+              <table className="production-table">
+                <thead>
+                  <tr>
+                    <th onClick={() => sortInventario('id_usuario')}>
+                      ID Usuario {getSortIcon('id_usuario')}
+                    </th>
+                    <th onClick={() => sortInventario('id_materia_prima')}>
+                      ID Materia Prima {getSortIcon('id_materia_prima')}
+                    </th>
+                    <th onClick={() => sortInventario('fecha_ingreso')}>
+                      Fecha Ingreso {getSortIcon('fecha_ingreso')}
+                    </th>
+                    <th onClick={() => sortInventario('cantidad_nuevo_ingreso')}>
+                      Cantidad Nuevo Ingreso {getSortIcon('cantidad_nuevo_ingreso')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentUsuarioMateriaPrimaPage.map(ump => (
+                    <tr key={`${ump.id_usuario}-${ump.id_materia_prima}-${ump.fecha_ingreso}`}>
+                      <td data-label="ID Usuario">{ump.id_usuario}</td>
+                      <td data-label="ID Materia Prima">{ump.id_materia_prima}</td>
+                      <td data-label="Fecha Ingreso">{ump.fecha_ingreso}</td>
+                      <td data-label="Cantidad Nuevo Ingreso">{ump.cantidad_nuevo_ingreso}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {renderPagination(usuarioMateriaPrimaData.length, paginateUMP, currentPageUMP)}
+            </div>
+          )}
+
+          {isJefePlanta && selectedMPOption === 'Registro' && (
+            <div>
+              <h3>Lista de Inventario Materia Prima</h3>
+              <table className="s-table">
+                <thead>
+                  <tr>
+                    <th onClick={() => sortInventario('id_materia_prima')}>
+                      ID Materia Prima {getSortIcon('id_materia_prima')}
+                    </th>
+                    <th onClick={() => sortInventario('nombre')}>
+                      Nombre {getSortIcon('nombre')}
+                    </th>
+                    <th onClick={() => sortInventario('descripcion')}>
+                      Descripción {getSortIcon('descripcion')}
+                    </th>
+                    <th onClick={() => sortInventario('proveedor')}>
+                      Proveedor {getSortIcon('proveedor')}
+                    </th>
+                    <th onClick={() => sortInventario('cantidad_ingreso')}>
+                      Cantidad de Ingreso {getSortIcon('cantidad_ingreso')}
+                    </th>
+                    <th onClick={() => sortInventario('cantidad_disponible')}>
+                      Cantidad Disponible {getSortIcon('cantidad_disponible')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentInventarioMPPage.map(inventarioMP => (
+                    <tr key={inventarioMP.id_materia_prima}>
+                      <td data-label="ID Materia Prima">{inventarioMP.id_materia_prima}</td>
+                      <td data-label="Nombre">{inventarioMP.nombre}</td>
+                      <td data-label="Descripción">{inventarioMP.descripcion}</td>
+                      <td data-label="Proveedor">{inventarioMP.proveedor}</td>
+                      <td data-label="Cantidad de Ingreso">{inventarioMP.cantidad_ingreso}</td>
+                      <td data-label="Cantidad Disponible">{inventarioMP.cantidad_disponible}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {renderPagination(inventarioMateriaPrima.length, paginateMP, currentPageMP)}
+            </div>
+          )}
         </div>
       )}
     </div>
-  )}
-</div>
   );
 };
-
 
 export default InventoryComponent;
