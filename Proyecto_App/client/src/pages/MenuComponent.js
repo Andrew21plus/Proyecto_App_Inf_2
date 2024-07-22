@@ -18,9 +18,7 @@ import Axios from 'axios';
 import { useAlert } from '../context/AlertContext';
 import Modal from '../components/Modal';
 import TicTacToeComponent from './TicTacToeComponent';
-import AnimatedHelperComponent from '../components/AnimatedHelperComponent';  // Importa el componente de ayuda animado
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Para el icono de ayuda
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons'; // Icono de ayuda
+import DashboardComponent from  './DashboardComponent';
 
 const MenuComponent = () => {
   const { user, roles, logout, needsPasswordReset } = useAuth();
@@ -30,7 +28,6 @@ const MenuComponent = () => {
   const [firstLoad, setFirstLoad] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [showHelper, setShowHelper] = useState(false);  // Estado para mostrar el ayudante
   const [key, setKey] = useState(0);
 
   const isGerente = roles.some(role => role.nombre_rol === 'Gerente');
@@ -116,10 +113,6 @@ const MenuComponent = () => {
     setKey(prevKey => prevKey + 1); // Cambia la clave para forzar la recarga del componente del juego
   };
 
-  const toggleHelper = () => {
-    setShowHelper(!showHelper);
-  };
-
   const isAdmin = roles.some(role => role.nombre_rol === 'Administrador');
   const isManager = roles.some(role => role.nombre_rol === 'Gerente');
   const isPlantChief = roles.some(role => role.nombre_rol === 'Jefe de Planta');
@@ -145,6 +138,7 @@ const MenuComponent = () => {
               <li className={selectedOption === 'etapas' ? 'selected' : ''} onClick={() => handleOptionClick('etapas')}>Etapas</li>
               <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => handleOptionClick('production')}>Producción</li>
               <li className={selectedOption === 'production-register' ? 'selected' : ''} onClick={() => handleOptionClick('production-register')}>Registrar Producción</li>
+              <li className={selectedOption === 'dashboard' ? 'selected' : ''} onClick={() => handleOptionClick('dashboard')}>Materias Primas</li>
               <li className={selectedOption === 'predictions' ? 'selected' : ''} onClick={() => handleOptionClick('predictions')}>Predicciones</li>
               <li className={selectedOption === 'report' ? 'selected' : ''} onClick={() => handleOptionClick('report')}>Reporte</li>
               <li className={selectedOption === 'profile' ? 'selected' : ''} onClick={() => handleOptionClick('profile')}>Perfil</li>
@@ -154,6 +148,7 @@ const MenuComponent = () => {
           {isPlantChief && (
             <>
               <li className={selectedOption === 'inventory' ? 'selected' : ''} onClick={() => handleOptionClick('inventory')}>Inventario</li>
+              <li className={selectedOption === 'etapas' ? 'selected' : ''} onClick={() => handleOptionClick('etapas')}>Etapas</li>
               <li className={selectedOption === 'drawBack' ? 'selected' : ''} onClick={() => handleOptionClick('drawBack')}>Inconvenientes</li>
               <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => handleOptionClick('production')}>Producción</li>
               <li className={selectedOption === 'production-stage' ? 'selected' : ''} onClick={() => handleOptionClick('production-stage')}>Producción Etapa</li>
@@ -174,6 +169,7 @@ const MenuComponent = () => {
         {selectedOption === 'sales' && <SalesComponent />}
         {selectedOption === 'etapas' && <StageComponent />}
         {selectedOption === 'drawBack' && <DrawBackComponent />}
+        {selectedOption === 'dashboard' && <DashboardComponent />}
         {selectedOption === 'predictions' && <PredictionsComponent />}
         {selectedOption === 'report' && <ReportComponent />}
         {selectedOption === 'management-roles' && <ManagementRolesComponent />}
@@ -183,18 +179,14 @@ const MenuComponent = () => {
         <span className="easter-egg" onClick={toggleModal}>
           &copy; 2024 optifab. Todos los derechos reservados.
         </span>
-        <span className="help-icon" onClick={toggleHelper}>
-          <FontAwesomeIcon icon={faQuestionCircle} />
-        </span>
       </footer>
 
       <Modal show={showModal} handleClose={toggleModal} handleReload={reloadGame}>
         <TicTacToeComponent key={key} />
       </Modal>
-
-      {showHelper && <AnimatedHelperComponent selectedOption={selectedOption} handleClose={toggleHelper} />}
     </div>
   );
 };
 
 export default MenuComponent;
+
