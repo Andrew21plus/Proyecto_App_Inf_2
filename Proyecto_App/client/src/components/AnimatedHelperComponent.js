@@ -31,6 +31,8 @@ const AnimatedHelperComponent = ({ selectedOption, handleClose }) => {
         return 'Reporte: Aquí puedes generar reportes sobre diferentes aspectos del sistema.';
       case 'management-roles':
         return 'Gestión de Roles: Aquí puedes gestionar los roles y permisos de los usuarios del sistema.';
+      case 'dashboard':
+        return 'Aquí puedes visualizar la cantidad de materia disponible';
       default:
         return 'Selecciona una opción del menú para obtener más información.';
     }

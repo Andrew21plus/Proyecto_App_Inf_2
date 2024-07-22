@@ -24,6 +24,7 @@
   padding: 14px 20px;
   text-decoration: none;
   cursor: pointer;
+  align-self: center;
 }
 
 .navbar li:hover {
@@ -73,6 +74,7 @@
   .navbar li {
     padding: 10px 15px;
     text-align: left;
+    align-self: center;
   }
 
   .menu-content {
