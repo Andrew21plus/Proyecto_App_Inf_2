@@ -13,6 +13,7 @@ import PredictionsComponent from './PredictionsComponent';
 import ReportComponent from './ReportComponent';
 import ManagementRolesComponent from './ManagementRolesComponent';
 import StageComponent from './StageComponent';
+import DashboardComponent from  './DashboardComponent';
 import '../utils/MenuComponent.css';
 import Axios from 'axios';
 import { useAlert } from '../context/AlertContext';
@@ -145,6 +146,7 @@ const MenuComponent = () => {
               <li className={selectedOption === 'etapas' ? 'selected' : ''} onClick={() => handleOptionClick('etapas')}>Etapas</li>
               <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => handleOptionClick('production')}>Producción</li>
               <li className={selectedOption === 'production-register' ? 'selected' : ''} onClick={() => handleOptionClick('production-register')}>Registrar Producción</li>
+              <li className={selectedOption === 'dashboard' ? 'selected' : ''} onClick={() => handleOptionClick('dashboard')}>Materias Primas</li>
               <li className={selectedOption === 'predictions' ? 'selected' : ''} onClick={() => handleOptionClick('predictions')}>Predicciones</li>
               <li className={selectedOption === 'report' ? 'selected' : ''} onClick={() => handleOptionClick('report')}>Reporte</li>
               <li className={selectedOption === 'profile' ? 'selected' : ''} onClick={() => handleOptionClick('profile')}>Perfil</li>
@@ -154,6 +156,7 @@ const MenuComponent = () => {
           {isPlantChief && (
             <>
               <li className={selectedOption === 'inventory' ? 'selected' : ''} onClick={() => handleOptionClick('inventory')}>Inventario</li>
+              <li className={selectedOption === 'dashboard' ? 'selected' : ''} onClick={() => handleOptionClick('dashboard')}>Materias Primas</li>
               <li className={selectedOption === 'drawBack' ? 'selected' : ''} onClick={() => handleOptionClick('drawBack')}>Inconvenientes</li>
               <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => handleOptionClick('production')}>Producción</li>
               <li className={selectedOption === 'production-stage' ? 'selected' : ''} onClick={() => handleOptionClick('production-stage')}>Producción Etapa</li>
@@ -174,6 +177,7 @@ const MenuComponent = () => {
         {selectedOption === 'sales' && <SalesComponent />}
         {selectedOption === 'etapas' && <StageComponent />}
         {selectedOption === 'drawBack' && <DrawBackComponent />}
+        {selectedOption === 'dashboard' && <DashboardComponent />}
         {selectedOption === 'predictions' && <PredictionsComponent />}
         {selectedOption === 'report' && <ReportComponent />}
         {selectedOption === 'management-roles' && <ManagementRolesComponent />}
