@@ -22,6 +22,8 @@ import TicTacToeComponent from './TicTacToeComponent';
 import AnimatedHelperComponent from '../components/AnimatedHelperComponent';  // Importa el componente de ayuda animado
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Para el icono de ayuda
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons'; // Icono de ayuda
+import ClockWidget from '../components/ClockWidget.js';  // Asegúrate de ajustar la ruta
+import WeatherWidget from '../components/WeatherWidget';  // Asegúrate de ajustar la ruta
 
 const MenuComponent = () => {
   const { user, roles, logout, needsPasswordReset } = useAuth();
@@ -166,7 +168,10 @@ const MenuComponent = () => {
           )}
         </ul>
       </nav>
-
+      <div className="container-widget">
+    <WeatherWidget />
+        <ClockWidget />
+      </div>
       <div className="menu-content">
         {selectedOption === 'management-user' && <ManagementUserComponent />}
         {selectedOption === 'profile' && <ProfileComponent />}

@@ -331,3 +331,79 @@ h1, h2 {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.container-widget {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 10px;
+  padding: 10px;
+
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.weather-widget {
+  text-align: left;
+}
+
+.weather-widget h2 {
+  text-align: left;
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.weather-widget .weather-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.weather-widget .weather-info .temperature {
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.weather-widget .weather-info .description {
+  font-size: 1em;
+  color: #666;
+}
+
+.weather-widget .weather-info .location {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.weather-widget .weather-info .icon {
+  width: 50px;
+  height: 50px;
+}
+
+.clock-widget {
+  text-align: center;
+  cursor: pointer; /* Cambia el cursor al pasar sobre el reloj para indicar que es clickeable */
+}
+
+.digital-clock {
+  font-size: 3em;
+  font-family: 'Digital-7', monospace; /* Asegúrate de tener esta fuente o reemplázala */
+  color: #333;
+}
+
+.analog-clock {
+  display: flex;
+  justify-content: center;
+  width: 200px;
+  height: 200px;
+}
+
+.analog-clock .react-clock {
+  border: 10px solid #007bff;
+  border-radius: 50%;
+}
+
+.react-clock {
+  width: 100%;
+  height: 100%;
+}
