@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import '../utils/StylesTotal.css';  // Asumiendo que el archivo CSS se llama StylesPC.css
+import '../utils/StylesTotal.css';  // Asegúrate de que el archivo CSS se llama StylesTotal.css
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 
 const ProductionStageComponent = () => {
   const [formData, setFormData] = useState({
@@ -33,7 +35,6 @@ const ProductionStageComponent = () => {
   const getProduccionEtapa = () => {
     Axios.get("http://localhost:3307/produccion-etapa")
       .then(response => {
-        console.log('Producción Etapa fetched:', response.data);
         setProduccionEtapa(response.data);
       })
       .catch(error => {
@@ -44,7 +45,6 @@ const ProductionStageComponent = () => {
   const getProducciones = () => {
     Axios.get("http://localhost:3307/produccion")
       .then(response => {
-        console.log('Producciones fetched:', response.data);
         setProducciones(response.data);
       })
       .catch(error => {
@@ -55,7 +55,6 @@ const ProductionStageComponent = () => {
   const getEtapas = () => {
     Axios.get("http://localhost:3307/etapas")
       .then(response => {
-        console.log('Etapas fetched:', response.data);
         setEtapas(response.data);
       })
       .catch(error => {
@@ -65,22 +64,17 @@ const ProductionStageComponent = () => {
 
   const updateProduccionEtapa = (e) => {
     e.preventDefault();
-
     const dataToSend = {
       ...formData,
       hora_inicio: formData.hora_inicio || null,
       hora_fin: formData.hora_fin || null,
     };
-
     if (dataToSend.estado === 'Finalizada') {
-      // Muestra el modal para registrar el producto terminado
       setShowModal(true);
       setProductoTerminado({ id_produccion: dataToSend.id_produccion, cantidad_disponible: '', nombre: '' });
     } else {
-      // Actualiza directamente la etapa si no está finalizando
       Axios.put(`http://localhost:3307/produccion-etapa/${currentProduccionEtapa.id}`, dataToSend)
         .then(response => {
-          console.log('Update response:', response.data);
           alert("Producción Etapa Actualizada");
           resetForm();
           getProduccionEtapa();
@@ -102,13 +96,11 @@ const ProductionStageComponent = () => {
     });
     setEditing(false);
     setCurrentProduccionEtapa(null);
-    console.log('Form reset');
   };
 
   const deleteProduccionEtapa = (id) => {
     Axios.delete(`http://localhost:3307/produccion-etapa/${id}`)
       .then(response => {
-        console.log('Delete response:', response.data);
         alert("Producción Etapa Eliminada");
         getProduccionEtapa();
       })
@@ -128,13 +120,11 @@ const ProductionStageComponent = () => {
       hora_fin: produccionEtapa.hora_fin,
       estado: produccionEtapa.estado
     });
-    console.log('Editing:', produccionEtapa);
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    console.log('Input change:', name, value);
   };
 
   const handleEstadoChange = (e) => {
@@ -153,7 +143,6 @@ const ProductionStageComponent = () => {
     }
 
     setFormData(updatedFormData);
-    console.log('Estado change:', updatedFormData);
   };
 
   const handleProductoTerminadoChange = (e) => {
@@ -180,7 +169,6 @@ const ProductionStageComponent = () => {
 
         Axios.put(`http://localhost:3307/produccion-etapa/${currentProduccionEtapa.id}`, updatedData)
           .then(response => {
-            console.log('Producción Etapa actualizada con estado Finalizada:', response.data);
             resetForm();
             getProduccionEtapa();
           })
@@ -193,10 +181,8 @@ const ProductionStageComponent = () => {
       });
   };
 
-  // Obtener la fecha actual en formato YYYY-MM-DD
   const fechaActual = new Date().toISOString().split('T')[0];
 
-  // Filtrar produccionEtapa según la fecha de las producciones
   const produccionEtapaFiltrada = produccionEtapa.filter(pe => {
     const produccion = producciones.find(p => p.id_produccion === pe.id_produccion);
     return produccion && produccion.fecha === fechaActual;
@@ -215,52 +201,43 @@ const ProductionStageComponent = () => {
   };
 
   return (
-    <div>
+    <div className="production-container">
+      <h1>Gestión de Etapa de Producción</h1>
       {editing && (
-        <form onSubmit={updateProduccionEtapa} className="s-form">
+        <form onSubmit={updateProduccionEtapa} className="production-form">
           <label>Id Registro</label>
-          <input type="text" name="id" value={formData.id} readOnly />
-          <br />
-          <br />
+          <input type="text" name="id" value={formData.id} readOnly className="input-field" />
           <label>Id Producción</label>
-          <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange} disabled>
+          <select name="id_produccion" value={formData.id_produccion} onChange={handleInputChange} disabled className="input-field">
             <option value="">Selecciona una Producción</option>
             {producciones.map(produccion => (
               <option key={produccion.id_produccion} value={produccion.id_produccion}>{produccion.id_produccion}</option>
             ))}
           </select>
-          <br />
-          <br />
           <label>Id Etapa</label>
-          <input type="text" name="id_etapa" value={formData.id_etapa} readOnly />
-          <br />
-          <br />
+          <input type="text" name="id_etapa" value={formData.id_etapa} readOnly className="input-field" />
           {formData.estado === 'Inicializada' && (
             <>
               <label>Hora Inicio</label>
-              <input type="time" name="hora_inicio" value={formData.hora_inicio} readOnly />
-              <br />
-              <br />
+              <input type="time" name="hora_inicio" value={formData.hora_inicio} readOnly className="input-field" />
             </>
           )}
           {formData.estado === 'Finalizada' && (
             <>
               <label>Hora Fin</label>
-              <input type="time" name="hora_fin" value={formData.hora_fin} readOnly />
-              <br />
-              <br />
+              <input type="time" name="hora_fin" value={formData.hora_fin} readOnly className="input-field" />
             </>
           )}
           <label>Estado</label>
-          <select name="estado" value={formData.estado} onChange={handleEstadoChange}>
+          <select name="estado" value={formData.estado} onChange={handleEstadoChange} className="input-field">
             <option value="">Selecciona un Estado</option>
             {getEstadoOptions().map(option => (
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
-          <br />
-          <br />
-          <button type="submit">Actualizar Producción Etapa</button>
+          <button type="submit" className="submit-button icon-button">
+            Actualizar Producción Etapa
+          </button>
         </form>
       )}
       <h2>Lista de Producción Etapa</h2>
@@ -287,8 +264,12 @@ const ProductionStageComponent = () => {
               <td data-label="Hora de Fin">{pe.hora_fin}</td>
               <td data-label="Estado">{pe.estado}</td>
               <td data-label="Acciones">
-                <button className="edit-button" onClick={() => editProduccionEtapa(pe)}>Editar</button>
-                <button className="delete-button" onClick={() => deleteProduccionEtapa(pe.id)}>Eliminar</button>
+                <button className="edit-button icon-button" onClick={() => editProduccionEtapa(pe)}>
+                  <FontAwesomeIcon icon={faEdit} />
+                </button>
+                <button className="delete-button icon-button delete-clicked" onClick={() => deleteProduccionEtapa(pe.id)}>
+                  <FontAwesomeIcon icon={faTrashAlt} />
+                </button>
               </td>
             </tr>
           ))}
@@ -301,23 +282,23 @@ const ProductionStageComponent = () => {
             <h2>Registrar Producto Terminado</h2>
             <form onSubmit={addProductoTerminado}>
               <label>ID Producción</label>
-              <input type="text" name="id_produccion" value={productoTerminado.id_produccion} readOnly />
-              <br />
+              <input type="text" name="id_produccion" value={productoTerminado.id_produccion} readOnly className="input-field" />
               <label>Cantidad Disponible</label>
-              <input type="number" name="cantidad_disponible" value={productoTerminado.cantidad_disponible} onChange={handleProductoTerminadoChange} required />
-              <br />
+              <input type="number" name="cantidad_disponible" value={productoTerminado.cantidad_disponible} onChange={handleProductoTerminadoChange} required className="input-field" />
               <label>Nombre</label>
-              <input type="text" name="nombre" value={productoTerminado.nombre} onChange={handleProductoTerminadoChange} required />
-              <br />
-              <button type="submit">Registrar</button>
-              <button type="button" onClick={() => setShowModal(false)}>Cancelar</button>
+              <input type="text" name="nombre" value={productoTerminado.nombre} onChange={handleProductoTerminadoChange} required className="input-field" />
+              <button type="submit" className="submit-button icon-button">
+                Registrar
+              </button>
+              <button type="button" className="cancel-button icon-button" onClick={() => setShowModal(false)}>
+                Cancelar
+              </button>
             </form>
           </div>
         </div>
       )}
     </div>
   );
-  
 };
 
 export default ProductionStageComponent;
