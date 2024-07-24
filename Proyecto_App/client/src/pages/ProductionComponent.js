@@ -261,51 +261,55 @@ const ProductionComponent = () => {
   return (
     <div className="production-container">
       <h1>Gestión de Producción</h1>
-      <form onSubmit={addProduccion} className="production-form">
-        <input type="date" name="fecha" value={formData.fecha} readOnly className="input-field" /> {/* Campo de fecha no modificable */}
-        {formErrors.fecha && <span className="error">{formErrors.fecha}</span>}
-        <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={e => setFormData({ ...formData, descripcion: e.target.value })} className="input-field" />
-        {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
+      {
+  !isPlantChief && (
+    <form onSubmit={addProduccion} className="production-form">
+      <input type="date" name="fecha" value={formData.fecha} readOnly className="input-field" /> {/* Campo de fecha no modificable */}
+      {formErrors.fecha && <span className="error">{formErrors.fecha}</span>}
+      <input type="text" name="descripcion" placeholder="Descripción" value={formData.descripcion} onChange={e => setFormData({ ...formData, descripcion: e.target.value })} className="input-field" />
+      {formErrors.descripcion && <span className="error">{formErrors.descripcion}</span>}
 
-        {formData.materiasPrimas.map((mp, index) => (
-          <div key={index} className="materia-prima">
-            <select 
-  name="id_materia_prima" 
-  value={mp.id_materia_prima} 
-  onChange={e => handleInputChange(e, index)} 
-  className="input-field"
->
-  <option value="">Seleccione una materia prima</option>
-  {materiasPrimas.map(mp => (
-    <option 
-      key={mp.id_materia_prima} 
-      value={mp.id_materia_prima}
-      disabled={getSelectedMateriasPrimas().includes(mp.id_materia_prima.toString())}
-    >
-      {mp.descripcion}
-    </option>
-  ))}
-</select>
-            {formErrors[`id_materia_prima_${index}`] && <span className="error">{formErrors[`id_materia_prima_${index}`]}</span>}
-            <input type="number" name="cantidad_uso" placeholder="Cantidad de uso" value={mp.cantidad_uso} onChange={e => handleInputChange(e, index)} className="input-field" />
-            {formErrors[`cantidad_uso_${index}`] && <span className="error">{formErrors[`cantidad_uso_${index}`]}</span>}
-            <button type="button" className="remove-button icon-button delete-clicked" onClick={() => handleRemoveMateriaPrima(index)}>
-              <FontAwesomeIcon icon={faTrashAlt} />
-            </button>
-          </div>
-        ))}
-        <button type="button" className="add-button icon-button" onClick={handleAddMateriaPrima}>
-          <FontAwesomeIcon icon={faPlus} /> Añadir Materia Prima
-        </button>
-        <button type="submit" className="submit-button icon-button">
-          {editing ? <><FontAwesomeIcon icon={faSave} /> Actualizar Producción</> : <><FontAwesomeIcon icon={faCheck} /> Registrar Producción</>}
-        </button>
-        {showCancelButton && (
-          <button type="button" className="cancel-button icon-button" onClick={resetForm}>
-            <FontAwesomeIcon icon={faTimes} /> Cancelar
+      {formData.materiasPrimas.map((mp, index) => (
+        <div key={index} className="materia-prima">
+          <select 
+            name="id_materia_prima" 
+            value={mp.id_materia_prima} 
+            onChange={e => handleInputChange(e, index)} 
+            className="input-field"
+          >
+            <option value="">Seleccione una materia prima</option>
+            {materiasPrimas.map(mp => (
+              <option 
+                key={mp.id_materia_prima} 
+                value={mp.id_materia_prima}
+                disabled={getSelectedMateriasPrimas().includes(mp.id_materia_prima.toString())}
+              >
+                {mp.descripcion}
+              </option>
+            ))}
+          </select>
+          {formErrors[`id_materia_prima_${index}`] && <span className="error">{formErrors[`id_materia_prima_${index}`]}</span>}
+          <input type="number" name="cantidad_uso" placeholder="Cantidad de uso" value={mp.cantidad_uso} onChange={e => handleInputChange(e, index)} className="input-field" />
+          {formErrors[`cantidad_uso_${index}`] && <span className="error">{formErrors[`cantidad_uso_${index}`]}</span>}
+          <button type="button" className="remove-button icon-button delete-clicked" onClick={() => handleRemoveMateriaPrima(index)}>
+            <FontAwesomeIcon icon={faTrashAlt} />
           </button>
-        )}
-      </form>
+        </div>
+      ))}
+      <button type="button" className="add-button icon-button" onClick={handleAddMateriaPrima}>
+        <FontAwesomeIcon icon={faPlus} /> Añadir Materia Prima
+      </button>
+      <button type="submit" className="submit-button icon-button">
+        {editing ? <><FontAwesomeIcon icon={faSave} /> Actualizar Producción</> : <><FontAwesomeIcon icon={faCheck} /> Registrar Producción</>}
+      </button>
+      {showCancelButton && (
+        <button type="button" className="cancel-button icon-button" onClick={resetForm}>
+          <FontAwesomeIcon icon={faTimes} /> Cancelar
+        </button>
+      )}
+    </form>
+  )
+}
 
       <table className="production-table">
         <thead>
@@ -335,13 +339,17 @@ const ProductionComponent = () => {
                 </ul>
               </td>
               <td data-label="Acciones">
-                <button className="edit-button icon-button" onClick={() => editProduccion(produccion)}>
-                  <FontAwesomeIcon icon={faEdit} />
-                </button>
-                <button className="delete-button icon-button delete-clicked" onClick={() => deleteProduccion(produccion.id_produccion)}>
-                  <FontAwesomeIcon icon={faTrashAlt} />
-                </button>
-              </td>
+  {!isPlantChief && (
+    <>
+      <button className="edit-button icon-button" onClick={() => editProduccion(produccion)}>
+        <FontAwesomeIcon icon={faEdit} />
+      </button>
+      <button className="delete-button icon-button delete-clicked" onClick={() => deleteProduccion(produccion.id_produccion)}>
+        <FontAwesomeIcon icon={faTrashAlt} />
+      </button>
+    </>
+  )}
+</td>
             </tr>
           ))}
         </tbody>
