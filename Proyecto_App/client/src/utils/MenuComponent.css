@@ -81,3 +81,28 @@
     padding: 15px;
   }
 }
+
+.help-container {
+  position: fixed; /* Fija el contenedor en la pantalla */
+  bottom: 20px; /* Espacio desde el borde inferior de la pantalla */
+  right: 20px; /* Espacio desde el borde derecho de la pantalla */
+  z-index: 1000; /* Asegura que el ícono esté encima de otros elementos */
+}
+
+.help-icon {
+  font-size: 32px; /* Tamaño del ícono */
+  color: #007bff; /* Color del ícono */
+  cursor: pointer; /* Cambia el cursor al pasar sobre el ícono */
+  transition: transform 0.3s ease, color 0.3s ease; /* Animación de transición */
+}
+
+.help-icon:hover {
+  transform: scale(1.2); /* Aumenta el tamaño al pasar el mouse */
+  color: #0056b3; /* Cambia el color al pasar el mouse */
+}
+
+.help-icon:active {
+  transform: scale(1.1); /* Aumenta un poco menos el tamaño al hacer clic */
+  color: #003d80; /* Cambia el color al hacer clic */
+}
+

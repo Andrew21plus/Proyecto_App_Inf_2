@@ -143,11 +143,11 @@ const MenuComponent = () => {
           {isManager && (
             <>
               <li className={selectedOption === 'inventory' ? 'selected' : ''} onClick={() => handleOptionClick('inventory')}>Inventario</li>
-              <li className={selectedOption === 'drawBack' ? 'selected' : ''} onClick={() => handleOptionClick('drawBack')}>Inconvenientes</li>
-              <li className={selectedOption === 'sales' ? 'selected' : ''} onClick={() => handleOptionClick('sales')}>Ventas</li>
-              <li className={selectedOption === 'etapas' ? 'selected' : ''} onClick={() => handleOptionClick('etapas')}>Etapas</li>
               <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => handleOptionClick('production')}>Producción</li>
               <li className={selectedOption === 'production-register' ? 'selected' : ''} onClick={() => handleOptionClick('production-register')}>Registrar Producción</li>
+              <li className={selectedOption === 'sales' ? 'selected' : ''} onClick={() => handleOptionClick('sales')}>Ventas</li>
+              <li className={selectedOption === 'etapas' ? 'selected' : ''} onClick={() => handleOptionClick('etapas')}>Etapas</li>
+              <li className={selectedOption === 'drawBack' ? 'selected' : ''} onClick={() => handleOptionClick('drawBack')}>Inconvenientes</li>
               <li className={selectedOption === 'dashboard' ? 'selected' : ''} onClick={() => handleOptionClick('dashboard')}>Materias Primas</li>
               <li className={selectedOption === 'predictions' ? 'selected' : ''} onClick={() => handleOptionClick('predictions')}>Predicciones</li>
               <li className={selectedOption === 'report' ? 'selected' : ''} onClick={() => handleOptionClick('report')}>Reporte</li>
@@ -158,10 +158,10 @@ const MenuComponent = () => {
           {isPlantChief && (
             <>
               <li className={selectedOption === 'inventory' ? 'selected' : ''} onClick={() => handleOptionClick('inventory')}>Inventario</li>
-              <li className={selectedOption === 'dashboard' ? 'selected' : ''} onClick={() => handleOptionClick('dashboard')}>Materias Primas</li>
-              <li className={selectedOption === 'drawBack' ? 'selected' : ''} onClick={() => handleOptionClick('drawBack')}>Inconvenientes</li>
               <li className={selectedOption === 'production' ? 'selected' : ''} onClick={() => handleOptionClick('production')}>Producción</li>
               <li className={selectedOption === 'production-stage' ? 'selected' : ''} onClick={() => handleOptionClick('production-stage')}>Producción Etapa</li>
+              <li className={selectedOption === 'drawBack' ? 'selected' : ''} onClick={() => handleOptionClick('drawBack')}>Inconvenientes</li>
+              <li className={selectedOption === 'dashboard' ? 'selected' : ''} onClick={() => handleOptionClick('dashboard')}>Materias Primas</li>
               <li className={selectedOption === 'profile' ? 'selected' : ''} onClick={() => handleOptionClick('profile')}>Perfil</li>
               <li onClick={handleLogout}>Cerrar Sesión</li>
             </>
@@ -187,13 +187,16 @@ const MenuComponent = () => {
         {selectedOption === 'report' && <ReportComponent />}
         {selectedOption === 'management-roles' && <ManagementRolesComponent />}
       </div>
+      <div className="help-container">
+        <span className="help-icon" onClick={toggleHelper}>
+        <FontAwesomeIcon icon={faQuestionCircle} />
+        </span>
+      </div>
+
       <br/>
       <footer className="footer">
         <span className="easter-egg" onClick={toggleModal}>
           &copy; 2024 optifab. Todos los derechos reservados.
-        </span>
-        <span className="help-icon" onClick={toggleHelper}>
-          <FontAwesomeIcon icon={faQuestionCircle} />
         </span>
       </footer>
 
