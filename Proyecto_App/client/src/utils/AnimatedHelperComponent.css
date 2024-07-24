@@ -29,24 +29,24 @@
   .bubble {
     position: absolute;
     bottom: 120%;
-    left: 50%;
+    left: 40%;
     transform: translateX(-50%);
     width: 200px;
-    padding: 10px;
+    padding: 15px;
     background: white;
     border: 2px solid #ccc;
-    border-radius: 10px;
+    border-radius: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
   
   .bubble p {
-    margin: 0;
+    margin: 7px;
   }
   
   .close-button {
-    margin-top: 10px;
+    margin-top: 1px;
     background: none;  /* Sin fondo */
-    color: #007bff;
+    color: #095fbb;
     border: none;
     padding: 0;
     cursor: pointer;
@@ -54,6 +54,6 @@
   }
   
   .close-button:hover {
-    color: #0056b3;
+    color: #033165;
   }
   
